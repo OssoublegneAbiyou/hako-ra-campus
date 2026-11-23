@@ -1,0 +1,33 @@
+== création
+Sauvegarde campus-20261123-072546 : 68 tables, 6 fichier(s), 414 Ko chiffrés. 0 ancienne(s) sauvegarde(s) supprimée(s).
+== liste
+campus-20261123-072546
+1 sauvegarde(s). Dernière réussite : 2026-11-23T07:25:49+00:00.
+== vérification approfondie
+Sauvegarde campus-20261123-072546 intacte : manifeste signé, fichiers chiffrés conformes à leur empreinte. Créée le 2026-11-23T07:25:49+00:00, version « non versionnée ».
+Export déchiffré : 389 Ko, 68 définitions de table, 0 table(s) manquante(s), export complet.
+== restauration des fichiers dans un dossier isolé
+Fichiers : 6 restauré(s), conformes au manifeste.
+Base non restaurée : aucune base isolée n’a été fournie. Cet exercice ne vaut pas restauration complète.
+== restauration complète sans base isolée
+Base de destination inaccessible : elle doit exister et être ouverte au compte de la base. Créez-la d’abord, vide.
+code 1
+== refus de la base en service
+La base de destination doit être une base isolée, différente de la base en service.
+code 1
+== mauvaise clé
+Manifeste altéré ou signé avec une autre clé : sauvegarde refusée.
+code 1
+== export chiffré altéré d'un octet
+Fichier de sauvegarde manquant ou altéré : base.sql.enc.
+code 1
+== manifeste modifié à la main
+Manifeste altéré ou signé avec une autre clé : sauvegarde refusée.
+code 1
+== après remise en état
+Sauvegarde campus-20261123-072546 intacte : manifeste signé, fichiers chiffrés conformes à leur empreinte. Créée le 2026-11-23T07:25:49+00:00, version « non versionnée ».
+Export déchiffré : 389 Ko, 68 définitions de table, 0 table(s) manquante(s), export complet.
+code 0
+== supervision : sauvegarde
+Version en service : non versionnée
+OK Sauvegarde quotidienne — Dernière réussite il y a 0 h (seuil 26 h).

@@ -1,0 +1,202 @@
+Schéma effectivement lu sur MySQL 8.4.7, base Campus de développement dédiée. Aucune donnée de ligne.
+Table	Create Table
+users	CREATE TABLE `users` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`),
+  KEY `users_status_index` (`status`),
+  CONSTRAINT `users_status_check` CHECK ((`status` in (_utf8mb4'active',_utf8mb4'suspended')))
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+institutions	CREATE TABLE `institutions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country_code` char(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'CI',
+  `timezone` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Africa/Abidjan',
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `institutions_code_unique` (`code`),
+  KEY `institutions_archived_at_index` (`archived_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+personal_spaces	CREATE TABLE `personal_spaces` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `owner_id` bigint unsigned NOT NULL,
+  `timezone` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Africa/Abidjan',
+  `preferences` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `personal_spaces_owner_id_unique` (`owner_id`),
+  CONSTRAINT `personal_spaces_owner_id_foreign` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+academic_years	CREATE TABLE `academic_years` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `institution_id` bigint unsigned NOT NULL,
+  `code` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `starts_on` date NOT NULL,
+  `ends_on` date NOT NULL,
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `academic_years_institution_id_code_unique` (`institution_id`,`code`),
+  UNIQUE KEY `years_context_unique` (`id`,`institution_id`),
+  KEY `academic_years_archived_at_index` (`archived_at`),
+  CONSTRAINT `academic_years_institution_id_foreign` FOREIGN KEY (`institution_id`) REFERENCES `institutions` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `years_dates_check` CHECK ((`ends_on` > `starts_on`))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+periods	CREATE TABLE `periods` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `institution_id` bigint unsigned NOT NULL,
+  `academic_year_id` bigint unsigned NOT NULL,
+  `parent_period_id` bigint unsigned DEFAULT NULL,
+  `code` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `starts_on` date NOT NULL,
+  `ends_on` date NOT NULL,
+  `weight` decimal(10,4) NOT NULL DEFAULT '1.0000',
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `periods_academic_year_id_code_unique` (`academic_year_id`,`code`),
+  UNIQUE KEY `periods_context_unique` (`id`,`institution_id`,`academic_year_id`),
+  KEY `periods_year_fk` (`academic_year_id`,`institution_id`),
+  KEY `periods_parent_fk` (`parent_period_id`,`institution_id`,`academic_year_id`),
+  KEY `periods_archived_at_index` (`archived_at`),
+  CONSTRAINT `periods_parent_fk` FOREIGN KEY (`parent_period_id`, `institution_id`, `academic_year_id`) REFERENCES `periods` (`id`, `institution_id`, `academic_year_id`) ON DELETE RESTRICT,
+  CONSTRAINT `periods_year_fk` FOREIGN KEY (`academic_year_id`, `institution_id`) REFERENCES `academic_years` (`id`, `institution_id`) ON DELETE RESTRICT,
+  CONSTRAINT `periods_dates_check` CHECK (((`ends_on` >= `starts_on`) and (`weight` > 0)))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+groups	CREATE TABLE `groups` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `institution_id` bigint unsigned NOT NULL,
+  `academic_year_id` bigint unsigned NOT NULL,
+  `code` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `groups_academic_year_id_code_unique` (`academic_year_id`,`code`),
+  UNIQUE KEY `groups_context_unique` (`id`,`institution_id`,`academic_year_id`),
+  KEY `groups_year_fk` (`academic_year_id`,`institution_id`),
+  KEY `groups_archived_at_index` (`archived_at`),
+  CONSTRAINT `groups_year_fk` FOREIGN KEY (`academic_year_id`, `institution_id`) REFERENCES `academic_years` (`id`, `institution_id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+subjects	CREATE TABLE `subjects` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `institution_id` bigint unsigned NOT NULL,
+  `code` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `subjects_institution_id_code_unique` (`institution_id`,`code`),
+  UNIQUE KEY `subjects_context_unique` (`id`,`institution_id`),
+  KEY `subjects_archived_at_index` (`archived_at`),
+  CONSTRAINT `subjects_institution_id_foreign` FOREIGN KEY (`institution_id`) REFERENCES `institutions` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+memberships	CREATE TABLE `memberships` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `scope` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `institution_id` bigint unsigned DEFAULT NULL,
+  `academic_year_id` bigint unsigned DEFAULT NULL,
+  `role` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `local_identifier` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `starts_at` datetime NOT NULL,
+  `ends_at` datetime DEFAULT NULL,
+  `suspended_at` datetime DEFAULT NULL,
+  `revoked_at` datetime DEFAULT NULL,
+  `scope_key` varchar(100) COLLATE utf8mb4_unicode_ci GENERATED ALWAYS AS (concat(`scope`,_utf8mb4':',coalesce(`institution_id`,0),_utf8mb4':',coalesce(`academic_year_id`,0))) STORED,
+  `current_slot` tinyint unsigned GENERATED ALWAYS AS ((case when (`status` <> _utf8mb4'closed') then 1 else NULL end)) STORED,
+  `current_local_identifier` varchar(100) COLLATE utf8mb4_unicode_ci GENERATED ALWAYS AS ((case when ((`status` <> _utf8mb4'closed') and (`role` = _utf8mb4'learner')) then `local_identifier` else NULL end)) STORED,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `memberships_current_unique` (`user_id`,`scope_key`,`role`,`current_slot`),
+  UNIQUE KEY `memberships_local_identifier_unique` (`institution_id`,`academic_year_id`,`current_local_identifier`),
+  UNIQUE KEY `memberships_context_unique` (`id`,`user_id`,`institution_id`,`academic_year_id`,`role`),
+  KEY `memberships_user_access_index` (`user_id`,`status`,`scope`),
+  KEY `memberships_institution_index` (`institution_id`,`academic_year_id`,`status`),
+  KEY `memberships_year_fk` (`academic_year_id`,`institution_id`),
+  CONSTRAINT `memberships_institution_id_foreign` FOREIGN KEY (`institution_id`) REFERENCES `institutions` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `memberships_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `memberships_year_fk` FOREIGN KEY (`academic_year_id`, `institution_id`) REFERENCES `academic_years` (`id`, `institution_id`) ON DELETE RESTRICT,
+  CONSTRAINT `memberships_scope_check` CHECK ((((`scope` = _utf8mb4'institution') and (`institution_id` is not null) and (`academic_year_id` is not null) and (`role` in (_utf8mb4'learner',_utf8mb4'teacher',_utf8mb4'institution_admin'))) or ((`scope` = _utf8mb4'platform') and (`institution_id` is null) and (`academic_year_id` is null) and (`role` in (_utf8mb4'catalogue_editor',_utf8mb4'platform_admin')) and (`local_identifier` is null)))),
+  CONSTRAINT `memberships_state_check` CHECK (((`status` in (_utf8mb4'active',_utf8mb4'suspended',_utf8mb4'closed')) and ((`ends_at` is null) or (`ends_at` >= `starts_at`)) and ((`status` <> _utf8mb4'suspended') or (`suspended_at` is not null)) and ((`status` <> _utf8mb4'closed') or (`ends_at` is not null) or (`revoked_at` is not null)) and ((`status` <> _utf8mb4'active') or (`revoked_at` is null)) and ((`local_identifier` is null) or (char_length(trim(`local_identifier`)) > 0))))
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+enrollments	CREATE TABLE `enrollments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `membership_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `institution_id` bigint unsigned NOT NULL,
+  `academic_year_id` bigint unsigned NOT NULL,
+  `group_id` bigint unsigned NOT NULL,
+  `membership_role` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'learner',
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `starts_at` datetime NOT NULL,
+  `ends_at` datetime DEFAULT NULL,
+  `closed_at` datetime DEFAULT NULL,
+  `current_slot` tinyint unsigned GENERATED ALWAYS AS ((case when (`status` = _utf8mb4'active') then 1 else NULL end)) STORED,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `enrollments_current_unique` (`membership_id`,`group_id`,`current_slot`),
+  KEY `enrollments_user_context_index` (`user_id`,`institution_id`,`academic_year_id`),
+  KEY `enrollments_membership_fk` (`membership_id`,`user_id`,`institution_id`,`academic_year_id`,`membership_role`),
+  KEY `enrollments_group_fk` (`group_id`,`institution_id`,`academic_year_id`),
+  CONSTRAINT `enrollments_group_fk` FOREIGN KEY (`group_id`, `institution_id`, `academic_year_id`) REFERENCES `groups` (`id`, `institution_id`, `academic_year_id`) ON DELETE RESTRICT,
+  CONSTRAINT `enrollments_membership_fk` FOREIGN KEY (`membership_id`, `user_id`, `institution_id`, `academic_year_id`, `membership_role`) REFERENCES `memberships` (`id`, `user_id`, `institution_id`, `academic_year_id`, `role`) ON DELETE RESTRICT,
+  CONSTRAINT `enrollments_state_check` CHECK (((`membership_role` = _utf8mb4'learner') and (`status` in (_utf8mb4'active',_utf8mb4'closed')) and ((`ends_at` is null) or (`ends_at` >= `starts_at`)) and ((`status` <> _utf8mb4'closed') or (`closed_at` is not null))))
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Create Table
+teaching_assignments	CREATE TABLE `teaching_assignments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `membership_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `institution_id` bigint unsigned NOT NULL,
+  `academic_year_id` bigint unsigned NOT NULL,
+  `group_id` bigint unsigned NOT NULL,
+  `subject_id` bigint unsigned NOT NULL,
+  `membership_role` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'teacher',
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `starts_at` datetime NOT NULL,
+  `ends_at` datetime DEFAULT NULL,
+  `closed_at` datetime DEFAULT NULL,
+  `current_slot` tinyint unsigned GENERATED ALWAYS AS ((case when (`status` = _utf8mb4'active') then 1 else NULL end)) STORED,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `teaching_current_unique` (`membership_id`,`group_id`,`subject_id`,`current_slot`),
+  KEY `teaching_user_context_index` (`user_id`,`institution_id`,`academic_year_id`),
+  KEY `teaching_membership_fk` (`membership_id`,`user_id`,`institution_id`,`academic_year_id`,`membership_role`),
+  KEY `teaching_group_fk` (`group_id`,`institution_id`,`academic_year_id`),
+  KEY `teaching_subject_fk` (`subject_id`,`institution_id`),
+  CONSTRAINT `teaching_group_fk` FOREIGN KEY (`group_id`, `institution_id`, `academic_year_id`) REFERENCES `groups` (`id`, `institution_id`, `academic_year_id`) ON DELETE RESTRICT,
+  CONSTRAINT `teaching_membership_fk` FOREIGN KEY (`membership_id`, `user_id`, `institution_id`, `academic_year_id`, `membership_role`) REFERENCES `memberships` (`id`, `user_id`, `institution_id`, `academic_year_id`, `role`) ON DELETE RESTRICT,
+  CONSTRAINT `teaching_subject_fk` FOREIGN KEY (`subject_id`, `institution_id`) REFERENCES `subjects` (`id`, `institution_id`) ON DELETE RESTRICT,
+  CONSTRAINT `teaching_assignments_state_check` CHECK (((`membership_role` = _utf8mb4'teacher') and (`status` in (_utf8mb4'active',_utf8mb4'closed')) and ((`ends_at` is null) or (`ends_at` >= `starts_at`)) and ((`status` <> _utf8mb4'closed') or (`closed_at` is not null))))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

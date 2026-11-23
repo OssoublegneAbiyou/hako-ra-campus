@@ -1,0 +1,47 @@
+Navigateur : Edg/158.0.4370.33
+Données créées préfixées : [RECETTE 11230803]
+
+— Opportunités (independant, editeur, visiteur) —
+OK    Indépendant : recherche sans résultat enregistrée avec alerte quotidienne — aucune fiche avant publication ; recherche visible dans « Mes alertes »
+OK    Éditeur : brouillon créé avec source, conditions et date sans heure — fiche en brouillon, non publique
+OK    Éditeur : publication refusée sans acte de vérification, puis vérifiée et publiée — refus sans attestation ; publiée après attestation datée
+OK    Visiteur sans compte : la fiche publiée se trouve par la recherche du catalogue public — fiche lisible sans compte ; favori réservé au compte (false)
+OK    Indépendant : fiche ajoutée aux favoris
+OK    Éditeur : clôture prolongée sur la fiche publiée, avec nouvelle vérification — nouvelle date enregistrée : 2027-01-02
+NOTE  Cycle de rappels : code 0 ; notifications trouvées : Du nouveau pour une de vos recherches enregistrées Non lueOpportunités et favoris · 23 nov. 2026, 08:04« [RECE ## La date limite d’une opportunité que vous suivez a changé Non lueOpportunités et favoris · 23 nov. 2026, 08:04
+OK    Alertes : après un cycle de rappels, le centre de notifications annonce la fiche (synthèse et changement de date) — 2 notification(s) concernant la fiche
+
+— Notes et moyenne (independant) —
+NOTE  Bloc de la matière : [RECETTE 11230803] Matière recette Moyenne indicative : 12,67 / 20 · calculée sur 2 note(s) retenue(s) parmi 2 évaluation(s) · coefficient de matière 1 Coefficient de la matière Enregistrer le coefficient [RECETTE 11230803] Évaluation A Personnel 23 nov. 2026 
+OK    Moyenne : 14 sur 20 (coefficient 1) et 36 sur 60 (coefficient 2) affichent 12,67 — moyenne de la matière affichée : 12,67
+
+— Pièce jointe (independant) —
+NOTE  État du fichier déposé : En quarantaine, en attente d’analyse|false|true
+OK    Fichier : un PDF déposé sur une tâche est reçu, et reste non téléchargeable sans antivirus — reçu, état « En quarantaine, en attente d’analyse », aucun téléchargement proposé (antivirus non configuré)
+
+— Brouillon hors connexion et synchronisation (independant) —
+NOTE  Appareil : campus.offline.state → mode personal, compte lié | cœur hors connexion : object | iLa notice de confidentialité est à lireElle décrit ce que Campus fait de vos données. Rie / iCet appareilVos données de lecture sont copiées sur cet appareil. / iAppareil personnelDernière synchronisation : lundi 23 novembre 2026 à 08:05. Hors connexi / ○Aucun brouillon sur cet appareilCe que vous écrivez sans réseau apparaîtra ici, avec son 
+NOTE  Hors connexion : navigator.onLine = false ; message : ↯Vous êtes hors connexionLes pages déjà ouvertes restent affichées. Sur un appareil personnel, une tâche personnelle ou un retour  / ↯Hors connexionTâche enregistrée sur cet appareil. Elle sera envoyée au retour du réseau. / ○Aucune tâche datée pour ces filtres
+NOTE  Panneau des brouillons, encore hors connexion : Brouillons et envois de cet appareil Écrits sur cet appareil personnel. Ils ne sont visibles que par vous et ne sont sur le serveur qu’une fois marqués « Synchronisé ». Nouvelle tâche personnelle — [RECETTE 11230803] Tâc
+NOTE  Brouillons de l’appareil avant l’envoi : 
+OK    Synchronisation : tâche saisie sans réseau, gardée sur l’appareil, puis envoyée une seule fois — gardée hors connexion, puis une seule tâche sur le serveur
+
+— Établissement A (admin-a, apprenant-double, enseignant-a) —
+NOTE  Rapport du lot : Valide : prêt à être appliqué au brouillon
+NOTE  Lot après application : Appliqué au brouillon
+OK    Import : un fichier valide est analysé puis appliqué au brouillon, sans effet sur le planning en vigueur — lot « Appliqué au brouillon » ; cours du 2026-11-26 à 10:50 présent au brouillon
+OK    Publication du planning importé, confirmation nommant l’établissement — Publier la version 12 du planning de Établissement fictif A ?
+OK    Apprenant des deux établissements : le cours importé apparaît dans le contexte A, pas dans le contexte B — visible en A avec la provenance « Établissement » ; absent en B
+NOTE  Refus affiché : !Modification refuséeChevauchement de groupe, enseignant, salle ou agenda personnel. Confirmez explicitement avec un motif d’au moins 10 caractères.
+OK    Report d’une seule occurrence par l’administration, puis nouvelle publication — occurrence déplacée de 10:50 à 17:50 ; Publier la version 13 du planning de Établissement fictif A ?
+NOTE  Carte du cours reporté : Établissement Publié · version 13 Méthodologie fictive 17:50 – 17:59 Prévu Groupe fictif A 1 Salle : SALLE RECETTE
+OK    Apprenant : le cours reporté apparaît à son nouvel horaire — nouvel horaire 17:50 ; ancien horaire absent
+OK    Enseignant affecté : devoir publié pour son groupe
+NOTE  Devoir après « Terminer » : bouton « Rouvrir » proposé
+OK    Apprenant : le devoir du groupe arrive dans ses tâches et il le termine pour lui seul — terminé pour cet apprenant ; absent de son contexte B
+OK    Administration B : ni le cours importé ni le devoir de l’établissement A ne sont visibles — aucune donnée de A chez B
+OK    Aucune erreur JavaScript pendant la recette
+Comptes fictifs refermés.
+
+19 contrôle(s) réussi(s), 0 en échec.
+Toutes les données créées sont fictives et préfixées. L’annonce créée ici est une fiche d’essai : elle ne fait pas partie d’un catalogue réel.

@@ -1,0 +1,31 @@
+16 novembre 2026 — sorties réellement observées, données fictives seulement.
+Dépôt : <dossier du projet>
+PHP 8.4.15 explicite ; MySQL Campus dédié, aucun accès à une autre base.
+
+Migrations test puis dev, toutes additives :
+2026_11_16_081825_create_course_schedule_tables : DONE.
+2026_11_16_082300_add_materialization_horizon_to_course_series : DONE.
+2026_11_16_082701_add_uuid_subjects_to_audit_logs : DONE.
+php artisan migrate:status (dev et testing) : dix migrations Ran.
+Aucun down, rollback, migrate:fresh, DELETE de cours ou désactivation de contrainte.
+
+Tests ciblés après correction de la fixture de pagination :
+php artisan test --compact --filter=ScheduleTest : 23 tests réussis, 286 assertions, 12 867 ms.
+Un 24e test de priorité de révision différée et un 25e test de frontière de jour/semaine ont été ajoutés ensuite.
+Suite finale après toutes les modifications PHP :
+php artisan test --compact
+{"tool": "phpunit", "result": "passed", "tests": 107, "passed": 107, "assertions": 1470, "duration_ms": 39254}
+
+php vendor/bin/pint --dirty --format agent : code 0 ; fichiers du lot reformatés.
+npm run typecheck : code 0.
+npm run lint : code 0, aucun avertissement.
+npm run build : code 0, Vite 8.3.8, 607 modules, 478 ms.
+Git diff --check : code 0, seulement avertissements CRLF/LF hérités.
+Aucune dépendance ni lockfile modifié, aucun commit/push/déploiement.
+
+Corrections éprouvées : audit compatible UUID par ajout d'un champ ; date mutable de fixture copiée ; révision du futur prioritaire sur une ancienne révision différée ; génération et historique bornés ; aucune permission contournée.
+Navigateur : voir lot07-navigateur.txt et captures réelles. Compte fictif et ses deux appartenances fermés, sessions retirées, brouillon institutionnel annulé, références/historique conservés. Secret temporaire supprimé, serveur temporaire arrêté.
+Limites : publication/rappels/tâches/retours futurs non déclarés opérationnels, MFA absent, pas de CI distante ou production, concurrence simultanée et charge non mesurées.
+
+Complément final fuseau/lecture : cas passant minuit dans le fuseau du lecteur éprouvé dans le vrai navigateur (voir rapport/capture). Nouvelle suite complète 108/108, 1 503 assertions, 40 218 ms. Typecheck/lint/build répétés après le correctif ; PHP seulement test ajouté, Pint passé. Second compte de contrôle suspendu, ses sessions fermées, secret supprimé et serveur 8017 arrêté.
+Versions installées relues : Laravel 13.42.0, React 19.3.1, Inertia React 3.11.0, Tailwind 4.3.5, Vite 8.3.8, TypeScript 5.9.3. npm ls code 0 ; @laravel/multiplex est une dépendance optionnelle absente, aucun ajout nécessaire au build testé.

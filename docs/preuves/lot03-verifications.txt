@@ -1,0 +1,14 @@
+Compte-rendu des sorties réellement observées — 15 novembre 2026
+PHP utilisé : 8.4.15 ; MySQL : 8.4.7/InnoDB ; connexion de test hako_ra_campus_test.
+artisan migrate --env=testing --no-interaction : migration 2026_11_15_200703 exécutée.
+artisan db:seed --class=CampusDemoSeeder --env=testing --no-interaction : succès après correction des namespaces générés.
+artisan test --compact --filter=CampusFoundationTest : 20 tests, 77 assertions, réussite, 4 151 ms.
+artisan migrate --no-interaction : même migration exécutée sur hako_ra_campus_dev.
+artisan db:seed --class=CampusDemoSeeder --no-interaction : deux exécutions successives réussies (2 212 ms puis 1 870 ms).
+artisan test --compact : 33 tests, 265 assertions, réussite, 5 535 ms.
+vendor/bin/pint --dirty --format agent : indisponible sans Git.
+vendor/bin/pint --format agent puis vendor/bin/pint --test : succès.
+artisan migrate:status sur dev et test : les quatre migrations sont Ran.
+Métadonnées MySQL lues : FK composites, CHECK et index uniques présents.
+Fixtures dev : 2 institutions, 8 espaces personnels, 9 appartenances, 3 inscriptions et 2 affectations.
+Aucun migrate:fresh, rollback ou down exécuté ; aucune base d’un autre projet touchée.

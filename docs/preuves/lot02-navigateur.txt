@@ -1,0 +1,9 @@
+Contrôles locaux du 15 novembre 2026 — données fictives uniquement
+Navigateur : 157.0.4341.60
+21 pages contrôlées à 360/768/1440 px : aucun débordement, titre et contexte visibles.
+Erreur de champ, filtres, dialogue, cycle clavier, Échap, retour du focus, succès, pagination et saisie hors réseau : réussis.
+Zoom natif par raccourci, largeur avant/après : 1440/1440
+Zoom CSS 200 %, accueil et atelier : aucun débordement.
+Repli équivalent 200 % (1440 -> 720 px CSS, densité 2) : réussi.
+28 déplacements Tab sur mobile : focus non masqué par les barres fixes.
+Navigation mobile 5 liens, mouvement réduit, console et captures : réussis.

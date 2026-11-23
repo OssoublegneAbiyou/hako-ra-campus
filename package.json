@@ -1,0 +1,44 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint resources/js vite.config.js eslint.config.js --max-warnings=0",
+        "test:js": "node --test tests/js/*.test.mjs"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@tailwindcss/vite": "^4.0.0",
+        "@types/node": "^24.19.2",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
+        "@vitejs/plugin-react": "^6.3.0",
+        "concurrently": "^10.0.3",
+        "eslint": "^10.15.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.4.26",
+        "globals": "^16.5.0",
+        "laravel-vite-plugin": "^3.1",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.72.2",
+        "vite": "^8.0.0"
+    },
+    "optionalDependencies": {
+        "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "@inertiajs/react": "^3.11.0",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1"
+    },
+    "engines": {
+        "node": ">=22.12.0"
+    },
+    "overrides": {
+        "minimatch": "^11.0.8"
+    }
+}

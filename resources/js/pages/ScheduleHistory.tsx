@@ -1,0 +1,8 @@
+import { Head, Link } from '@inertiajs/react';
+import { Pagination } from '../components/ui/Collection';
+import CampusLayout from '../layouts/CampusLayout';
+type Snapshot={title:string;starts_at:string;ends_at:string;timezone:string;status:string;room:string|null};
+export default function ScheduleHistory({title,revisions,pagination}:{pagination:{page:number;total:number;previous:string|null;next:string|null};title:string;id:string;revisions:{version:number;at:string;reason:string;before:Snapshot|null;after:Snapshot}[]}) {
+    const describe=(s:Snapshot)=>`${s.title} · ${new Intl.DateTimeFormat('fr',{dateStyle:'medium',timeStyle:'short',timeZone:s.timezone}).format(new Date(s.starts_at))} à ${new Intl.DateTimeFormat('fr',{timeStyle:'short',timeZone:s.timezone}).format(new Date(s.ends_at))}${s.room?` · Salle ${s.room}`:''} — ${s.status==='active'?'Prévu':s.status==='cancelled'?'Annulé':'Exclu du calendrier'} (${s.timezone})`;
+    return <CampusLayout active="planning" title="Historique du cours"><Head title="Historique du cours"/><h1>{title}</h1><Link href="/planning">Retour au planning</Link><section className="surface"><h2>Historique conservé</h2><ul className="plain-list">{revisions.map(v=><li key={v.version}><strong>Version {v.version}</strong><p>{v.reason}</p>{v.before&&<p>Avant : {describe(v.before)}</p>}<p>Après : {describe(v.after)}</p><p>Enregistré le {new Intl.DateTimeFormat('fr',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v.at))}</p></li>)}</ul><Pagination currentPage={pagination.page} totalPages={pagination.total} previousHref={pagination.previous??undefined} nextHref={pagination.next??undefined}/></section></CampusLayout>;
+}

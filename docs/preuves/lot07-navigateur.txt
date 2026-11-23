@@ -1,0 +1,14 @@
+16 novembre 2026 — navigateur réel Edge local, backend Laravel et base dev dédiée, aucun mock réseau.
+Résultats observés du script temporaire Playwright externe au dépôt :
+{"browser":"157.0.4341.60","noOverflow":9,"login":true,"personalWeekly":true,"weekend":true,"rescheduleStableId":true,"cancel":true,"historyThreeVersions":true,"futureChange":true,"cssZoom200":true,"offlinePreserved":true,"institutionalDraft":true,"teacherReadOnly":true,"pageErrors":0}
+Compléments :
+{"calendarExclusionsFromForm":true,"holidaysFromForm":true,"duplicateErrorPreservesForm":true,"mobileFocusChecks":28,"mobileCourseCapture":true}
+Contrôle clavier explicite supplémentaire :
+{"mobileKeyboardVisibleUnmasked":40}
+Vues jour/semaine/liste × 360/768/1440 px ; images ordinateur/mobile/cours mobile relues.
+Limites : zoom CSS seulement, pas de validation du zoom natif ; ni lecteur d'écran ni Safari/iOS. Hors réseau = saisie conservée dans la page, aucune synchronisation promise. Aucun cours institutionnel publié.
+Compte fictif fermé après recette, cours institutionnel annulé avec historique, secret temporaire supprimé et serveur 8017 arrêté.
+
+Complément final sur le build final :
+{"viewerMidnightBoundary":true,"viewerWeekBoundary":true,"sameOccurrenceBothDays":true,"fullDatesDisplayed":true}
+Europe/Paris 16/11/2026 00:00–02:00 vers Africa/Abidjan 15/11 23:00–16/11 01:00. Même lien d'historique dans les deux jours et la semaine suivante. Capture lot07-fuseau.png relue. Second compte fictif suspendu et sessions fermées, secret temporaire supprimé, serveur arrêté.

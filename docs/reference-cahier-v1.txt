@@ -1,0 +1,1635 @@
+Source : Cahier_des_charges_HAKO_RA_Campus_v1.pdf
+SHA-256 : b93df71593876410f7d8d1102ceea7c8c902f2492e07536ebc352b164000b9ac
+Extraction : tableaux susceptibles de perdre leur mise en page.
+
+=== PAGE 1 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  1
+HAKO-RA CAMPUS
+Cahier des charges de HAKO RA 
+Campus
+Magic Schedule et Opportunités
+Version 1.0 • 15 novembre 2026 • Porteur du projet HAKO-RA
+Objet du document. Définir une application unique pour aider les élèves et les étudiants 
+à organiser leurs études et à trouver des opportunités pertinentes. Ce cahier des charges 
+couvre le produit, ses règles de fonctionnement, son architecture, sa réalisation, sa recette 
+et son lancement pilote en Côte d’Ivoire.
+Périmètre du MVP. Phase 1 Fondation, comprenant le module Magic Schedule, puis 
+Phase 2 Opportunités. Le lancement repose sur un site Web responsive et une PWA, avec 
+un compte unique utilisable en autonomie ou dans un établissement partenaire. Les deux 
+modes seront expérimentés en parallèle.
+Lecture et validation. Les décisions confirmées sont recensées au chapitre 2. Les 
+spécifications détaillées constituent la proposition de réalisation soumise à validation du 
+porteur. Les estimations, paramètres proposés et arbitrages ouverts sont identifiés comme 
+tels. Ce document sert de référence de conception et de consultation ; les engagements 
+de prix, de délai et de service nécessiteront un accord séparé.
+Destinataires. Porteur du projet, collaborateurs, équipe de développement, référents des 
+établissements pilotes et prestataires concernés.
+
+=== PAGE 2 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  2
+Sommaire
+Les titres du sommaire sont cliquables. Les références d’exigences et de recette 
+permettent de retrouver les règles de réalisation.
+1  Vision du produit et objectifs 3
+2  Décisions de référence et arbitrages 4
+3  Périmètre et découpage du MVP 5
+4  Acteurs et gouvernance 6
+5  Comptes et droits d’accès 7
+6  Établissements et organisation académique 9
+7  Emploi du temps et import Excel 10
+8  Retour après cours et tâches 11
+9  Notes et calcul des moyennes 12
+10  Notifications et échéances 13
+11  Catalogue des opportunités 14
+12  Recherche et suivi des opportunités 16
+13  Écrans et parcours utilisateur 17
+14  PWA et fonctionnement hors connexion 18
+15  Pièces jointes et ressources externes 19
+16  Architecture applicative proposée 20
+17  Modèle de données et intégrité 21
+18  Contrats de service et API 23
+19  Sécurité et protection des accès 24
+20  Données personnelles et conservation 25
+21  Qualité de service et accessibilité 26
+22  Exploitation et maintenance 28
+23  Stratégie de tests et recette 29
+24  Réalisation et livrables 32
+25  Budget et maîtrise des coûts 33
+26  Pilote et stratégie de lancement 34
+27  Risques et mesures de traitement 36
+28  Traçabilité des exigences 36
+29  Annexes de conception 37
+30  Références et validation du cahier 39
+
+=== PAGE 3 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  3
+1 Vision du produit et objectifs
+HAKO-RA Campus réunit l’organisation des études et la découverte d’opportunités dans un 
+même environnement. Magic Schedule en est le module fondateur : emploi du temps, 
+retour après les cours, devoirs, évaluations et suivi personnel. Opportunités ajoute une 
+sélection de bourses, concours, stages et formations, avec des informations vérifiables et 
+des alertes adaptées au profil.
+La cible initiale comprend les élèves du secondaire, les étudiants d’université et les 
+étudiants de grandes écoles. Le lancement vise la Côte d’Ivoire ; le modèle doit permettre 
+l’ajout progressif d’autres pays d’Afrique francophone sans reconstruire l’application. Le 
+produit doit rester utile à une personne dont l’établissement n’est pas partenaire.
+1 1 Problèmes à résoudre
+ Les emplois du temps, devoirs et dates d’évaluation sont dispersés entre cahiers, 
+messages et fichiers.
+ Après un cours, l’apprenant oublie de noter ce qui reste à faire et les points qu’il n’a 
+pas compris.
+ Les résultats existent sans synthèse exploitable ; les coefficients ou notes manquantes 
+créent des erreurs de calcul.
+ Les opportunités circulent tardivement, sans vérification suffisante de la source ou des 
+conditions d’éligibilité.
+ Les établissements ont besoin de diffuser des informations structurées sans 
+administrer une plateforme lourde.
+ La connexion Internet et les moyens financiers imposent une application légère et une 
+exploitation maîtrisée.
+1 2 Résultats attendus
+Un apprenant doit pouvoir consulter sa journée, enregistrer ses tâches, retrouver ses 
+notes et identifier une opportunité pertinente depuis son téléphone. Un établissement doit 
+pouvoir importer et publier ses horaires, inviter ses membres et suivre l’usage du service 
+sur son périmètre. L’équipe HAKO-RA doit pouvoir exploiter le service et maintenir le 
+catalogue sans développement à chaque nouvelle publication.
+Le MVP doit prouver une utilité régulière avant toute extension importante. Il ne promet ni 
+amélioration garantie des notes, ni admission, ni bourse. Les indicateurs de pilote 
+mesureront l’usage réel, la fiabilité technique et la volonté de poursuivre l’expérience.
+1 3 Principes de conception
+Une seule identité, une navigation commune et des modules progressifs. La donnée 
+personnelle appartient à un espace privé clairement distingué des données publiées par 
+l’établissement. Chaque opération importante laisse une trace et chaque notification doit 
+avoir une raison identifiable. Les fonctions essentielles ne dépendent pas d’une IA payante 
+ou d’un abonnement à un service de contenu.
+
+=== PAGE 4 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  4
+2 Décisions de référence et arbitrages
+2 1 Décisions confirmées
+Réf Décision Conséquence dans le cahier des charges
+D01 Une application unique sous HAKO-RA Campus Magic Schedule devient un module de Campus
+D02 Public élèves et étudiants Parcours secondaire et supérieur dès le cadrage
+D03 Lancement progressif par modules Fondation avant Opportunités
+D04 MVP limité à Fondation et Opportunités Academy reportée
+D05 Accès hybride Utilisation individuelle ou via un établissement
+D06 Compte unique Plusieurs appartenances et rôles sur une identité
+D07 Web responsive et PWA Priorité mobile sans application native au départ
+D08 Pilotes individuels et établissements en parallèle Deux cohortes et deux lectures des résultats
+D09 Organisation scolaire issue de Magic Schedule Planning, retour post-cours, devoirs, notes, moyennes et rappels
+D10 Import Excel initial Prévisualisation et validation avant publication
+D11 Rappel post-cours à 5 minutes par défaut Délai configurable par l’apprenant
+D12 Plusieurs canaux selon les établissements
+Architecture compatible courriel, SMS et 
+WhatsApp ; activation payante conditionnée 
+au budget
+D13 Confirmation des actions Retour explicite après action et confirmation préalable des opérations sensibles
+D14 Pièces jointes prévues Dépôt privé contrôlé et quotas
+D15 Quelques milliers d’utilisateurs visés Dimensionnement et tests de charge progressifs
+D16 Budget contraint et absence de paiement dans la V1 initiale Aucun encaissement dans le MVP ; coûts d’exploitation plafonnés
+2 2 Statut des prescriptions détaillées
+Le terme « doit » définit le comportement attendu dans cette proposition de référence. Il 
+ne transforme pas un choix technique proposé en décision déjà prise. La validation du 
+cahier fige une version du périmètre ; toute évolution ultérieure doit être chiffrée en effort, 
+en coût récurrent et en impact sur la recette.
+P0 désigne une exigence indispensable au MVP, P1 une amélioration après stabilisation, P2 
+une évolution ultérieure. Les exigences P0 de Fondation conditionnent son pilote ; les 
+exigences P0 d’Opportunités conditionnent l’ouverture de cette seconde phase. Le pilote 
+de Fondation peut donc commencer avant que tout le MVP soit terminé.
+
+=== PAGE 5 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  5
+2 3 Arbitrages restant à clôturer
+Réf Sujet Proposition de départ Moment de décision
+A01 Hébergement et région des données Infrastructure dédiée au projet ou environnement isolé Avant données réelles
+A02 Budget récurrent plafond Tableau de coûts au chapitre 25 Avant choix des prestataires
+A03 Établissements pilotes Un lycée et une structure du supérieur Avant import des effectifs
+A04 Équipe disponible et date de lancement Planning exprimé en effort et jalons Avant engagement calendaire
+A05 Identité visuelle et domaine
+Marque HAKO-RA Campus 
+avec Magic Schedule comme 
+module
+Avant maquettes 
+finales
+A06 Accès des mineurs et rôle des parents Mise en œuvre après validation du cadre applicable Avant inscription de mineurs
+A07 Canaux du premier pilote
+Centre de notifications, 
+courriel et Web Push 
+compatible
+Avant recette des 
+alertes
+A08 Coefficients et agrégation officielle Configuration par établissement Avant activation de calculs officiels
+A09 Quotas et conservation Valeurs proposées au chapitre 20 Avant mise en production
+A10 Modèle de revenus après pilote Validation commerciale sans paiement intégré au MVP Après résultats du pilote
+3 Périmètre et découpage du MVP
+3 1 Phase 1 Fondation
+Le socle comprend l’authentification, les profils, les rôles, les établissements et 
+appartenances, les années et périodes académiques, les matières, les classes ou groupes, 
+les imports, le tableau de bord et les paramètres. Magic Schedule apporte le planning 
+personnel et institutionnel, les exceptions de cours, le retour post-cours, les devoirs, les 
+notes, les moyennes indicatives et les rappels. La PWA fournit l’installation et un mode 
+hors connexion partiel explicite.
+Le parcours individuel doit fonctionner avec saisie manuelle du planning. Le parcours 
+établissement doit fonctionner avec import Excel, publication et gestion des 
+rattachements. Ces parcours partagent les mêmes fonctions personnelles ; l’établissement 
+n’accède pas automatiquement à tout ce qu’un apprenant saisit.
+3 2 Phase 2 Opportunités
+La seconde phase ajoute un catalogue éditorial vérifié, la recherche et les filtres, les 
+favoris, les alertes selon des critères explicites, le suivi personnel des démarches et les 
+outils de modération. La candidature s’effectue sur le site de l’organisateur ; Campus 
+mémorise seulement un statut choisi par l’utilisateur et ses propres échéances.
+
+=== PAGE 6 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  6
+L’import automatique massif, le classement par IA et la constitution de dossiers complets 
+de candidature sont hors MVP. L’administration manuelle structurée permet de lancer un 
+catalogue fiable avec peu de ressources.
+3 3 Fonctions hors MVP
+Élément Statut Condition de réexamen
+Academy et 
+bibliothèque de cours 
+hébergés
+Reporté Droits, sources et partenaires confirmés
+Réseau social, 
+messagerie publique, 
+forum
+P2 Capacité de modération et besoin démontré
+Paiement, abonnement 
+automatisé, facturation P2 Modèle commercial et prestataire validés
+Assistant IA, tutorat et 
+génération de cours P2 Budget et utilité mesurable
+Applications Android et 
+iOS natives P2 Limites PWA observées et financement
+Bulletin officiel et 
+système complet de 
+scolarité
+Hors MVP Projet distinct contractualisé
+Présences, sanctions, 
+frais scolaires, paie Hors MVP Besoin spécifique d’établissement
+Candidature déposée 
+pour l’utilisateur Hors MVP Mandat, intégrations et données nécessaires
+Moissonnage 
+automatique de sites et 
+contenus
+P2 Autorisation et analyse de la charge éditoriale
+Portail complet des 
+parents P1 Cadre de liaison et règles de visibilité validés
+L’architecture peut prévoir ces extensions, mais le MVP ne doit pas afficher de boutons 
+sans fonction ni imposer leur construction pour livrer les deux phases retenues.
+4 Acteurs et gouvernance
+4 1 Acteurs du produit
+L’apprenant individuel gère ses données sans validation d’un établissement. L’apprenant 
+rattaché reçoit les publications des groupes auxquels il appartient. Un enseignant 
+intervient uniquement sur ses groupes et matières. L’administrateur d’établissement 
+organise les référentiels et les publications de son établissement. L’administrateur 
+plateforme pilote le service, les incidents et les droits globaux. Un gestionnaire éditorial 
+peut recevoir des permissions limitées au catalogue Opportunités.
+Le parent ou responsable légal est un rôle prévu dans la trajectoire Magic Schedule. Pour 
+le MVP, le dispositif nécessaire à l’inscription de mineurs doit être défini avant le pilote ; la 
+
+=== PAGE 7 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  7
+consultation parentale détaillée relève de P1. Aucun lien parental ne peut être établi par la 
+seule connaissance du nom ou du matricule d’un apprenant.
+4 2 Répartition des responsabilités
+Domaine Responsable proposé Contribution attendue
+Vision et périmètre Porteur HAKO-RA Priorités, arbitrages et validation
+Conception et 
+réalisation Équipe de développement Produit, tests, sécurité et documentation
+Référentiels scolaires Référent établissement Qualité des groupes, horaires et coefficients
+Recette utilisateur Référents et apprenants pilotes Scénarios réels et remontées vérifiables
+Catalogue Opportunités Référent éditorial désigné Sources, vérifications, corrections et dates
+Exploitation Responsable technique désigné Sauvegardes, supervision et incidents
+Données personnelles Responsables à formaliser Finalités, droits, contrats et formalités
+Une personne peut cumuler plusieurs responsabilités au départ, mais chaque 
+responsabilité doit avoir un titulaire nommé avant le pilote. L’absence d’équipe éditoriale 
+empêche l’ouverture du catalogue ; l’absence de référent établissement empêche l’import 
+de son effectif.
+4 3 Gestion des évolutions
+Chaque demande de changement indique le problème, l’utilisateur concerné, la règle 
+proposée, les données affectées, le coût ponctuel, le coût récurrent et l’effet sur les tests. 
+Le porteur accepte, reporte ou rejette la demande. Les décisions sont conservées dans un 
+registre versionné ; la version livrée porte un numéro relié à la liste des exigences 
+couvertes.
+5 Comptes et droits d’accès
+5 1 Compte unique et contextes
+Une personne conserve le même compte lorsqu’elle change d’établissement ou cumule 
+plusieurs rôles. Les rôles sont portés par une appartenance à un établissement, un groupe 
+ou la plateforme. L’interface affiche le contexte actif et permet de le changer sans 
+déconnexion. Les permissions sont vérifiées côté serveur sur chaque opération.
+Le matricule est un identifiant local à l’établissement ; il ne constitue ni un mot de passe ni 
+un identifiant global fiable. Sa combinaison avec l’établissement peut servir au 
+rapprochement, après vérification. Une personne ne peut pas consulter un profil en 
+essayant des matricules successifs.
+
+=== PAGE 8 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  8
+5 2 Matrice de visibilité
+Ressource ou 
+action Apprenant Enseignant affecté Admin établissement Plateforme
+Planning personnel Son espace Aucun accès Aucun accès Support exceptionnel tracé
+Planning 
+institutionnel
+Lecture de ses 
+groupes
+Lecture et 
+signalement
+Gestion de son 
+périmètre
+Administration 
+technique
+Notes personnelles Gestion de ses notes Aucun accès Aucun accès Support exceptionnel tracé
+Notes publiées par 
+enseignant Ses résultats Ses groupes et matières Selon délégation explicite Support exceptionnel tracé
+Retour privé après 
+cours Son espace Aucun accès Agrégats autorisés seulement Accès exceptionnel tracé
+Devoir collectif Lecture et état personnel Gestion sur ses groupes Gestion déléguée Administration technique
+Pièce jointe privée Propriétaire Seulement si partagée Selon droit explicite Accès exceptionnel tracé
+Effectifs et invitations Son rattachement Liste utile de ses groupes Son établissement Gestion autorisée
+Favoris et démarches Son espace Aucun accès Aucun accès Support exceptionnel tracé
+Catalogue 
+Opportunités
+Lecture publique 
+ou connectée Lecture Proposition si autorisée Publication éditoriale
+L’administration plateforme n’utilise pas son rôle technique pour lire librement les 
+informations personnelles. Tout accès d’assistance exceptionnel exige un motif, une 
+permission dédiée et une entrée d’audit. Les exports appliquent les mêmes règles que les 
+écrans.
+5 3 Exigences du compte
+ IAM01 P0 Créer un compte avec une adresse électronique vérifiable et un mot de 
+passe ; expliquer la finalité des données demandées.
+ IAM02 P0 Prévoir pour les apprenants sans adresse individuelle une invitation et un 
+identifiant provisionné par l’établissement, après vérification du rattachement et 
+définition d’une récupération sûre. Aucun compte ne partage un secret commun à une 
+classe.
+ IAM03 P0 Permettre connexion, déconnexion, récupération, expiration des liens et 
+révocation des sessions. Ne pas révéler l’existence d’un compte dans les réponses de 
+récupération.
+ IAM04 P0 Refuser toute attribution autonome d’un rôle enseignant, administrateur ou 
+éditeur. Ces rôles sont accordés par une autorité habilitée.
+ IAM05 P0 Permettre à l’utilisateur de corriger ses informations et de choisir ses 
+préférences de notification.
+ IAM06 P0 Exporter les données personnelles accessibles et demander la suppression 
+du compte selon les règles de conservation.
+ IAM07 P0 Protéger les comptes privilégiés par une authentification multifacteur et des 
+codes de secours.
+ IAM08 P1 Ajouter Google ou Microsoft seulement après configuration et tests de 
+rapprochement ; l’authentification de base reste autonome.
+
+=== PAGE 9 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  9
+ IAM09 P0 À l’acceptation d’une invitation, proposer la connexion au compte existant 
+avant d’en créer un nouveau.
+ IAM10 P0 À la désactivation d’une appartenance, retirer immédiatement les accès du 
+périmètre ; conserver l’espace individuel autorisé.
+6 Établissements et organisation académique
+6 1 Référentiels
+Chaque établissement possède un nom, un code interne, un type, un pays, une ville, un 
+fuseau horaire, un statut et des contacts de gestion. Une année académique contient des 
+périodes configurables : trimestres, semestres ou périodes propres à la structure. Les 
+groupes représentent une classe, une promotion ou un sous-groupe. Une matière peut 
+être associée à plusieurs groupes et à des enseignants différents.
+Les dates d’année et de période ne sont pas imposées globalement. Le système vérifie les 
+chevauchements incohérents d’un même type de période, tout en autorisant les périodes 
+pédagogiques imbriquées si le modèle de l’établissement le prévoit. L’année est archivée 
+à sa clôture ; une nouvelle année réutilise les référentiels sélectionnés sans recopier les 
+notes et devoirs personnels.
+6 2 Rattachements et invitations
+ ORG01 P0 Créer un établissement uniquement depuis l’administration plateforme ; 
+une demande publique peut être enregistrée séparément.
+ ORG02 P0 Gérer années, périodes, groupes, matières et affectations des enseignants 
+dans son propre établissement.
+ ORG03 P0 Inviter par lien ou code temporaire non devinable ; pouvoir révoquer et 
+faire expirer l’invitation.
+ ORG04 P0 Vérifier le lien entre apprenant, matricule et groupe avant activation. Les 
+cas ambigus passent en attente de contrôle.
+ ORG05 P0 Interdire une appartenance en double dans le même établissement pour 
+une même année et un même rôle compatible.
+ ORG06 P0 Historiser les changements de groupe et les départs avec leurs dates 
+d’effet.
+ ORG07 P0 Permettre la sortie d’un établissement sans supprimer le compte ni les 
+données personnelles de l’apprenant.
+ ORG08 P0 Archiver les référentiels encore référencés plutôt que les supprimer 
+physiquement.
+ ORG09 P0 Permettre un usage individuel sans matricule obligatoire et sans création 
+d’un établissement fictif.
+6 3 Administration scolaire du planning
+Le groupe Administration gère les horaires institutionnels. Un enseignant signale une 
+indisponibilité ou une absence prévue ; le signalement ne modifie pas directement le 
+planning publié. L’administrateur accepte, modifie ou refuse la proposition, puis publie une 
+exception. Une annulation contient sa date d’effet et les destinataires.
+L’apprenant ne modifie pas le planning officiel. Il peut ajouter des événements personnels, 
+organiser son week-end et superposer des séances de travail. Une proposition de report ou 
+une remarque sur un horaire suit un circuit distinct de validation. Les conflits entre 
+événements personnels et cours officiels sont signalés sans effacement automatique.
+
+=== PAGE 10 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  10
+7 Emploi du temps et import Excel
+7 1 Modèle de cours
+Une série de cours définit le groupe, la matière, le jour de semaine, les heures locales, la 
+période de validité, les semaines actives, le lieu ou lien et l’enseignant. Chaque occurrence 
+reçoit un identifiant propre. Une exception peut annuler ou déplacer une occurrence sans 
+réécrire toute la série. Les tâches et retours post-cours restent reliés à l’occurrence 
+d’origine.
+Le fuseau est celui de l’établissement ou du planning individuel. Les instants sont 
+enregistrés avec une représentation cohérente en UTC et le fuseau d’origine. Le format 
+d’affichage suit la préférence utilisateur ; aucune échéance internationale n’est supposée 
+être en heure d’Abidjan.
+7 2 Comportements attendus
+ SCH01 P0 Afficher le planning par jour et semaine, avec une liste lisible sur petit 
+écran.
+ SCH02 P0 Saisir manuellement un planning individuel et ses récurrences.
+ SCH03 P0 Publier le planning institutionnel après prévisualisation ; afficher sa dernière 
+mise à jour.
+ SCH04 P0 Détecter les chevauchements pour le groupe, l’enseignant et la salle 
+lorsqu’elle est renseignée. Bloquer les doublons exacts ; soumettre les autres conflits à 
+une confirmation motivée.
+ SCH05 P0 Gérer vacances, jours non travaillés, cours annulés, remplacements et 
+reports.
+ SCH06 P0 Distinguer modification d’une occurrence et modification des occurrences 
+futures d’une série.
+ SCH07 P0 Répercuter une publication sur les destinataires autorisés et recalculer les 
+rappels non envoyés.
+ SCH08 P0 Conserver la version antérieure, l’auteur, la date de publication et le motif 
+de modification.
+ SCH09 P0 Permettre des événements personnels sur tous les jours, notamment le 
+week-end.
+ SCH10 P1 Exporter un calendrier au format ICS ; toute URL d’abonnement doit être 
+révocable.
+7 3 Chaîne d’import
+IMP01 P0 Fournir un modèle XLSX documenté. Les colonnes minimales sont code du 
+groupe, code matière, jour ou date, début et fin. Les colonnes facultatives comprennent 
+enseignant, salle, début et fin de validité, récurrence et identifiant externe. Le format de 
+date du modèle est annoncé et le fichier n’exécute aucune macro.
+IMP02 P0 Vérifier extension, type réel, taille, nombre de feuilles, nombre de lignes et 
+format des cellules. Valeurs de départ proposées : 5 Mo et 5 000 lignes par import. Les 
+références inconnues sont signalées ; leur création n’est jamais implicite sans validation.
+IMP03 P0 Exécuter une simulation, puis afficher lignes valides, erreurs, avertissements et 
+conflits. Chaque erreur précise feuille, ligne, colonne et cause. L’utilisateur peut 
+télécharger un rapport et corriger son fichier.
+IMP04 P0 Importer dans un brouillon sans effet sur les plannings actifs. Le MVP applique 
+un lot de manière atomique : si une erreur bloquante subsiste, aucune ligne de ce lot n’est 
+appliquée. Une sélection partielle, si ajoutée plus tard, sera explicite.
+
+=== PAGE 11 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  11
+IMP05 P0 Associer chaque import à un identifiant de lot et une empreinte. Une nouvelle 
+soumission identique ne doit pas créer de doublons. Une mise à jour s’appuie sur une clé 
+externe stable ; en son absence, la comparaison est présentée avant application.
+IMP06 P0 Publier après confirmation et permettre le retour à la version précédente du 
+planning. Le retour arrière annule les alertes futures correspondantes sans supprimer les 
+événements déjà consignés. Le fichier brut d’import est purgé selon la durée définie.
+8 Retour après cours et tâches
+8 1 Déclenchement du retour post-cours
+Le retour post-cours transforme la fin d’un cours en une courte action de suivi. Le délai par 
+défaut est de 5 minutes après l’heure de fin ; l’apprenant peut le modifier ou désactiver 
+ces rappels. La saisie demeure possible depuis le planning même si aucune notification n’a 
+été reçue.
+Le formulaire propose un résumé personnel du cours, le travail à effectuer, les points à 
+revoir, le niveau de compréhension et des pièces jointes. Les champs sont facultatifs, sauf 
+l’identification du cours. « Rien à signaler » permet de terminer rapidement. Le résumé, 
+les notes de compréhension et les difficultés sont privés par défaut ; aucune génération 
+automatique par IA n’est nécessaire.
+ CHK01 P0 Créer au plus un retour principal par apprenant et occurrence, modifiable 
+avec historique technique.
+ CHK02 P0 Proposer commencer, reporter ou ignorer ; afficher clairement l’état non 
+renseigné sans pénalité automatique.
+ CHK03 P0 Après enregistrement d’un retour, annuler les rappels post-cours encore en 
+attente pour cette occurrence.
+ CHK04 P0 Ne pas déclencher de nouveau retour sur un cours annulé. Si un cours est 
+reporté, déplacer le rappel et éviter une seconde création.
+ CHK05 P0 Enregistrer un brouillon local hors connexion avec son état de 
+synchronisation.
+ CHK06 P0 Réserver l’agrégation des difficultés à une fonction autorisée, sans révéler 
+le détail privé d’un apprenant.
+8 2 Devoirs et microtâches
+Une tâche possède un titre, une description facultative, une matière, une échéance 
+facultative, une priorité, un propriétaire et éventuellement un cours source. Un devoir 
+collectif est publié pour un groupe ; son état d’avancement est individuel. La création d’un 
+devoir ne signifie pas que la plateforme réceptionne une copie à corriger.
+ TSK01 P0 Créer une tâche personnelle depuis le tableau de bord, un cours ou le retour 
+post-cours.
+ TSK02 P0 Permettre à un enseignant affecté de publier un devoir pour son groupe et 
+sa matière.
+ TSK03 P0 Gérer les états à faire, en cours, terminé et abandonné. « En retard » est un 
+indicateur calculé, pas un état qui efface le travail effectué.
+ TSK04 P0 Décomposer une tâche en actions simples et proposer une prochaine action 
+réalisable en quelques minutes.
+ TSK05 P0 Reporter une échéance personnelle ; conserver l’échéance officielle d’un 
+devoir collectif avec un objectif personnel séparé.
+ TSK06 P0 Filtrer par date, matière, statut et priorité. Afficher les tâches sans échéance 
+séparément.
+
+=== PAGE 12 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  12
+ TSK07 P0 Lorsqu’un devoir collectif est modifié, notifier une seule fois la modification 
+pertinente et conserver les états individuels.
+ TSK08 P0 Confirmer la suppression d’une tâche ; permettre une restauration courte 
+proposée de 7 jours.
+ TSK09 P0 Désactiver les rappels d’une tâche terminée ou abandonnée et empêcher 
+leur réapparition lors d’une synchronisation.
+9 Notes et calcul des moyennes
+9 1 Données et provenance
+Chaque note contient une valeur, un barème strictement positif, une matière, une période, 
+une date, un coefficient strictement positif et une provenance. Une note saisie par 
+l’apprenant porte la mention « personnelle ». Une note publiée par un enseignant reste 
+distincte et ne peut pas être remplacée par l’apprenant.
+Le MVP propose par défaut un calcul indicatif. L’application ne doit afficher « résultat 
+officiel » qu’après validation d’un mode établissement, de ses règles et de sa procédure de 
+publication. Les résultats ne constituent pas un bulletin officiel dans ce périmètre.
+9 2 Règles de calcul proposées
+GRD01 P0 Normaliser chaque note sur 20 : note normalisée = 20 × valeur / barème. La 
+valeur doit être comprise entre 0 et le barème. Le coefficient de l’évaluation pondère sa 
+contribution ; le coefficient de la matière intervient ensuite dans la moyenne générale.
+GRD02 P0 Moyenne matière = somme des notes normalisées multipliées par leur 
+coefficient / somme des coefficients des notes retenues. Une note absente ou à venir n’est 
+pas un zéro. Les absences, dispenses et évaluations non rendues disposent d’un statut 
+distinct et leur traitement est configurable après validation de l’établissement.
+GRD03 P0 Moyenne générale = somme des moyennes matières multipliées par leur 
+coefficient matière / somme des coefficients des matières disposant d’une moyenne. 
+Afficher simultanément la couverture : matières et évaluations renseignées. En cas de 
+règle institutionnelle exigeant une période complète, afficher « provisoire » ou ne pas 
+publier la moyenne générale.
+GRD04 P0 Conserver une précision décimale suffisante en base et arrondir seulement à 
+l’affichage, par défaut à deux décimales. Ne pas calculer une moyenne annuelle à partir 
+d’un mélange de notes brutes et de moyennes déjà pondérées.
+GRD05 P0 Si les périodes ont des poids, calculer l’annuel selon ces poids documentés. 
+Sans règle annuelle validée, afficher uniquement les moyennes par période.
+9 3 Exemple de recette
+Évaluation Valeur Barème Coefficient Note sur 20
+Mathématiques 
+devoir 1 14 20 1 14
+Mathématiques 
+examen 36 60 2 12
+Mathématiques 
+devoir 2 Non renseignée 20 1 Exclue
+
+=== PAGE 13 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  13
+La moyenne de mathématiques vaut (14 × 1 + 12 × 2) / 3 = 12,666… soit 12,67 affiché. 
+Si le français vaut 15 avec coefficient matière 2 et les mathématiques ont coefficient 
+matière 3, la moyenne générale calculée sur les valeurs non arrondies vaut 13,60. L’ajout 
+d’une matière sans note n’abaisse pas silencieusement cette moyenne ; la couverture 
+incomplète est visible.
+9 4 Analyse des difficultés
+GRD06 P0 Identifier les matières à surveiller selon un seuil configurable et les 
+autoévaluations de compréhension. Expliquer le critère utilisé, par exemple « moyenne 
+renseignée sous 10 sur 20 ». Ne pas déduire une incapacité ou un diagnostic d’une série 
+de notes. GRD07 P0 Recalculer après ajout, correction ou suppression d’une note et 
+tracer toute modification d’une note institutionnelle.
+10 Notifications et échéances
+10 1 Canaux et préférences
+Le centre de notifications est la source consultable dans l’application. Le courriel et le Web 
+Push sont les canaux proposés au premier pilote. SMS et WhatsApp restent prévus par une 
+interface de prestataire, mais leur activation nécessite un budget, les autorisations 
+applicables et une configuration testée. Un canal non activé doit être présenté comme 
+indisponible.
+L’utilisateur choisit les catégories, canaux, plages silencieuses et fréquence des synthèses. 
+Les alertes de sécurité et messages nécessaires au compte sont distingués des 
+recommandations d’opportunités. Aucun refus de notification ne bloque l’utilisation du 
+planning.
+10 2 Catalogue des déclencheurs
+Événement Destinataire Règle proposée
+Fin de cours Apprenant concerné Fin plus 5 minutes, délai configurable
+Changement de 
+planning Membres concernés Après publication confirmée
+Tâche proche de 
+l’échéance Propriétaire J moins 1 et jour J, réglables
+Synthèse personnelle Apprenant abonné Une fois par jour à l’heure choisie
+Nouvelle opportunité 
+pertinente Utilisateur abonné Synthèse groupée par critères
+Opportunité favorite 
+bientôt close Propriétaire du favori J moins 7 et J moins 1, réglables
+Invitation ou sécurité du 
+compte Titulaire concerné Au déclenchement validé
+10 3 Fiabilité de l’envoi
+ NTF01 P0 Calculer les échéances côté serveur ; ne pas dépendre d’un onglet ouvert.
+ NTF02 P0 Dédupliquer par utilisateur, événement, occurrence, type de rappel et 
+canal. Une relance technique ne crée pas une nouvelle notification métier.
+
+=== PAGE 14 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  14
+ NTF03 P0 Journaliser les états programmé, en attente, accepté par le prestataire, 
+échec, annulé et expiré. Distinguer acceptation technique et lecture réelle. Si la 
+réponse du prestataire est perdue, conserver un état indéterminé et utiliser sa clé 
+d’idempotence ou sa réconciliation lorsqu’elle existe ; ne pas promettre une livraison 
+externe exactement une fois.
+ NTF04 P0 Reprendre les échecs temporaires avec délais croissants et nombre de 
+tentatives limité. Placer les échecs définitifs dans une file contrôlable.
+ NTF05 P0 Recontrôler statut, droits, préférences et date juste avant l’envoi, après 
+chaque modification ou annulation.
+ NTF06 P0 Expirer les rappels devenus inutiles. Proposition : rappel post-cours valable 
+2 heures ; au-delà, accès par la liste et synthèse éventuelle.
+ NTF07 P0 Regrouper les recommandations et plafonner les envois non critiques. Ne 
+pas envoyer de note chiffrée ou de difficulté privée sur un écran verrouillé par défaut.
+ NTF08 P0 Désabonner les abonnements push invalides et distinguer les appareils d’un 
+même compte.
+ NTF09 P0 Détecter les capacités du navigateur et expliquer l’installation ou la 
+permission requise. Sur iOS et iPadOS, le Web Push documenté par WebKit nécessite 
+notamment une application ajoutée à l’écran d’accueil et un accord après une action 
+de l’utilisateur [S2].
+La plateforme peut garantir sa mise en file et mesurer son délai de traitement. Elle ne peut 
+pas garantir la réception à la seconde sur un téléphone éteint, sans réseau ou dont les 
+notifications sont bloquées. Le centre de notifications conserve l’information utile.
+11 Catalogue des opportunités
+11 1 Contenu d’une fiche
+Le catalogue couvre les bourses, concours, stages et formations. Chaque fiche doit 
+permettre de comprendre ce qui est proposé, à qui l’offre s’adresse, ce qu’elle coûte 
+éventuellement et où vérifier l’information. Les catégories supplémentaires sont 
+administrables, mais leur ouverture doit correspondre à une capacité réelle de vérification.
+Champ Obligation Règle
+Titre et catégorie Oui Titre factuel sans promesse trompeuse
+Organisateur Oui Nom et identité vérifiable
+URL de la source officielle Oui Lien direct vers l’organisateur ou son annonce
+Description synthétique Oui Résumé rédigé sans reproduction non autorisée
+Public et niveau d’études Oui Critères connus ou mention non précisé
+Pays de résidence ou 
+nationalité Si applicable Critères distincts et non confondus
+Pays de destination et 
+modalité Oui Présentiel, à distance ou hybride
+Domaine et langues 
+exigées Si disponibles Conditions déclarées par la source
+Date d’ouverture et clôture Si disponibles Fuseau, précision et type de clôture
+Financement et reste à 
+charge Si disponibles Complet, partiel, non financé ou non précisé
+
+=== PAGE 15 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  15
+Champ Obligation Règle
+Frais de candidature Oui comme état Gratuit, payant ou non précisé
+Pièces demandées Si disponibles Liste indicative avec renvoi à la source
+Lien de candidature Si distinct URL externe contrôlée
+Vérification Oui Date, éditeur et niveau de contrôle
+Statut éditorial Oui Brouillon, à vérifier, publié, suspendu ou archivé
+Les valeurs manquantes ne sont pas inventées. Une date inconnue porte « date non 
+communiquée ». Une clôture continue ou « jusqu’à épuisement » est explicitement codée. 
+Une date sans heure est conservée comme telle ; l’interface recommande de vérifier la 
+source et ne fabrique pas une heure officielle de clôture.
+11 2 Parcours de publication
+OPP01 P0 L’éditeur crée un brouillon, complète la source, les conditions et les dates. 
+OPP02 P0 Un compte habilité vérifie l’annonce avant publication. Si une seule personne 
+assure les deux étapes, sa double action reste explicite et tracée.
+OPP03 P0 Publier une fiche seulement si la source est accessible ou si une preuve de 
+publication officielle a été conservée dans le cadre autorisé. L’affichage « source vérifiée le 
+» décrit un contrôle daté ; il ne garantit pas l’attribution d’une bourse ni l’absence de 
+changement ultérieur.
+OPP04 P0 Détecter les doublons par source, organisateur, titre normalisé et campagne. 
+Conserver séparément les éditions annuelles d’un même programme. OPP05 P0 Archiver 
+automatiquement après la clôture connue et ne plus présenter la fiche comme ouverte. 
+Une nouvelle édition n’écrase pas l’historique.
+OPP06 P0 Réviser une fiche lorsqu’un organisateur prolonge une échéance. La 
+modification conserve l’ancienne date, la nouvelle, la source et les alertes affectées. 
+OPP07 P0 Suspendre immédiatement une annonce suspecte et afficher une information 
+utile aux utilisateurs qui l’avaient enregistrée.
+11 3 Vérification et signalements
+Le contrôle éditorial examine l’identité de l’organisateur, l’adresse du site, la cohérence du 
+formulaire, les conditions, le financement, les frais et la date. Une demande de paiement 
+sur un compte personnel ou une collecte de documents disproportionnée déclenche une 
+vérification renforcée. Une opportunité peut être légitimement payante ; le coût doit alors 
+être visible.
+OPP08 P0 Permettre de signaler une fiche avec une catégorie : lien cassé, date erronée, 
+offre close, doute sur l’authenticité ou autre motif. Un signalement ne rend pas l’auteur 
+public. OPP09 P0 Gérer une file de modération avec affectation, statut, décision et 
+commentaire interne. OPP10 P0 Conserver l’historique éditorial et permettre la 
+dépublication sans suppression de la preuve de traitement du signalement.
+Les contenus pédagogiques externes éventuellement mentionnés restent des liens vers 
+leurs sources. Le catalogue ne doit pas devenir une bibliothèque de cours reproduits sans 
+autorisation. Toute future intégration Academy fera l’objet d’un cadrage distinct.
+
+=== PAGE 16 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  16
+12 Recherche et suivi des opportunités
+12 1 Recherche et rapprochement avec le profil
+SEA01 P0 Rechercher par mots du titre, organisateur et domaine. Filtrer par catégorie, 
+niveau, pays, modalité, financement, langue et date de clôture. Les filtres actifs sont 
+visibles et réinitialisables. SEA02 P0 Proposer un tri par pertinence explicable, date de 
+publication ou clôture proche, avec pagination.
+SEA03 P0 Permettre la consultation publique des fiches publiées. Le compte sert à 
+enregistrer des favoris, des critères et des démarches ; il n’est pas obligatoire pour vérifier 
+une information publique. SEA04 P0 Utiliser des règles simples de rapprochement : 
+niveau compatible, pays ou nationalité lorsque déclaré, domaine, modalité et langue. 
+Expliquer les critères correspondants.
+SEA05 P0 Distinguer « correspond à vos critères », « information à vérifier » et « critère 
+non satisfait ». Une donnée de profil absente ne doit pas être assimilée à une inéligibilité 
+certaine. Les critères sensibles ne sont pas déduits automatiquement. Le système ne 
+promet jamais une éligibilité définitive.
+12 2 Favoris et alertes
+ FAV01 P0 Ajouter ou retirer un favori sans doublon, sur tous les appareils après 
+synchronisation.
+ FAV02 P0 Afficher les favoris ouverts, bientôt clos, expirés et suspendus avec un filtre 
+explicite.
+ FAV03 P0 Enregistrer une recherche et choisir sa fréquence d’alerte. Autoriser l’arrêt 
+des alertes sans perdre les favoris.
+ FAV04 P0 Ne pas renvoyer la même annonce à chaque exécution d’une recherche 
+enregistrée ; une mise à jour importante peut créer une notification identifiée comme 
+telle.
+ FAV05 P0 Prévenir d’un changement d’échéance d’un favori et supprimer les rappels 
+obsolètes.
+12 3 Suivi personnel des démarches
+APP01 P0 Créer une démarche privée à partir d’une fiche. États proposés : à étudier, 
+dossier en préparation, envoyée, en attente, retenue, non retenue et abandonnée. Les 
+passages sont manuels ; cliquer sur un lien externe ne suffit pas à déclarer une 
+candidature envoyée.
+APP02 P0 Ajouter une échéance personnelle et une liste de pièces à préparer sans 
+déposer de passeport, document bancaire ou dossier sensible dans le MVP. Les pièces 
+jointes de cours ne justifient pas un coffre documentaire de candidature. APP03 P0 
+Conserver une note personnelle courte et permettre sa suppression.
+APP04 P0 Afficher « candidater sur le site de l’organisateur » avec l’adresse de 
+destination. Aucun identifiant Campus, mot de passe ou donnée privée n’est transmis 
+automatiquement. APP05 P0 Après archivage de l’annonce, conserver la démarche 
+personnelle et un résumé daté suffisant pour comprendre l’historique.
+
+=== PAGE 17 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  17
+13 Écrans et parcours utilisateur
+13 1 Navigation
+Sur mobile, la navigation principale proposée comprend Accueil, Planning, Tâches, 
+Opportunités et Profil. Les Notes sont accessibles depuis l’Accueil et le menu d’études ; la 
+structure définitive sera vérifiée en test utilisateur. Les outils d’établissement et de 
+publication ne sont visibles que pour les rôles concernés. Le changement de contexte est 
+toujours identifiable.
+Écran Contenu principal Action prioritaire
+Présentation publique Utilité, deux modes d’accès, opportunités et aide Commencer ou se connecter
+Inscription et 
+rattachement
+Identité minimale, invitation 
+éventuelle et consentements Activer son espace
+Accueil Cours du jour, prochaines tâches et échéances Faire la prochaine action
+Planning Jour, semaine, sources et changements Ouvrir un cours
+Détail d’un cours Horaire, matière, lieu, devoirs et retour Renseigner le retour
+Retour post-cours Travail, compréhension et points à revoir Enregistrer
+Tâches Liste filtrable et actions rapides Ajouter ou terminer
+Notes Évaluations, moyennes et couverture Ajouter ou consulter
+Catalogue Recherche, filtres et clôtures Vérifier une fiche
+Détail opportunité Conditions, source, dates et frais Enregistrer ou candidater
+Mes démarches États et échéances personnelles Préparer la prochaine étape
+Notifications Informations datées et préférences Consulter ou régler
+Administration 
+établissement
+Référentiels, imports, 
+invitations et publications Publier un lot vérifié
+Administration 
+éditoriale
+Brouillons, vérifications et 
+signalements Valider une publication
+13 2 Parcours individuel de référence
+L’utilisateur crée son compte, choisit son niveau et son fuseau puis ajoute ses matières et 
+son planning. Il active les rappels qu’il souhaite. Après un cours, il enregistre un devoir et 
+un point à revoir ; il retrouve sa prochaine action sur l’Accueil. Il ajoute ensuite une note et 
+consulte une moyenne expliquée. Dans Opportunités, il filtre le catalogue, vérifie la source 
+d’une offre, l’enregistre et suit sa préparation.
+
+=== PAGE 18 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  18
+La première valeur doit être obtenue avant toute demande longue de profil. Proposition de 
+test : un utilisateur novice doit pouvoir créer un cours et une tâche en moins de 10 
+minutes avec le parcours guidé.
+13 3 Parcours établissement de référence
+Le référent prépare l’année et les groupes, importe un planning en brouillon puis corrige 
+les erreurs. Il publie et invite les membres. L’apprenant se connecte à son compte unique, 
+accepte le rattachement et retrouve son planning. Un enseignant signale une absence ; 
+l’administration publie l’annulation ou le report. Les membres concernés voient la nouvelle 
+version et les rappels sont recalculés.
+13 4 États d’interface obligatoires
+UX01 P0 Prévoir chargement, liste vide, erreur récupérable, accès interdit, absence de 
+réseau, session expirée et succès. UX02 P0 En cas d’échec de sauvegarde, conserver la 
+saisie et proposer une reprise. UX03 P0 Sur double clic, désactiver temporairement 
+l’action puis s’appuyer sur l’idempotence serveur. UX04 P0 Prévenir avant abandon d’une 
+saisie non sauvegardée. UX05 P0 Confirmer les actions irréversibles avec le nom de 
+l’objet ; éviter une confirmation pour chaque simple consultation.
+14 PWA et fonctionnement hors connexion
+14 1 Engagement du mode hors connexion
+Le mode hors connexion est partiel. Il rend disponibles les données déjà synchronisées et 
+un petit ensemble d’actions personnelles. Il ne garantit pas qu’une notification arrivera 
+hors réseau, qu’un horaire local est à jour ou qu’une candidature externe pourra être 
+envoyée.
+Fonction Hors connexion proposé À la reconnexion
+Planning déjà consulté Lecture sur une fenêtre de 14 jours Mise à jour et signalement des changements
+Tâches personnelles Lecture et brouillon de création ou modification Envoi idempotent et contrôle de version
+Retour post-cours Brouillon local Synchronisation après contrôle des droits
+Notes Lecture déjà autorisée Saisie et publication validées en ligne au MVP
+Opportunités 
+consultées ou favorites
+Lecture avec date de 
+synchronisation Vérification du statut et de l’échéance
+Fichiers Aucun téléchargement nouveau Dépôt ou lecture autorisés en ligne
+Administration et 
+publication Indisponibles Reprise en ligne
+Authentification et 
+rattachement Aucun nouveau rattachement Vérification en ligne
+
+=== PAGE 19 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  19
+14 2 Exigences techniques
+ OFF01 P0 Prévoir manifest, icônes, écran d’ouverture sobre et aide à l’installation.
+ OFF02 P0 Distinguer coque publique en cache et données privées stockées dans une 
+base locale liée au compte.
+ OFF03 P0 Afficher l’âge des données et les états enregistré sur cet appareil, 
+synchronisation en attente, synchronisé ou conflit.
+ OFF04 P0 Proposer l’activation du stockage privé sur appareil personnel ; désactiver 
+sa persistance par défaut sur un appareil partagé.
+ OFF05 P0 Attribuer un identifiant client à chaque opération différée. Une reconnexion 
+répétée ne doit pas multiplier les tâches.
+ OFF06 P0 Utiliser un numéro de version serveur. En cas de modification concurrente, 
+présenter les versions pertinentes et permettre de conserver un brouillon ; aucune 
+écriture institutionnelle n’est écrasée silencieusement.
+ OFF07 P0 Refaire les contrôles de droits au moment de la synchronisation. Une 
+ancienne autorisation locale ne suffit pas.
+ OFF08 P0 À la déconnexion ou au changement de compte, purger les données locales 
+privées et avertir avant de perdre un brouillon non synchronisé.
+ OFF09 P0 Prévoir la synchronisation au retour dans l’application et un bouton manuel. 
+Ne pas dépendre uniquement d’une API de synchronisation en arrière-plan dont la 
+disponibilité varie selon le navigateur.
+ OFF10 P0 Mettre à jour le service worker sans perdre les opérations en attente ; 
+prévoir une migration du schéma local.
+La révocation distante n’efface pas instantanément un appareil déconnecté. L’application 
+doit limiter le volume et la durée de cache, réévaluer les droits dès le retour du réseau et 
+expliquer cette limite. Le MVP ne prétend pas fournir un coffre chiffré hors connexion ; le 
+stockage local peut être lu par une personne ayant accès à la session du navigateur.
+15 Pièces jointes et ressources externes
+15 1 Dépôt et consultation
+FIL01 P0 Autoriser les PDF, JPEG et PNG utiles aux notes de cours ou devoirs. Valeurs 
+proposées : 5 Mo par fichier, 3 fichiers par objet et 100 Mo par apprenant. L’augmentation 
+des quotas est un arbitrage de coût, pas un réglage ouvert à tous.
+FIL02 P0 Contrôler le type réel, l’extension, la taille et le nom ; attribuer un identifiant de 
+stockage indépendant du nom d’origine. Refuser les exécutables, fichiers à macros et 
+formats actifs non autorisés. Les téléchargements ne doivent pas permettre l’exécution de 
+contenu sur le domaine de l’application.
+FIL03 P0 Stocker les fichiers dans un espace privé. Une URL de téléchargement est 
+autorisée par le serveur et de courte durée. La possession d’un identifiant de fichier ne 
+donne aucun droit. FIL04 P0 Analyser les dépôts par un mécanisme antivirus ; un fichier 
+en attente de contrôle n’est pas téléchargeable par les autres utilisateurs.
+FIL05 P0 Définir la visibilité au dépôt : personnel ou partagé avec le groupe autorisé. Ne 
+pas changer automatiquement un fichier privé en fichier collectif lorsqu’une tâche change 
+de groupe. FIL06 P0 Permettre suppression, contrôle des quotas et purge des fichiers 
+orphelins après délai de sécurité.
+
+=== PAGE 20 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  20
+15 2 Ressources et droits de diffusion
+L’apprenant peut ajouter un lien vers une ressource externe. L’application affiche le 
+domaine et n’importe pas automatiquement le contenu. Les documents déposés doivent 
+être des productions propres ou des ressources que l’utilisateur est autorisé à partager. Un 
+circuit de signalement permet de retirer un contenu litigieux.
+Le catalogue de cours officiels n’est pas requis pour ouvrir Campus. Aucun développement 
+Academy, aucune acquisition de cours et aucune intégration de plateforme éducative 
+payante ne sont nécessaires à la recette du MVP. Une extension pédagogique exigera 
+l’identification des ayants droit, les permissions de réutilisation, les modalités 
+d’actualisation et son propre budget.
+16 Architecture applicative proposée
+16 1 Choix de structure
+La proposition est un monolithe modulaire avec une interface Web commune. Elle limite 
+les coûts de déploiement tout en isolant les responsabilités du code. Les modules 
+partagent une base relationnelle et des conventions de sécurité ; les envois de 
+notifications, imports et traitements de fichiers s’exécutent en tâches de fond.
+Une piste cohérente avec l’écosystème de réalisation est Laravel pour le serveur, React 
+avec TypeScript pour l’interface, et une base MySQL ou PostgreSQL. Ces choix restent des 
+propositions ; les versions seront sélectionnées parmi les versions maintenues et 
+compatibles au lancement de la réalisation. Il n’est pas nécessaire d’introduire des 
+microservices, un moteur de recherche dédié ou une infrastructure d’orchestration 
+complexe pour le pilote.
+16 2 Composants et échanges
+Composant Responsabilité Accès
+Client Web et PWA Interface, cache limité et opérations différées HTTPS vers l’application
+Serveur applicatif Authentification, droits et règles métier Base, fichiers et file de travaux
+Base relationnelle Comptes, référentiels, cours, tâches et catalogue Réseau privé ou accès local contrôlé
+File de travaux Imports, alertes, contrôle de fichiers et exports Workers dédiés
+Planificateur Échéances, expiration et purges Déclenche les travaux récurrents
+Stockage privé Pièces jointes et exports temporaires Autorisation par le serveur
+Passerelles de 
+notification
+Courriel et Web Push, 
+extensions futures Secrets détenus côté serveur
+Supervision et 
+sauvegarde
+Disponibilité, erreurs et 
+restauration Accès technique restreint
+
+=== PAGE 21 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  21
+Le navigateur ne se connecte jamais directement à la base. Les secrets, clés de 
+prestataire et clés de signature ne sont pas présents dans le code client. Les tâches de 
+fond passent par les mêmes contrôles de contexte que les requêtes interactives.
+16 3 Modules du code
+Identity gère comptes, sessions et invitations. Organizations gère établissements et 
+appartenances. Academics gère années, périodes, matières et groupes. Scheduling gère 
+séries, occurrences et publications. Study gère retours, tâches et résultats personnels. 
+Opportunities gère catalogue et suivi privé. Notifications gère préférences et livraisons. 
+Files gère les dépôts. Administration et Audit regroupent les fonctions d’exploitation 
+autorisées.
+Chaque module expose des services métier et des contrats de données. Les contrôleurs 
+restent limités à la validation, l’autorisation et la réponse. Les calculs de moyennes, la 
+génération d’occurrences et les décisions de notification sont testables sans l’interface. 
+Les migrations de base et paramètres sont versionnés.
+16 4 Isolation des établissements
+Une base partagée avec rattachement d’établissement convient au MVP si l’isolation est 
+systématique. Les tables institutionnelles portent l’identifiant d’établissement ; les objets 
+personnels portent le propriétaire. Les clés et contraintes empêchent une association 
+entre objets de deux établissements incompatibles.
+L’établissement autorisé est déduit de l’identité et de l’appartenance active, puis comparé 
+à la ressource ; une valeur envoyée par le navigateur ne constitue jamais une preuve. Les 
+traitements de masse, caches, téléchargements et exports intègrent le contexte. Des tests 
+explicites tentent l’accès croisé entre deux établissements à chaque voie sensible.
+17 Modèle de données et intégrité
+17 1 Entités principales
+Entité Champs structurants Règle d’intégrité
+User id, identifiant, email optionnel, statut, fuseau Identifiants uniques selon méthode de connexion
+Membership user, établissement, année, rôle, statut Rôle limité au périmètre et dates d’effet
+Institution code, nom, pays, type, fuseau Code unique de plateforme
+AcademicYear et Period établissement, dates, type, poids Dates et rattachements cohérents
+Group et Enrollment année, groupe, apprenant, dates Pas de doublon actif incohérent
+Subject et 
+TeachingAssignment groupe, matière, enseignant Appartenance compatible à l’établissement
+CourseSeries périmètre, horaires, récurrence, validité Source personnelle ou institutionnelle explicite
+CourseOccurrence série, début, fin, statut, version Identifiant stable malgré report
+
+=== PAGE 22 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  22
+Entité Champs structurants Règle d’intégrité
+SchedulePublication établissement, version, auteur Version publiée immuable
+ImportBatch empreinte, auteur, fichier, statut Détection de soumission répétée
+CourseCheckIn occurrence, apprenant, compréhension Un retour principal par paire
+Task et TaskProgress propriétaire ou groupe, échéance, état État individuel séparé du devoir collectif
+Assessment et Grade matière, période, barème, valeur, source Décimaux, valeurs et coefficients valides
+Attachment propriétaire, objet, chemin, scan, taille Accès privé et quota appliqué
+Opportunity et Revision source, critères, dates, statut Historique des campagnes et corrections
+Favorite et 
+SavedSearch utilisateur, objet ou filtres Favori unique par utilisateur et fiche
+ApplicationTracker utilisateur, opportunité, état Démarche privée avec échéance propre
+Notification et Delivery utilisateur, événement, canal, état Clé de déduplication unique
+PushSubscription utilisateur, appareil, endpoint Révocation et invalidation possibles
+SyncOperation utilisateur, clé client, objet, version Rejouer renvoie le résultat déjà créé
+ConsentRecord et 
+AuditLog acteur, finalité, version, date Historique limité et protégé
+17 2 Relations essentielles
+Un compte possède plusieurs appartenances. Un établissement possède plusieurs 
+années ; chaque année contient groupes et périodes. Un apprenant peut être inscrit à 
+plusieurs groupes compatibles. Une série produit plusieurs occurrences ; une occurrence 
+reçoit plusieurs retours, chacun appartenant à un apprenant. Un devoir collectif reçoit 
+plusieurs états individuels. Une opportunité possède des révisions, des favoris et des 
+démarches privées.
+Les pièces jointes sont rattachées à une famille d’objets autorisée, avec un contrôle 
+explicite du parent. Une suppression d’appartenance ne supprime pas en cascade les 
+notes privées du compte. La suppression d’un objet institutionnel déjà utilisé devient un 
+archivage lorsque l’historique doit rester intelligible.
+17 3 Contraintes et index
+Indexer les occurrences par contexte et date, les tâches par propriétaire et échéance, les 
+livraisons par statut et date d’envoi, les opportunités par statut et clôture. Prévoir des 
+contraintes uniques sur les favoris, retours de cours, clés d’idempotence et 
+appartenances. Les notes utilisent des décimaux plutôt que des nombres flottants binaires 
+pour les calculs affichés.
+
+=== PAGE 23 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  23
+Les créations groupées et publications sont transactionnelles. L’enregistrement métier et 
+l’événement à traiter en fond doivent être cohérents, par une boîte d’événements 
+transactionnelle ou un mécanisme équivalent. Un échec de courriel ne doit pas annuler 
+une tâche enregistrée ; le renvoi doit rester possible sans la recréer.
+18 Contrats de service et API
+18 1 Conventions
+Les routes ci-dessous constituent un contrat logique proposé. Le routage final peut être 
+adapté au framework sans changer les règles métier. Une API versionnée est nécessaire 
+pour les actions de synchronisation. Les listes sont paginées ; les recherches et imports 
+ont des limites explicites. Les dates complètes utilisent un format ISO avec fuseau ; une 
+date sans heure utilise un type distinct.
+Opération logique Méthode et route proposée Permission principale
+Consulter son compte GET /api/v1/me Utilisateur connecté
+Appartenances 
+disponibles GET /api/v1/memberships Titulaire
+Accepter une invitation POST /api/v1/invitations/accept Titulaire et invitation valide
+Planning sur une 
+fenêtre GET /api/v1/calendar Propriétaire ou membre du groupe
+Créer un événement 
+personnel POST /api/v1/personal-events Propriétaire
+Simuler un import POST /api/v1/schedule-imports Administration autorisée
+Consulter un rapport 
+d’import
+GET 
+/api/v1/schedule-imports/{id} Auteur ou administration autorisée
+Publier le planning POST /api/v1/schedule- publications Administration autorisée
+Enregistrer un retour de 
+cours
+PUT /api/v1/course-
+occurrences/{id}/check-in Apprenant concerné
+Créer une tâche POST /api/v1/tasks Propriétaire ou enseignant affecté
+Modifier une tâche 
+personnelle PATCH /api/v1/tasks/{id} Propriétaire et version compatible
+Ajouter une note POST /api/v1/grades Propriétaire ou enseignant autorisé
+Consulter les moyennes GET /api/v1/averages Titulaire ou délégation explicite
+Chercher une 
+opportunité GET /api/v1/opportunities Catalogue public publié
+Mettre en favori
+PUT 
+/api/v1/opportunities/{id}/favor
+ite
+Titulaire
+Suivre une démarche POST /api/v1/application- trackers Titulaire
+
+=== PAGE 24 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  24
+Opération logique Méthode et route proposée Permission principale
+Signaler une annonce
+POST 
+/api/v1/opportunities/{id}/repor
+ts
+Compte ou dispositif antiabus
+Synchroniser des 
+actions POST /api/v1/sync Titulaire et droit courant
+Autoriser un 
+téléchargement
+GET 
+/api/v1/attachments/{id}/downl
+oad
+Droit sur l’objet parent
+Demander un export ou 
+effacement POST /api/v1/privacy-requests Titulaire revérifié
+18 2 Erreurs et cohérence
+Une erreur renvoie un code stable, un message compréhensible, les champs concernés et 
+un identifiant de requête. Les principaux cas sont session absente, accès interdit, objet 
+introuvable, validation refusée, conflit de version, quota atteint et limite de fréquence. Les 
+messages ne révèlent pas l’existence d’une ressource d’un autre établissement.
+API01 P0 Les créations rejouables acceptent une clé d’idempotence liée à l’utilisateur et 
+au contenu. API02 P0 Toute modification différée inclut la version connue de l’objet ; une 
+version dépassée retourne un conflit exploitable. API03 P0 Les imports et exports longs 
+répondent par un identifiant de traitement, puis un état consultable. API04 P0 Les routes 
+administratives appliquent la même autorisation que les écrans et sont couvertes par des 
+tests d’accès croisé.
+19 Sécurité et protection des accès
+19 1 Exigences transversales
+ SEC01 P0 Chiffrer les échanges par HTTPS, protéger les cookies de session et limiter 
+leur portée. Prévenir la fixation de session et invalider les sessions révoquées.
+ SEC02 P0 Hacher les mots de passe par un algorithme adapté aux mots de passe ; ne 
+jamais les journaliser ni les restituer.
+ SEC03 P0 Limiter les tentatives de connexion, récupération, invitations, recherche 
+abusive et création de signalements, avec seuils testés.
+ SEC04 P0 Appliquer les protections contre injections, scripts dans les contenus, 
+requêtes forgées et accès direct à des objets non autorisés.
+ SEC05 P0 Contrôler chaque export, fichier et traitement de fond ; les identifiants 
+aléatoires ne remplacent pas l’autorisation.
+ SEC06 P0 Conserver les secrets dans une configuration protégée ; prévoir rotation et 
+révocation. Ne jamais publier le fichier de configuration de production.
+ SEC07 P0 Journaliser les opérations sensibles avec acteur, périmètre, objet, date et 
+motif utile ; exclure mots de passe, jetons et contenus privés complets.
+ SEC08 P0 Scanner les dépendances et traiter les vulnérabilités bloquantes avant 
+ouverture ; documenter toute dérogation acceptée.
+ SEC09 P0 Vérifier les URL externes et interdire les protocoles actifs. Au MVP, ne pas 
+télécharger automatiquement les URL saisies côté serveur.
+ SEC10 P0 Séparer développement, recette et production ; utiliser des données fictives 
+en développement.
+
+=== PAGE 25 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  25
+ SEC11 P0 Soumettre les changements de rôle privilégié à une revérification d’identité, 
+une confirmation et un audit.
+ SEC12 P0 Prévoir expiration des liens de partage, exports et invitations ; aucune pièce 
+privée n’est indexable publiquement.
+19 2 Administration et incidents
+Le tableau de bord technique présente l’état des files, erreurs, sauvegardes, volumes et 
+échecs de connexion. Il ne doit pas exposer les notes ou difficultés privées pour 
+diagnostiquer un problème de disponibilité. Une prise de contrôle de compte pour 
+assistance ne sera pas ajoutée sans procédure et traçabilité spécifiques.
+Le plan d’incident prévoit détection, qualification, confinement, préservation des traces, 
+correction, rétablissement et information adaptée. Une fuite de données entraîne 
+l’évaluation des obligations de notification applicables, sans inventer un délai juridique 
+universel. Le responsable technique et le contact décisionnaire sont nommés avant 
+production.
+20 Données personnelles et conservation
+20 1 Cadrage et formalités
+Le cadre ivoirien de protection des données doit être intégré avant le pilote réel. L’Autorité 
+de protection décrit notamment des obligations de formalités, d’information des 
+personnes, de sécurité et d’exercice des droits [S1]. Le porteur doit déterminer, pour 
+chaque finalité, qui est responsable du traitement et qui intervient pour son compte. Le 
+mode individuel et le mode établissement peuvent conduire à des répartitions différentes.
+La mise en service avec des mineurs exige de préciser les modalités d’information, 
+d’autorisation ou de représentation requises et le dispositif de preuve. Aucun seuil d’âge ni 
+régime de consentement étranger n’est présumé applicable sans vérification. Le choix 
+d’un hébergement ou de sous-traitants hors Côte d’Ivoire doit intégrer l’examen des 
+formalités de transfert.
+20 2 Données minimales et finalités
+L’inscription collecte seulement les données nécessaires au compte et au service. Le profil 
+d’opportunités demande le niveau d’études, les domaines et les critères utiles ; la 
+nationalité ou le pays de résidence ne deviennent obligatoires que pour une fonction 
+justifiée. Le MVP ne collecte pas de biométrie, de géolocalisation précise ni de dossier de 
+santé.
+Les notes privées servent au suivi personnel. Les résultats institutionnels sont accessibles 
+selon les droits validés avec l’établissement. Les statistiques du pilote privilégient des 
+agrégats ; aucun classement public d’apprenants en difficulté n’est prévu. Les données ne 
+sont ni vendues ni partagées avec les organisateurs d’opportunités par défaut.
+20 3 Politique de conservation proposée
+Les durées ci-dessous sont des paramètres de conception à valider selon les finalités et 
+obligations applicables ; elles ne sont pas présentées comme des délais légaux.
+
+=== PAGE 26 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  26
+Catégorie Proposition de durée Fin de conservation
+Compte actif et 
+données personnelles 
+d’étude
+Pendant l’usage justifié Export puis effacement ou anonymisation applicable
+Compte inactif Revue après 24 mois d’inactivité Information puis procédure d’archivage ou suppression
+Invitation expirée 30 jours après expiration Purge du secret et des données inutiles
+Fichier brut d’import 30 jours après traitement Suppression du fichier, bilan technique conservé
+Notification consultable 90 jours Purge ou agrégation technique
+Journaux de livraison 90 jours Purge des données détaillées
+Audit de sécurité 12 mois Purge contrôlée ou prolongation justifiée
+Export téléchargeable 7 jours Suppression du fichier et expiration du lien
+Corbeille des tâches 7 jours Suppression définitive
+Sauvegardes glissantes 30 jours Expiration automatique sécurisée
+Cache local privé Fenêtre limitée, revue après 7 jours sans contrôle Purge locale à la prochaine ouverture applicable
+20 4 Exercice des droits et suppression
+PRV01 P0 Publier une notice compréhensible avec identité du responsable, finalités, 
+destinataires, durée, droits, contact et transferts éventuels. PRV02 P0 Conserver la 
+version des notices et des choix de consentement lorsque celui-ci est utilisé. Ne pas 
+regrouper les communications commerciales facultatives avec les conditions nécessaires 
+au service.
+PRV03 P0 Prévoir demande d’accès, rectification, opposition et effacement, avec 
+vérification proportionnée de l’identité et suivi de traitement. PRV04 P0 Avant 
+suppression du compte, expliquer les conséquences, proposer l’export et réauthentifier 
+l’utilisateur. PRV05 P0 Distinguer les données privées effaçables et les enregistrements 
+institutionnels dont la conservation doit être justifiée et explicitée.
+PRV06 P0 Après restauration d’une sauvegarde, réappliquer les effacements et 
+révocations intervenus depuis le point restauré. Une suppression n’est pas annoncée 
+comme immédiatement propagée à toutes les sauvegardes ; leur expiration suit la 
+politique documentée.
+21 Qualité de service et accessibilité
+21 1 Dimensionnement et performance
+Les valeurs suivantes sont des cibles de recette proposées, à mesurer sur un 
+environnement décrit. Elles ne constituent pas un engagement contractuel de disponibilité 
+sans moyens d’exploitation correspondants.
+
+=== PAGE 27 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  27
+Critère Cible initiale proposée Mesure
+Population de référence 5 000 comptes, dont 1 000 actifs quotidiens Jeu de données de charge
+Charge simultanée 100 utilisateurs actifs simulés Scénario mixte et durée de 30 minutes
+API courantes 95 % sous 800 ms côté serveur Hors fichiers, imports et prestataires externes
+Affichage principal Contenu utile sous 3 secondes Android intermédiaire, réseau simulé de 1,6 Mbit/s et latence 150 ms
+Mise en file d’un rappel 95 % sous 2 minutes après échéance Plateforme disponible et file sans incident
+Erreurs techniques de 
+la charge Moins de 1 % des requêtes Hors erreurs métier attendues
+Import de référence 1 000 lignes traitées sous 2 minutes Mesure avec validation et rapport
+Disponibilité mensuelle 
+visée 99,5 % Mesure externe, périmètre et maintenances explicités
+Perte de données 
+maximale visée 24 heures RPO lié à la sauvegarde quotidienne
+Rétablissement visé 8 heures ouvrées après prise en charge RTO à éprouver par restauration
+Le dimensionnement réel dépendra de l’hébergement et des volumes observés. La mesure 
+de disponibilité doit préciser les exclusions ; la cible 99,5 % autorise environ 3 heures 36 
+minutes d’indisponibilité sur 30 jours. Un support en heures ouvrées ne garantit pas cette 
+cible en cas de panne nocturne ; l’organisation devra être ajustée avant tout SLA ferme.
+21 2 Ergonomie et accessibilité
+QUA01 P0 Fonctionner à partir d’une largeur d’écran de 360 pixels sans défilement 
+horizontal pour les parcours principaux. QUA02 P0 Fournir contrastes lisibles, focus 
+visible, libellés de champs et navigation au clavier. QUA03 P0 Ne pas transmettre un 
+statut uniquement par couleur ; ajouter du texte. QUA04 P0 Respecter les réglages de 
+réduction des animations et éviter les vidéos automatiques.
+QUA05 P0 Prévoir un zoom du navigateur à 200 %, des messages d’erreur reliés aux 
+champs et une lecture structurée par titres. QUA06 P0 Limiter les ressources initiales et 
+compresser les images ; ne pas imposer le téléchargement des pièces jointes à l’ouverture 
+d’un écran. QUA07 P0 Tester sur Chrome Android, Safari iOS, Chrome et Edge sur 
+ordinateur dans les versions retenues au démarrage du pilote.
+L’objectif d’accessibilité est une conception visant les critères de niveau AA des WCAG 2.2 
+[S3] ; aucune conformité n’est revendiquée sans audit. Les fonctionnalités PWA sont 
+contrôlées par capacité, avec des solutions de repli compréhensibles.
+
+=== PAGE 28 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  28
+22 Exploitation et maintenance
+22 1 Environnements et déploiement
+OPS01 P0 Disposer d’un développement local, d’une recette et d’une production séparés. 
+Les comptes de test et données de démonstration ne sont pas utilisés en production. 
+OPS02 P0 Automatiser les contrôles, la compilation et le déploiement à partir d’une 
+version identifiée du dépôt ; conserver l’identifiant de la version en service.
+OPS03 P0 Sauvegarder avant migration, vérifier la compatibilité des migrations et prévoir 
+la stratégie de retour arrière. Une restauration de base pouvant perdre des écritures 
+récentes n’est pas un simple redéploiement du code. OPS04 P0 Effectuer après 
+déploiement un contrôle de connexion, planning, enregistrement de tâche, accès fichier et 
+fonctionnement des workers.
+OPS05 P0 Superviser séparément le site, la base, les workers, le planificateur, le stockage 
+et les envois. Une page d’accueil accessible ne prouve pas que les rappels fonctionnent. 
+OPS06 P0 Alerter sur file bloquée, sauvegarde manquante, disque proche de saturation, 
+taux d’erreur, certificat expirant et dérive de volume des notifications.
+22 2 Sauvegarde et restauration
+Prévoir une sauvegarde quotidienne de la base et des fichiers, chiffrée, conservée hors de 
+l’instance principale et accessible uniquement aux responsables habilités. Une copie sur le 
+même disque ne suffit pas. Les secrets nécessaires à une restauration sont conservés 
+selon une procédure distincte. La conservation glissante proposée est de 30 jours.
+OPS07 P0 Exécuter une restauration complète sur un environnement isolé avant le pilote, 
+puis périodiquement. Mesurer durée, volumes, intégrité et reprise des tâches. OPS08 P0 
+Après restauration, empêcher le renvoi automatique de toutes les anciennes alertes et 
+réappliquer les révocations et effacements requis. OPS09 P0 Documenter le 
+remplacement d’un prestataire de courriel, la rotation d’une clé Web Push et le 
+renouvellement du domaine.
+22 3 Support proposé
+Priorité Exemple Objectif de prise en charge proposé
+Critique Fuite présumée, perte de données ou accès croisé Dès détection pendant la couverture convenue
+Haute Connexion impossible pour une cohorte, planning inaccessible Sous 4 heures ouvrées
+Normale
+Import bloqué avec 
+contournement, anomalie de 
+calcul isolée
+Sous 1 jour ouvré
+Basse Amélioration de confort, demande de présentation Qualification sous 3 jours ouvrés
+Ces objectifs nécessitent une personne et une plage de support désignées. Ils ne sont pas 
+des garanties de résolution. Le MVP doit afficher un canal d’assistance, un moyen de 
+signaler une anomalie et les informations à fournir sans envoyer de mot de passe.
+
+=== PAGE 29 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  29
+23 Stratégie de tests et recette
+23 1 Organisation de la validation
+La recette vérifie les résultats observables par scénario et les règles critiques par des tests 
+automatisés. Chaque anomalie indique la version, le contexte, les étapes, le résultat 
+attendu, le résultat obtenu et une preuve qui n’expose pas inutilement de données 
+privées. Une correction est retestée sur le cas initial et sur les règles voisines affectées.
+Le jeu de recette contient deux établissements fictifs, un utilisateur indépendant, un 
+apprenant appartenant à deux établissements, un enseignant affecté à un seul groupe, un 
+administrateur par établissement et un éditeur du catalogue. Il contient aussi une note 
+manquante, un cours reporté, un conflit d’horaires, un import en double, une annonce 
+expirée et un brouillon local non synchronisé.
+23 2 Cas de recette du socle
+Test Action ou situation Résultat attendu
+R01 Inscription puis vérification du contact Compte utilisable selon la méthode validée
+R02 Mot de passe incorrect répété et récupération Limitation appliquée sans révélation de comptes
+R03 Invitation avec compte déjà existant Rattachement sans seconde identité
+R04 Code d’invitation expiré ou révoqué Refus sans ajout d’appartenance
+R05 Matricule identique dans deux établissements Aucun mélange de personnes ni d’accès
+R06 Même compte dans deux établissements Changement de contexte explicite et données séparées
+R07 Enseignant tente de devenir administrateur Attribution refusée et événement sensible tracé
+R08 Retrait d’une appartenance Accès retiré, espace personnel conservé
+R09 Consultation d’un objet du second établissement par URL Refus côté serveur et absence de fuite
+R10 Connexion d’un compte privilégié Second facteur exigé et récupération contrôlée
+23 3 Cas de recette de Magic Schedule
+Test Action ou situation Résultat attendu
+R11 Création manuelle d’un cours récurrent Occurrences exactes sur la validité choisie
+R12 Import avec heure de fin antérieure au début Erreur localisée, aucune publication
+R13 Import avec groupe inconnu et lignes valides Lot refusé tant que l’erreur bloque
+R14 Même fichier soumis deux fois Aucun cours en double
+R15 Chevauchement groupe, salle ou enseignant Conflit visible et circuit de confirmation
+
+=== PAGE 30 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  30
+Test Action ou situation Résultat attendu
+R16 Publication puis retour à une version antérieure Planning cohérent et rappels futurs recalculés
+R17 Report d’une seule occurrence Série inchangée et identifiant du cours conservé
+R18 Annulation d’un cours avec rappel prévu Aucune nouvelle alerte post-cours inutile
+R19 Élève tente de modifier un horaire officiel Refus ; ajout personnel possible séparément
+R20 Enseignant signale son indisponibilité Signalement en attente avant publication admin
+R21 Fin d’un cours et délai de 5 minutes Un rappel logique est créé selon préférences
+R22 Retour déjà enregistré avant le rappel Rappel futur supprimé ou non envoyé
+R23 Retour hors connexion puis envoi répété Un seul retour final et état de synchronisation clair
+R24 Devoir collectif terminé par un apprenant État des autres apprenants inchangé
+R25 Tâche terminée après programmation du rappel Rappel annulé au contrôle d’envoi
+R26 Notes 14 sur 20 et 36 sur 60 avec coefficients 1 et 2 Moyenne matière affichée 12,67
+R27 Moyennes et coefficients de l’exemple du chapitre 9 Moyenne générale affichée 13,60
+R28 Note manquante, dispense et barème nul Statuts distincts ; barème nul refusé
+R29 Apprenant tente de remplacer une note publiée Refus et provenance visible
+R30 Note d’une période ajoutée dans une autre année Validation de rattachement refusée
+23 4 Cas de recette des opportunités
+Test Action ou situation Résultat attendu
+R31 Publication sans source ou sans organisateur Publication bloquée
+R32 Recherche niveau, pays, domaine et modalité Résultats conformes et filtres visibles
+R33 Profil incomplet face à une condition d’éligibilité Mention à vérifier, aucune certitude inventée
+R34 Offre avec date sans heure ou clôture continue Précision d’origine conservée
+R35 Clôture avec fuseau différent d’Abidjan Conversion cohérente et archivage au bon instant
+R36 Nouvelle édition d’un programme déjà publié Nouvelle campagne sans perte d’historique
+R37 Prolongation de clôture d’un favori Date et rappels mis à jour sans doublon
+
+=== PAGE 31 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  31
+Test Action ou situation Résultat attendu
+R38 Offre signalée puis suspendue Retrait du catalogue ouvert et information utile
+R39 Même favori créé depuis deux appareils Un seul favori
+R40 Clic sur un lien de candidature Ouverture externe sans statut envoyée automatique
+R41 Autre utilisateur demande le suivi d’une candidature Refus et aucune exposition privée
+R42 Désabonnement à une recherche enregistrée Arrêt des alertes et favoris conservés
+23 5 Cas de recette transversaux
+Test Action ou situation Résultat attendu
+R43 Worker rejoue un même envoi après interruption Pas de seconde notification métier ; état contrôlé
+R44 Notification refusée sur le téléphone Application utilisable et centre disponible
+R45 Deux appareils modifient une tâche hors connexion Conflit visible et aucune perte silencieuse
+R46 Déconnexion avec brouillon local en attente Avertissement puis purge privée après décision
+R47 Deux comptes utilisent successivement le même appareil Aucun cache privé partagé
+R48 Droit retiré avant synchronisation d’un brouillon Opération refusée ou brouillon récupérable hors partage
+R49 Fichier non autorisé, trop gros ou infecté Dépôt refusé ou mis en quarantaine
+R50 Lien privé transmis à un tiers sans droit Téléchargement refusé ou lien expiré
+R51 Export puis demande d’effacement Accès vérifié, traitement et preuve documentés
+R52 Restauration d’une sauvegarde complète Application utilisable et révocations réappliquées
+R53 Reprise d’une file après une panne prolongée Rappels périmés expirés et alertes utiles conservées
+R54 Charge de référence et import de 1 000 lignes Résultats mesurés contre les cibles du chapitre 21
+R55 Navigation clavier, zoom et écran mobile Actions principales accessibles et texte lisible
+R56 Mise à jour PWA avec opérations locales en attente Migration réussie sans suppression silencieuse
+R57 Échec réseau lors d’un formulaire puis reprise Saisie conservée et création unique
+R58 Accès administrateur à un retour privé Refus standard ou accès exceptionnel motivé et tracé
+
+=== PAGE 32 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  32
+23 6 Conditions d’acceptation
+Une phase est recevable si ses exigences P0 sont réalisées, ses cas de recette associés 
+passent et ses anomalies bloquantes sont corrigées. Un défaut d’autorisation, une fuite 
+interétablissements, une perte de données, un calcul de moyenne erroné ou l’absence de 
+sauvegarde restaurable bloque l’ouverture. Une anomalie mineure peut être acceptée 
+avec contournement, responsable et échéance écrits.
+Le dossier de recette contient les résultats, preuves pertinentes, limites connues, version 
+logicielle et décision de mise en pilote. La réception de Fondation ne vaut pas réception 
+d’Opportunités. La réception globale du MVP intervient après la validation des deux 
+phases.
+24 Réalisation et livrables
+24 1 Découpage de réalisation proposé
+Lot Contenu Dépendance Effort indicatif
+L0 Cadrage final, prototype et contrats de données Arbitrages prioritaires 5 à 7 jours
+L1 Comptes, droits, établissements et référentiels L0 8 à 11 jours
+L2 Planning, imports, versions et exceptions L1 10 à 14 jours
+L3 Retours, tâches, notes et notifications L2 10 à 14 jours
+L4 PWA, hors connexion partiel et exploitation L1 à L3 7 à 10 jours
+L5 Catalogue, filtres, favoris et démarches L1 et modèle éditorial 8 à 11 jours
+L6 Recette globale, corrections et lancement Lots précédents 7 à 13 jours
+Total MVP Fondation et Opportunités Hors attente externe 55 à 80 jours
+Ces estimations sont des jours de travail effectif, proposés à 7 heures, soit 385 à 560 
+heures. Elles supposent les décisions disponibles et une équipe connaissant la stack. À 10 
+heures par semaine, elles représentent environ 39 à 56 semaines ; à 20 heures, environ 
+20 à 28 semaines. Le calendrier réel tient compte des disponibilités, corrections, jours non 
+travaillés et retours des établissements. Aucun lancement en quelques semaines n’est 
+promis sur cette base.
+Une première ouverture limitée de Fondation est possible après L4 et sa recette. L5 peut 
+être développé pendant l’observation du pilote si la capacité réelle le permet. Les budgets 
+et la charge éditoriale doivent être vérifiés avant d’élargir l’audience.
+24 2 Livrables attendus
+ Cahier des charges validé, registre des décisions et liste priorisée des exigences.
+ Maquettes des parcours principaux avec états vides, erreurs et hors connexion.
+ Dépôt du code, historique, instructions d’installation et fichier d’exemple de 
+configuration sans secrets.
+ Modèle de données, migrations, données fictives et documentation des contrats d’API 
+utiles.
+
+=== PAGE 33 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  33
+ Application de recette puis production, PWA et mécanisme de déploiement 
+reproductible.
+ Modèle Excel, dictionnaire des colonnes et exemples valides et invalides.
+ Tests des règles critiques, résultats de recette et rapport de charge.
+ Procédures d’import, publication, exploitation, restauration et gestion des incidents.
+ Notice de confidentialité, conditions d’usage et documents contractuels à faire valider.
+ Guide court apprenant, guide enseignant, guide administrateur et guide éditorial.
+ Inventaire des dépendances, licences, prestataires, accès techniques et responsables.
+ Procès-verbal de réception par phase, limites connues et backlog après pilote.
+24 3 Propriété et réversibilité
+Les accords avec les contributeurs doivent définir la propriété du code, des créations et de 
+la marque, les droits de réutilisation et les conditions de maintenance. Les comptes 
+d’hébergement, domaine et dépôt doivent être contrôlés par le porteur ou une structure 
+désignée, avec accès de secours documenté.
+L’application doit permettre l’export des données nécessaires dans des formats courants, 
+la récupération des fichiers et la reconstruction de l’environnement depuis sa 
+documentation. Aucune opération quotidienne ne doit dépendre du compte personnel 
+irremplaçable d’un prestataire.
+25 Budget et maîtrise des coûts
+25 1 Séparer les dépenses
+Le coût de construction correspond au temps de conception, développement, tests et 
+accompagnement. Le coût d’exploitation comprend hébergement, domaine, sauvegardes, 
+courriels, éventuels messages payants et maintenance. La production du catalogue 
+nécessite aussi du temps humain. Le travail réalisé par le porteur n’est pas une dépense 
+de trésorerie immédiate, mais il reste une charge réelle.
+Le tableau suivant est une enveloppe interne de cadrage à challenger par devis. Il ne 
+reproduit aucun tarif fournisseur et ne constitue pas un budget déjà accepté.
+Poste Enveloppe mensuelle indicative Mesure de maîtrise
+Hébergement et 
+stockage de base 8 000 à 18 000 FCFA Dimensionner le pilote et surveiller les volumes
+Sauvegarde externe et 
+supervision 2 000 à 5 000 FCFA Rétention maîtrisée et restauration éprouvée
+Courriel transactionnel 0 à 5 000 FCFA Synthèses, quotas et choix après devis
+Domaine et 
+renouvellements lissés 1 000 à 2 000 FCFA Provision annuelle, tarif à confirmer
+Réserve d’exploitation 
+technique 2 000 à 5 000 FCFA Couvrir les variations de charge
+Total technique de 
+cadrage 13 000 à 35 000 FCFA Hors travail humain et messages payants
+La préparation d’un plafond de trésorerie précède tout abonnement. Si le devis réel 
+dépasse le plafond, réduire la cohorte, les volumes ou les fonctions non essentielles ; ne 
+pas supprimer les contrôles d’accès ou les sauvegardes. Un serveur déjà disponible n’est 
+
+=== PAGE 34 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  34
+utilisable qu’après vérification de sa capacité, de son isolation et de ses coûts 
+supplémentaires.
+25 2 Coût des notifications
+Hypothèse de dimensionnement : 1 000 apprenants actifs par jour et 4 cours suivis chacun 
+donnent jusqu’à 4 000 rappels post-cours quotidiens, avant tâches et opportunités. 
+Envoyer chacun par SMS serait une décision financière majeure. La stratégie de départ 
+privilégie le centre de notifications et le Web Push autorisé, puis une synthèse courriel si 
+souhaitée.
+Coût mensuel variable = nombre de messages facturés × prix unitaire contractuel + 
+forfaits + stockage excédentaire. Les prix des prestataires seront vérifiés au moment du 
+choix. Aucun engagement SMS ou WhatsApp n’est inclus dans l’enveloppe ci-dessus.
+25 3 Modèle de revenus après validation
+Le pilote ne comprend pas de paiement dans l’application. Il peut tester une proposition 
+de valeur et recueillir une intention d’abonnement sans encaissement. Une évolution 
+commerciale pourra distinguer usage individuel, service établissement et fonctions 
+avancées, avec limites et tarifs à définir. Toute mise en avant sponsorisée d’une 
+opportunité devra être signalée et ne devra pas remplacer le contrôle de la source.
+26 Pilote et stratégie de lancement
+26 1 Deux cohortes en parallèle
+La cohorte individuelle valide l’autonomie : inscription, planning personnel et utilité sans 
+partenaire. La cohorte établissement valide la publication, les rattachements et la 
+coordination des rôles. Les résultats sont analysés séparément ; un bon résultat dans une 
+cohorte ne masque pas un problème dans l’autre.
+Proposition de taille initiale : 30 à 50 apprenants individuels, puis un lycée et une structure 
+du supérieur avec 50 à 100 apprenants actifs chacun. Ces tailles sont des objectifs de 
+recrutement, pas des partenaires acquis. L’accueil de mineurs est subordonné au dispositif 
+validé au chapitre 20.
+26 2 Préparation du lancement
+Avant ouverture, vérifier domaine, comptes d’administration, sauvegarde, restauration, 
+assistance, notices, référents et fichier Excel. Préparer une courte démonstration centrée 
+sur une journée réelle : consulter le cours, saisir le travail, voir son rappel et enregistrer 
+une opportunité. Fournir une fiche d’installation PWA et expliquer le mode hors connexion.
+Le catalogue doit contenir un lot utile et vérifié avant d’être promu. Proposition de seuil 
+éditorial : 20 à 30 annonces pertinentes, réellement ouvertes et suffisamment diversifiées, 
+avec un responsable de révision. Le nombre de fiches ne prime pas sur leur qualité ni sur 
+leur accessibilité pour la cible.
+26 3 Déroulement proposé sur trois mois
+Le premier mois observe l’activation, les imports et les irritants majeurs de Fondation. Le 
+deuxième mois mesure l’usage récurrent et ouvre Opportunités à une audience limitée 
+après recette. Le troisième mois consolide les données, recueille les retours et décide de 
+
+=== PAGE 35 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  35
+poursuivre, corriger ou restreindre le service. Le calendrier s’adapte à la disponibilité 
+réelle du catalogue et aux périodes d’examens.
+La communication initiale passe par les référents et les apprenants volontaires, avec des 
+exemples concrets. Les dépenses publicitaires importantes attendent les preuves d’usage. 
+Les témoignages, noms d’établissements et logos ne sont publiés qu’avec les accords 
+nécessaires.
+26 4 Mesure des résultats
+Indicateur Définition de mesure Cible de travail proposée
+Activation
+Compte ayant créé ou reçu un 
+planning et réalisé une action 
+utile sous 7 jours
+70 % des inscrits éligibles
+Utilisateur actif 
+hebdomadaire
+Au moins une action métier en 
+7 jours, hors simple connexion 60 % des activés dans chaque cohorte
+Rétention à quatre 
+semaines
+Activés de la cohorte initiale 
+encore actifs en semaine 4 40 % ou plus
+Adoption des tâches Actifs ayant créé ou mis à jour une tâche pendant la semaine 50 % ou plus
+Retours après cours Retours renseignés sur cours éligibles avec rappel actif Mesure de départ puis cible ajustée
+Intérêt pour 
+Opportunités
+Actifs ayant consulté puis 
+enregistré une fiche Mesure distincte par niveau
+Satisfaction Répondants attribuant au moins 4 sur 5 75 %, avec taux de réponse indiqué
+Poursuite établissement Référent et décideur souhaitant poursuivre Décision documentée pour chaque pilote
+Fiabilité Incidents et rappels traités contre les cibles techniques Aucun incident critique non résolu
+Une action métier est une consultation utile du planning, une saisie de retour, une tâche 
+modifiée, une note ajoutée ou une fiche d’opportunité enregistrée. Les événements 
+analytiques n’enregistrent pas les contenus privés. Chaque taux indique son dénominateur 
+et sa période ; la rétention ne doit pas être calculée sur les seules personnes encore 
+présentes.
+26 5 Décision après pilote
+Poursuivre si l’usage régulier, la fiabilité, les responsabilités et le coût sont compatibles 
+avec la capacité de HAKO-RA. Corriger si les utilisateurs identifient une valeur mais 
+rencontrent des obstacles précis. Réduire ou suspendre si le service n’est pas maintenable 
+ou si les données ne peuvent pas être protégées correctement. Academy reste une 
+décision ultérieure indépendante de la réussite du pilote.
+
+=== PAGE 36 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  36
+27 Risques et mesures de traitement
+Risque Effet possible Réponse attendue Responsable proposé
+Périmètre trop large Retard et épuisement financier Geler P0 et reporter les extensions Porteur
+Disponibilité réduite 
+de l’équipe
+Délai calendaire sous-
+estimé
+Planifier sur heures 
+réellement disponibles Porteur et technique
+Faible engagement 
+des référents
+Plannings inexacts et 
+comptes bloqués
+Nommer un titulaire et un 
+suppléant Établissement
+Droits mal isolés Fuite entre personnes ou établissements Politiques serveur et tests d’accès croisé Technique
+Données d’import peu 
+fiables
+Multiplication des 
+corrections
+Modèle imposé, simulation 
+et rapport Référent et technique
+Téléphones partagés Exposition des données locales Cache privé désactivable et purge de session Produit et technique
+Rappels trop 
+nombreux
+Désactivation et 
+désengagement
+Synthèses, préférences et 
+plafonds Produit
+Notification non reçue Attente non satisfaite Centre consultable et limites expliquées Produit et technique
+Offre frauduleuse ou 
+périmée
+Perte de confiance et 
+préjudice
+Vérification datée, 
+signalements et suspension Éditorial
+Absence de contenus 
+Academy
+Blocage artificiel du 
+lancement
+Academy exclue des 
+dépendances MVP Porteur
+Coûts de messages et 
+fichiers Dépassement de budget Quotas, suivi et canaux payants désactivés Exploitation
+Sauvegarde 
+inutilisable
+Perte durable des 
+données
+Restauration éprouvée et 
+copie externe Exploitation
+Confusion sur les 
+moyennes
+Contestation des 
+résultats
+Provenance, formule et 
+caractère indicatif
+Produit et 
+établissement
+Cadre mineurs non 
+défini Lancement inapproprié Clôturer A06 avant admission de mineurs Porteur et référents
+Dépendance à une 
+seule personne Interruption du service Accès de secours et procédures de reprise Porteur
+28 Traçabilité des exigences
+La matrice relie les familles de spécifications aux lots et aux cas de recette. Le suivi 
+détaillé doit conserver chaque identifiant tel qu’il apparaît dans le document. Une 
+exigence ne devient pas terminée par le seul fait que son écran existe : sa règle, son 
+autorisation et son scénario de vérification doivent être couverts.
+
+=== PAGE 37 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  37
+Famille Références Lot principal Cas de recette liés
+Identité et 
+sessions IAM01 à IAM10 L1 R01 à R10, R51
+Organisation ORG01 à ORG09 L1 R03 à R09, R19, R20
+Planning SCH01 à SCH10 L2 R11 à R20
+Import IMP01 à IMP06 L2 R12 à R16, R54
+Retour post-
+cours CHK01 à CHK06 L3 R21 à R23, R58
+Tâches TSK01 à TSK09 L3 R24, R25, R45, R57
+Notes GRD01 à GRD07 L3 R26 à R30
+Notifications NTF01 à NTF09 L3 et L4 R18, R21, R22, R25, R37, R42 à R44, R53
+Catalogue OPP01 à OPP10 L5 R31, R34 à R38
+Recherche SEA01 à SEA05 L5 R32 et R33
+Favoris FAV01 à FAV05 L5 R37, R39, R42
+Démarches APP01 à APP05 L5 R40 et R41
+Interface UX01 à UX05 L0 à L6 R44, R46, R55, R57
+Hors connexion OFF01 à OFF10 L4 R23, R45 à R48, R56
+Fichiers FIL01 à FIL06 L3 et L4 R49 et R50
+Contrats API API01 à API04 L1 à L5 R09, R14, R23, R45, R57
+Sécurité SEC01 à SEC12 Transversal R02, R07, R09, R10, R41, R47, R49, R50, R58
+Données 
+personnelles PRV01 à PRV06 L0, L1 et L4 R08, R46, R47, R51, R52
+Qualité QUA01 à QUA07 Transversal R44, R54 et R55
+Exploitation OPS01 à OPS09 L4 et L6 R43, R52, R53, R56
+28 1 Définition d’une exigence réalisée
+Le comportement est implémenté, la validation des entrées existe, les autorisations sont 
+vérifiées, les erreurs sont compréhensibles, les règles critiques sont testées et le 
+fonctionnement est documenté lorsque nécessaire. Les migrations et paramètres sont 
+reproductibles ; aucune donnée réelle ni secret ne figure dans les tests. Les défauts 
+connus et décisions de dérogation sont reliés à la version livrée.
+29 Annexes de conception
+29 1 Exemple du modèle Excel
+Groupe Matière Jour Début Fin Salle
+LYC2A MATH Lundi 08:00 10:00 S12
+LYC2A FRAN Mardi 10:15 12:15 S04
+
+=== PAGE 38 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  38
+Groupe Matière Jour Début Fin Salle
+UNI1DEV ALGO Mercredi 14:00 16:00 LAB1
+Cet exemple utilise des données fictives. Le modèle réel ajoute les codes enseignants, 
+dates de validité, récurrences et identifiants externes dans des colonnes documentées. 
+Les noms libres ne remplacent pas les codes stables du référentiel.
+29 2 Règles de statut de référence
+Une appartenance suit les états invitée, en attente de vérification, active, suspendue et 
+clôturée. Un import suit téléversé, en validation, invalide ou valide, appliqué au brouillon 
+puis publié. Un planning publié reçoit une nouvelle version en cas de modification. Un 
+cours suit prévu, annulé, reporté ou terminé ; le report conserve le lien avec son 
+occurrence.
+Une notification suit programmée, en file, en traitement, acceptée par le prestataire ou en 
+échec ; elle peut aussi être annulée ou expirée. « Lue » est un événement distinct 
+disponible seulement lorsqu’il est réellement mesuré. Une opportunité suit brouillon, à 
+vérifier, publiée, suspendue et archivée. Une démarche personnelle suit les états définis 
+au chapitre 12 et ne dépend pas automatiquement du statut public de la fiche.
+29 3 Paramètres de départ à valider
+Paramètre Proposition Portée
+Délai post-cours 5 minutes par défaut Préférence individuelle
+Plage de réglage du 
+délai 0 à 120 minutes Validation produit
+Fenêtre du planning 
+hors connexion 14 jours Politique technique et appareil
+Recontrôle du cache 
+privé Après 7 jours sans vérification À la prochaine ouverture avec contrôle possible
+Taille d’un fichier joint 5 Mo Plateforme
+Quota par apprenant 100 Mo Plateforme ou contrat établissement
+Taille d’un import 5 Mo et 5 000 lignes Plateforme
+Taille de page du 
+catalogue 20 fiches Produit
+Synthèse 
+d’opportunités
+Hebdomadaire par défaut si 
+activée Préférence individuelle
+Plage silencieuse 21 h à 7 h proposée Fuseau de l’utilisateur et réglage
+La plage silencieuse proposée peut différer un rappel non urgent. Le formulaire de 
+préférences doit montrer cet effet pour éviter qu’un utilisateur attende une alerte à une 
+heure bloquée. Les messages nécessaires à la sécurité suivent une règle distincte et 
+documentée.
+29 4 Glossaire
+MVP désigne la première version complète du périmètre retenu. PWA désigne l’application 
+Web installable lorsque le navigateur le permet. Appartenance désigne le lien daté entre 
+un compte, un établissement et un rôle. Occurrence désigne un cours concret issu d’un 
+
+=== PAGE 39 ===
+HAKO-RA Campus  •  Cahier des charges v1.0  |  39
+planning récurrent. Idempotence signifie qu’une opération rejouée ne crée pas de doublon 
+métier. RPO désigne la perte de données maximale visée ; RTO, le temps de reprise visé. 
+Recette désigne la vérification formelle du résultat avant acceptation.
+30 Références et validation du cahier
+30 1 Références de cadrage
+Le périmètre prend en compte les choix du porteur sur Magic Schedule et leur 
+consolidation sous HAKO-RA Campus au 15 novembre 2026. Les arbitrages détaillés, cibles 
+de service, quotas et estimations sont les propositions identifiées dans ce document. Les 
+références externes suivantes éclairent des points précis ; elles ne remplacent pas une 
+analyse juridique ou un test sur les appareils du pilote.
+S1 Autorité de protection des données de Côte d’Ivoire. Obligations du responsable 
+du traitement. Consultation le 15 novembre 2026. 
+https://www.autoritedeprotection.ci/obligation-du-responsable-du-traitement/ . Utilisée 
+pour le cadrage des responsabilités, des formalités, de l’information et de la sécurité ; les 
+démarches exactes devront être déterminées pour les traitements retenus.
+S2 WebKit. Web Push for Web Apps on iOS and iPadOS, publication du 16 février 2023, 
+consultation le 15 novembre 2026. https://webkit.org/blog/13878/web-push-for-web-apps-
+on-ios-and-ipados/ . Utilisée pour la condition d’installation sur l’écran d’accueil et l’accord 
+utilisateur du Web Push documenté sur iOS et iPadOS.
+S3 W3C. Web Content Accessibility Guidelines 2.2, recommandation du 12 décembre 
+2024, consultation le 15 novembre 2026. https://www.w3.org/TR/WCAG22/ . Référence de 
+conception et de préparation des vérifications d’accessibilité.
+30 2 Décisions nécessaires avant réalisation
+La validation porte d’abord sur les limites du MVP, les parcours individuel et établissement, 
+la séparation des données privées et institutionnelles, la méthode de calcul des moyennes, 
+les fonctions hors connexion et les moyens d’exploitation. Le porteur clôture ensuite les 
+arbitrages A01 à A10 avec les personnes concernées. Une décision de lancement réel ne 
+remplace pas la recette technique et les vérifications préalables relatives aux données.
+Objet de validation Décideur à désigner Trace attendue
+Périmètre MVP et 
+exclusions Porteur HAKO-RA Version du cahier acceptée
+Maquettes et parcours Porteur et référents pilotes Résultats des tests et décisions
+Organisation et calculs 
+d’établissement Référent habilité Référentiel et règles validés
+Données, mineurs et 
+prestataires
+Responsables du traitement à 
+préciser Analyse et formalités applicables
+Budget et planning Porteur et équipe de réalisation Plafond et capacité disponibles
+Réception de Fondation Porteur et référents Procès-verbal de recette phase 1
+Réception 
+d’Opportunités Porteur et référent éditorial Procès-verbal de recette phase 2
+Ouverture publique Porteur Décision sur base du pilote

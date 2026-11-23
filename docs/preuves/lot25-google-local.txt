@@ -1,0 +1,14 @@
+Connexion par Google — contrôle local sans appel à Google, identifiants fictifs, 23 novembre 2026
+
+1. Écran de connexion : bouton présent ?
+"googleEnabled":true
+
+2. Départ : code et adresse de destination (état, nonce et empreinte masqués)
+HTTP/1.1 302 Found
+Location: https://accounts.google.com/o/oauth2/v2/auth?client_id=client-fictif.apps.example.test&redirect_uri=http%3A%2F%2F127.0.0.1%3A8131%2Fconnexion%2Fgoogle%2Freponse&response_type=code&scope=openid%20email%20profile&state=…&nonce=…&code_challenge=…&code_challenge_method=S256&prompt=select_account
+
+3. Réponse sans demande préalable : refus
+HTTP/1.1 302 Found
+Location: http://127.0.0.1:8131/connexion
+
+4. Sans identifiants (serveur lancé sans GOOGLE_CLIENT_ID) : voir GoogleSignInTest::test_google_sign_in_is_closed_until_it_is_configured

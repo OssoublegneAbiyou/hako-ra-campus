@@ -1,0 +1,63 @@
+name: Vérifications Campus
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: hako_ra_campus_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      APP_ENV: testing
+      APP_LOCALE: fr
+      APP_FALLBACK_LOCALE: fr
+      APP_TIMEZONE: Africa/Abidjan
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: hako_ra_campus_test
+      DB_USERNAME: root
+      DB_PASSWORD: ''
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      LOG_CHANNEL: 'null'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, intl, bcmath, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: composer validate --strict
+      - run: npm ci
+      - run: cp .env.testing.example .env.testing
+      - run: php artisan key:generate --env=testing --no-interaction
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: vendor/bin/pint --test
+      - run: npm run build
+      - run: npm run test:js
+      - run: composer audit --no-interaction
+      - run: npm audit --omit=optional
+      - run: php artisan migrate --env=testing --no-interaction
+      - run: php artisan test --compact

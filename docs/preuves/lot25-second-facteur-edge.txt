@@ -1,0 +1,15 @@
+Navigateur : Edg/158.0.4370.33
+Données créées préfixées : [SECOND FACTEUR 11230852]
+
+— Second facteur (admin-a, sans aucune dérogation) —
+OK    Sans second facteur : connexion possible, écrans d’administration fermés, activation proposée — administration fermée ; lien d’activation présent sur le profil
+OK    Activation : mot de passe redemandé, clé affichée, code exact exigé — code faux refusé ; code exact accepté ; 8 codes de secours affichés une fois (non reproduits ici)
+OK    Session vérifiée : l’écran d’administration de l’établissement s’ouvre
+OK    Nouvelle connexion : après le mot de passe, tout renvoie à la saisie du code — renvoi vers /second-facteur ; aucun contexte ni établissement affiché
+OK    Code faux refusé, code déjà utilisé refusé, code suivant accepté — faux refusé ; exact accepté et administration ouverte ; rejeu refusé
+OK    Récupération contrôlée : retrait par l’exploitation, tracé ; le rôle reste fermé sans nouveau facteur — second facteur retiré par la commande ; administration de nouveau fermée
+OK    Aucune erreur JavaScript pendant les contrôles
+Comptes fictifs refermés.
+
+7 contrôle(s) réussi(s), 0 en échec.
+Le serveur de ce passage tournait sans dérogation : le rôle d’administration n’a été ouvert que par le second facteur.

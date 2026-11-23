@@ -1,0 +1,17 @@
+Cible : http://127.0.0.1:8126 — 5 utilisateur(s) virtuel(s), 60 s, mode essai court.
+Connexions réussies : 5 sur 5.
+Requêtes : 221 en 60 s, soit 3.7 par seconde.
+Temps de réponse — médiane : 221 ms ; 95e centile : 771 ms ; 99e centile : 1129 ms ; maximum : 1590 ms.
+  connexion (écran)            5 requêtes ; médiane   771 ms ; 95e centile   895 ms
+  connexion (envoi)            5 requêtes ; médiane  1129 ms ; 95e centile  1590 ms
+  accueil                     34 requêtes ; médiane   272 ms ; 95e centile   874 ms
+  tâches                      34 requêtes ; médiane   192 ms ; 95e centile   727 ms
+  planning                    34 requêtes ; médiane   189 ms ; 95e centile   404 ms
+  notes                       34 requêtes ; médiane   165 ms ; 95e centile   438 ms
+  notifications               34 requêtes ; médiane   138 ms ; 95e centile   401 ms
+  copie hors connexion        34 requêtes ; médiane   234 ms ; 95e centile   396 ms
+  création de tâche            7 requêtes ; médiane   238 ms ; 95e centile   385 ms
+Codes de réponse : 200 × 209 ; 302 × 12.
+Erreurs techniques (sans réponse ou erreur du serveur) : 0, soit 0.00 %. Refus de débit (429) : 0.
+Cibles : 95e centile sous 800 ms — atteinte dans cet essai ; erreurs techniques sous 1 % — atteinte dans cet essai.
+Essai court sur le serveur de développement, qui traite une requête à la fois : ces chiffres ne valent pas mesure de capacité.

@@ -1,0 +1,39 @@
+Navigateur : Edg/158.0.4370.33
+OK    Service worker enregistré et actif — http://127.0.0.1:8123/sw.js
+OK    Manifest lié à la page et lisible — HAKO-RA Campus|standalone|3
+OK    Critères d’installation du navigateur — aucune erreur signalée
+OK    Caches : uniquement la coque publique et les fichiers de build — 17 entrées, aucune page
+OK    Aucune page HTML ni réponse de données en cache
+OK    Appareil partagé par défaut : aucun stockage privé créé — null|
+OK    /hors-ligne en mobile 360 px : pas de défilement horizontal — largeur du contenu 360 px pour 360 px
+OK    /hors-ligne en mobile 360 px : boutons présents d’au moins 44 px de haut — 1 bouton(s), plus petit : 45 px
+OK    /hors-ligne en zoom 200 % (équivalent 320 px) : pas de défilement horizontal — largeur du contenu 320 px pour 320 px
+OK    /hors-ligne en zoom 200 % (équivalent 320 px) : boutons présents d’au moins 44 px de haut — 1 bouton(s), plus petit : 45 px
+OK    /offline.html en mobile 360 px : pas de défilement horizontal — largeur du contenu 360 px pour 360 px
+OK    /offline.html en mobile 360 px : boutons présents d’au moins 44 px de haut — 1 bouton(s), plus petit : 45 px
+OK    Page hors ligne : bouton atteignable au clavier — retry|none
+OK    Réseau coupé, /planning : page neutre sans donnée — Hors connexion · HAKO-RA Campus|true|true
+OK    Réseau coupé, /notes : page neutre sans donnée — Hors connexion · HAKO-RA Campus|true|true
+OK    Réseau coupé, /administration/etablissement : page neutre sans donnée — Hors connexion · HAKO-RA Campus|true|true
+OK    Appareil personnel hors connexion : planning, tâches, notes et opportunités lus, avec date et avertissement — false|true|true|true|true|true|true|true|true
+OK    Hors connexion : aucun lien, aucun envoi de fichier, aucune connexion ; notes en lecture seule ; devoir d’établissement non modifiable — 0|0|true
+OK    R56 — base locale passée de la version 1 à la version 2, copie conservée, file créée — 2|consulted,outbox,snapshot
+OK    Trois brouillons écrits hors connexion, affichés « Enregistré sur cet appareil » — local:Nouvelle tâche personnelle — Tâche fictive écrite hors connexion:Enregistré sur cet appareil | local:Modification d’une tâche personnelle — Tâche fictive modifiée hors connexion:Enregistré sur cet appareil | local:Retour privé après cours — Cours fictif hors ligne:Enregistré sur cet appareil
+OK    Chaque opération porte identifiant, compte, contexte, type et version connue ; rien n’est encore parti — task.create,personal,compte-fictif-a,local,0,,,0,true ; task.update,personal,compte-fictif-a,local,0,,0199aaaa-bbbb-7ccc-8ddd-eeeeffff0001,3,true ; check_in.save,personal,compte-fictif-a,local,0,,0199aaaa-bbbb-7ccc-8ddd-eeeeffff0002,0,true
+OK    Contenu nettoyé et limité aux champs attendus — {"title":"Tâche fictive écrite hors connexion","description":"Note fictive","due_at":"2026-11-20T18:00","priority":"high","personal_subject_id":null,"source_occurrence_id":null}
+OK    Un élément qui a déjà un brouillon ne propose pas un second formulaire — true|true
+OK    Titre vide : erreur affichée, aucun brouillon ajouté — Le titre est obligatoire.
+OK    Brouillons toujours présents après rechargement hors connexion — local:Nouvelle tâche personnelle — Tâche fictive écrite hors connexion:Enregistré sur cet appareil | local:Modification d’une tâche personnelle — Tâche fictive modifiée hors connexion:Enregistré sur cet appareil | local:Retour privé après cours — Cours fictif hors ligne:Enregistré sur cet appareil
+OK    Brouillon jamais envoyé : remplacé sur place — Tâche fictive corrigée hors connexion ; Tâche fictive modifiée hors connexion ; Cours fictif hors ligne
+OK    Page hors ligne avec brouillons en 360 px : pas de défilement horizontal, contrôles d’au moins 44 px, chaque champ a son libellé — 360|360|44|0
+OK    Copie périmée avec brouillons : copie effacée, brouillons conservés et affichés — 0,0,3|personal||true|true|false
+OK    Effacement avec brouillons : avertissement, et refus sans aucune perte — 3 brouillon(s) ne sont pas enregistrés sur le serveur. Tout effacer, brouillons compris ?|true|3
+OK    Abandon explicite d’un brouillon : lui seul disparaît — 2
+OK    Effacement confirmé : brouillons, copie et réglages réellement supprimés — null|false|true
+OK    Copie non vérifiée depuis plus de 7 jours : effacée à l’ouverture — true|true|null|false
+OK    Appareil partagé : rien n’est affiché et tout reste est effacé — true|false|null|false
+OK    Bouton « Effacer ces données de cet appareil » — true|null|false
+OK    Retour du réseau : page d’accueil servie par le serveur — Accueil · HAKO-RA Campus|true
+OK    Application en ligne sans compte : le cœur commun est chargé, le brouillon n’est ni envoyé ni effacé — function|2|1|local|0|Tâche fictive en attente du réseau
+
+36 contrôle(s) réussi(s), 0 en échec.

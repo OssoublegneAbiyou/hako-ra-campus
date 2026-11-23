@@ -1,0 +1,34 @@
+16 novembre 2026 — compte-rendu de sorties réellement observées.
+Dépôt : <dossier du projet>
+Environnement : PHP 8.4.15 explicite, MySQL Campus dev/test dédiées, Edge local.
+
+Avant lot 06, vérification des lots 04 et 05 :
+php artisan test --compact
+{"tool":"phpunit","result":"passed","tests":68,"passed":68,"assertions":1012,"duration_ms":25925}
+Code inspecté : comptes/connexion, invitations, contexte actif, policies, retrait d'appartenance. MFA absent, refus privilégié maintenu. Mail réel non vérifié.
+
+Migrations additives :
+php artisan migrate --env=testing --no-interaction : migration 2026_11_16_075845_add_academic_administration DONE.
+php artisan migrate --no-interaction : même migration DONE sur hako_ra_campus_dev.
+php artisan migrate:status (dev et testing) : les sept migrations sont Ran.
+Pas de down, rollback, migrate:fresh ou désactivation de contrainte.
+
+Tests ciblés après contrat JSON et réauthentification annuelle :
+php artisan test --compact --filter=AcademicAdministrationTest
+{"tool":"phpunit","result":"passed","tests":15,"passed":15,"assertions":171,"duration_ms":5532}
+Une assertion complémentaire de retour Inertia en cas de version périmée ajoutée ensuite, comprise dans la suite finale ci-dessous.
+
+Suite finale après toutes les corrections PHP :
+php artisan test --compact
+{"tool":"phpunit","result":"passed","tests":83,"passed":83,"assertions":1187,"duration_ms":28330}
+
+php vendor/bin/pint --dirty --format agent : code 0 ; fichiers du lot reformatés. Git safe.directory limité à la commande de lecture, aucune configuration globale modifiée.
+npm run typecheck : code 0, après corrections finales.
+npm run lint : code 0, zéro avertissement, après corrections finales.
+npm run build : code 0, Vite 8.3.8, 605 modules, 458 ms.
+git -c safe.directory=<dossier du projet> diff --check : code 0. Avertissements de normalisation CRLF/LF sur des fichiers existants, aucune erreur de blancs.
+
+Navigateur réel : voir lot06-navigateur.txt et captures. Rejoué sur le build final avec le même résultat : 21 vues/largeurs sans débordement, aucune erreur JS, formulaire maintenu après validation et hors réseau.
+Compte fictif dédié désactivé après recette, appartenance retirée, sessions fermées ; fichier temporaire du secret et générateur retirés. Les références personnelles fictives restent rattachées à ce compte suspendu dans la base dev ; aucune donnée réelle utilisée. Serveur temporaire 8016 arrêté ; dérogation seulement dans son processus, aucun changement .env pour ce contrôle.
+
+Limites : aucune CI distante, aucun déploiement, MFA absent, SMTP non testé, zoom natif/lecteur d'écran/Safari non testés, charge et vraie concurrence simultanée non mesurées.

@@ -1,0 +1,55 @@
+Navigateur : Edg/158.0.4370.33
+Données créées préfixées : [PARCOURS 11230809]
+
+— Parcours individuel (independant@example.test) —
+OK    Visiteur : accueil sans donnée, avec connexion, création de compte et aide — true|true|true|0
+NOTE  Champs de l’inscription : Nom | Adresse électronique | Mot de passe | Confirmation du mot de passe | Je déclare être majeur selon la loi qui 
+OK    Inscription : nom, adresse, mot de passe et déclaration de majorité, rien de plus — Nom | Adresse électronique | Mot de passe | Confirmation du mot de passe | Je déclare être majeur selon la loi qui 
+OK    Connexion du compte indépendant — /profil|true
+NOTE  État de départ des sept étapes : (parcours déjà terminé)
+OK    Accueil : parcours de démarrage calculé sur les données réelles — true|true|true|true|true
+OK    Profil minimal : fuseau horaire confirmé depuis le profil
+OK    Matière personnelle créée
+OK    Cours créé depuis le planning (événement ponctuel aujourd’hui)
+OK    Tâche créée depuis l’écran Tâches
+OK    Mesure : un cours puis une tâche, par le script — 7.1 s, 8 saisies ou clics, 2 écrans (attentes du script comprises)
+OK    Double clic sur « Ajouter la tâche » : une seule tâche — 1 tâche après trois envois
+OK    Saisie en cours : avertissement avant de quitter l’écran — une confirmation demandée avant de quitter
+OK    Formulaire incomplet : erreur affichée, saisie conservée — Évaluation fictive sans note|envoi bloqué par le navigateur sur le champ obligatoire
+OK    Note personnelle créée
+OK    Opportunité ajoutée aux favoris depuis le catalogue
+OK    Retour après cours : le cours terminé est proposé sur l’accueil et le retour s’enregistre
+NOTE  Étapes : avant (parcours déjà terminé) ; après terminé
+OK    Accueil après le parcours : sept étapes faites, modules reliés avec leur provenance — terminé|true|true|true|true
+OK    Aide, préférences de notification et profil accessibles depuis l’accueil — trois écrans atteints
+OK    Accès interdit et page introuvable : page d’erreur avec reprise — accès interdit et page introuvable
+OK    Écran mobile 360 px : accueil sans défilement horizontal — 360|360
+NOTE  Après expiration de la session : /connexion|true
+OK    Session expirée : une action renvoie à la connexion sans page blanche — /connexion|true
+
+— Parcours établissement (admin-a, enseignant-a, apprenant-double, independant) —
+OK    Connexion de l’administration A et choix du contexte de l’établissement A
+NOTE  État de départ de l’établissement A : ✓✓✓✓✓✓✓
+OK    Accueil de l’administration : sept étapes de mise en route — ✓✓✓✓✓✓✓
+OK    Référentiels de l’établissement consultables (groupes, matières)
+NOTE  Modèle d’import : 200|application/vnd.openxmlformats-officedocument.spreadsheetml.
+OK    Import : écran de dépôt et modèle à télécharger disponibles — true|true|true
+NOTE  Rapport d’import : Invalide : corrections nécessaires|true (traitement de file : code 0)
+OK    Import simulé : le modèle est déposé, analysé par le traitement en file, et son rapport s’affiche sans rien appliquer — Invalide : corrections nécessaires|true
+OK    Cours d’établissement créé au brouillon pour le groupe A-G1
+NOTE  Titre de la confirmation : Publier la version 14 du planning de Établissement fictif A ?
+OK    Publication : différences affichées, confirmation qui nomme l’établissement, version publiée — Publier la version 14 du planning de Établissement fictif A ?
+NOTE  Création d’invitation : confirmation du mot de passe demandée, puis formulaire à renvoyer
+OK    Invitation créée par l’administration (lien à usage unique affiché une fois) — lien à usage unique reçu (non reproduit ici)
+OK    Invitation acceptée par un compte existant : un seul compte, une appartenance de plus
+OK    Départ volontaire : le compte quitte l’établissement (confirmation nommant l’appartenance, mot de passe redemandé) et garde son espace individuel — plus aucune appartenance à A ; espace individuel intact
+OK    Planning publié visible par l’apprenant, avec la provenance « Établissement » — cours de demain visible, provenance « Établissement »
+OK    Enseignant : signalement d’indisponibilité sur son cours publié
+NOTE  Étapes de l’établissement A : avant ✓✓✓✓✓✓✓ ; après ✓✓✓✓✓✓✓
+OK    Administration : décision sur le signalement, puis sept étapes à jour sur l’accueil — ✓✓✓✓✓✓✓
+OK    Cloisonnement : l’administration B ne voit rien de l’établissement A — aucune donnée de A chez B
+OK    Aucune erreur JavaScript pendant les parcours
+Comptes fictifs refermés.
+
+35 contrôle(s) réussi(s), 0 en échec.
+Note : la durée mesurée est celle d’un script qui connaît déjà les écrans. Elle ne dit pas si une personne débutante y parvient en moins de dix minutes : cet essai reste à faire avec une vraie personne.

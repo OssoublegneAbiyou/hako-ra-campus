@@ -1,0 +1,24 @@
+Lot 09 — mesure réelle d'un import de 1 000 lignes (16 novembre 2026)
+
+Environnement : poste de développement Windows 10, Intel Core i7-1165G7, 8 Go de RAM, PHP 8.4.15 en ligne de commande (opcache.enable_cli=0),
+MySQL 8.4.7 local (innodb_flush_log_at_trx_commit=1), base hako_ra_campus_test, file de jobs synchrone.
+Jeu fictif : 25 groupes, 25 enseignants affectés, 1 000 lignes hebdomadaires sans conflit, identifiants externes renseignés.
+Résultat fonctionnel identique à chaque passage : 1 000 séries et 8 000 occurrences créées dans le brouillon, lot « appliqué ».
+Commande : CAMPUS_MEASURE=1 vendor/bin/phpunit --filter=test_measured_import_of_one_thousand_rows (XDEBUG_MODE=off pour le second cas).
+
+| Passage | Dépôt + analyse + rapport | Application au brouillon | Total | Mémoire maximale |
+| 1. Code initial, Xdebug actif (réglage du poste) | 6,5 s | 608,2 s | 614,7 s | 88 Mo |
+| 2. Après optimisation, Xdebug désactivé          | 2,9 s | 118,4 s | 121,3 s | 74 Mo |
+| 3. Après optimisation, Xdebug actif              | 5,3 s | 330,1 s | 335,4 s | 78 Mo |
+
+Cible du cahier des charges (chapitre 21) : 1 000 lignes traitées sous 2 minutes, mesure avec validation et rapport.
+Lecture : la validation avec rapport (analyse) tient largement la cible. L'application au brouillon, ajoutée à l'analyse, atteint 121,3 s
+sans débogueur : la cible de 120 s n'est pas tenue avec marge sur ce poste, et elle est dépassée de loin avec Xdebug actif.
+Ce n'est ni une mesure sur l'environnement cible, ni une mesure avec un worker de file réel, ni une mesure sous charge concurrente.
+
+Optimisation faite entre les passages 1 et 2 (comportement inchangé, 130 tests verts avant et après) :
+- index (institution_id, starts_at) sur course_occurrences et borne de 12 heures dans la recherche de chevauchements ;
+- chargement groupé des groupes au lieu d'une requête par cours comparé ;
+- une seule requête pour les dates déjà matérialisées d'une fenêtre ;
+- références (année, matière, enseignant, groupe, affectations) lues une fois par traitement.
+Piste restante, non réalisée : réduire les requêtes d'écriture par occurrence (environ cinq aujourd'hui).

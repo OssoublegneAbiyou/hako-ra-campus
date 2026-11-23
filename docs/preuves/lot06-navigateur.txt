@@ -1,0 +1,6 @@
+16 novembre 2026 — Edge local, données fictives, sans mock réseau.
+Sortie réellement observée du script temporaire Playwright externe au dépôt :
+{"browser":"157.0.4341.60","screensWithoutOverflow":21,"realLogin":true,"personalCreation":true,"contextSwitch":true,"dialogEscape":true,"emptySearch":true,"failedFormPreserved":true,"offlinePreserved":true,"cssZoom200":true,"pageErrors":0}
+Sept écrans : years, periods, groups, subjects, types, enrollments, assignments.
+Largeurs : 360, 768 et 1440 px. Captures mobile/ordinateur relues.
+Ne prouve pas : zoom natif du menu, lecteur d'écran, Safari/iOS, charge/concurrence, SMTP, MFA, fonctionnement hors ligne avec sauvegarde synchronisée.

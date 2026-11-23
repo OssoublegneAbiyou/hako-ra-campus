@@ -1,0 +1,25 @@
+Navigateur : Edg/157.0.4341.60
+OK    Service worker enregistré et actif — http://127.0.0.1:8123/sw.js
+OK    Manifest lié à la page et lisible — HAKO-RA Campus|standalone|3
+OK    Critères d’installation du navigateur — aucune erreur signalée
+OK    Caches : uniquement la coque publique et les fichiers de build — 14 entrées, aucune page
+OK    Aucune page HTML ni réponse de données en cache
+OK    Appareil partagé par défaut : aucun stockage privé créé — null|
+OK    /hors-ligne en mobile 360 px : pas de défilement horizontal — largeur du contenu 360 px pour 360 px
+OK    /hors-ligne en mobile 360 px : boutons présents d’au moins 44 px de haut — 1 bouton(s), plus petit : 45 px
+OK    /hors-ligne en zoom 200 % (équivalent 320 px) : pas de défilement horizontal — largeur du contenu 320 px pour 320 px
+OK    /hors-ligne en zoom 200 % (équivalent 320 px) : boutons présents d’au moins 44 px de haut — 1 bouton(s), plus petit : 45 px
+OK    /offline.html en mobile 360 px : pas de défilement horizontal — largeur du contenu 360 px pour 360 px
+OK    /offline.html en mobile 360 px : boutons présents d’au moins 44 px de haut — 1 bouton(s), plus petit : 45 px
+OK    Page hors ligne : bouton atteignable au clavier — retry|none
+OK    Réseau coupé, /planning : page neutre sans donnée — Hors connexion · HAKO-RA Campus|true|true
+OK    Réseau coupé, /notes : page neutre sans donnée — Hors connexion · HAKO-RA Campus|true|true
+OK    Réseau coupé, /administration/etablissement : page neutre sans donnée — Hors connexion · HAKO-RA Campus|true|true
+OK    Appareil personnel hors connexion : planning, tâches, notes et opportunités lus, avec date et avertissement — false|true|true|true|true|true|true|true|true
+OK    Lecture seule : aucun formulaire ni lien d’action hors connexion — 0|0
+OK    Copie non vérifiée depuis plus de 7 jours : effacée à l’ouverture — true|true|null|false
+OK    Appareil partagé : rien n’est affiché et tout reste est effacé — true|false|null|false
+OK    Bouton « Effacer ces données de cet appareil » — true|null|false
+OK    Retour du réseau : page d’accueil servie par le serveur — Accueil · HAKO-RA Campus|true
+
+22 contrôle(s) réussi(s), 0 en échec.

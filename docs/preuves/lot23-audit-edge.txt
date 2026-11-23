@@ -1,0 +1,101 @@
+Navigateur : Edg/158.0.4370.33
+
+— Accessibilité : visiteur —
+OK    Visiteur / — ordinateur 1280 px : structure, libellés, noms, défilement — 37 textes mesurés
+OK    Visiteur / — mobile 360 px : structure, libellés, noms, défilement — 27 textes mesurés
+OK    Visiteur / — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 27 textes mesurés
+OK    Visiteur /connexion — ordinateur 1280 px : structure, libellés, noms, défilement — 39 textes mesurés
+OK    Visiteur /connexion — mobile 360 px : structure, libellés, noms, défilement — 29 textes mesurés
+OK    Visiteur /connexion — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 29 textes mesurés
+OK    Visiteur /inscription — ordinateur 1280 px : structure, libellés, noms, défilement — 42 textes mesurés
+OK    Visiteur /inscription — mobile 360 px : structure, libellés, noms, défilement — 32 textes mesurés
+OK    Visiteur /inscription — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 32 textes mesurés
+OK    Visiteur /opportunites — ordinateur 1280 px : structure, libellés, noms, défilement — 55 textes mesurés
+OK    Visiteur /opportunites — mobile 360 px : structure, libellés, noms, défilement — 45 textes mesurés
+OK    Visiteur /opportunites — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 45 textes mesurés
+OK    Visiteur /aide — ordinateur 1280 px : structure, libellés, noms, défilement — 60 textes mesurés
+OK    Visiteur /aide — mobile 360 px : structure, libellés, noms, défilement — 50 textes mesurés
+OK    Visiteur /aide — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 50 textes mesurés
+OK    Visiteur /confidentialite — ordinateur 1280 px : structure, libellés, noms, défilement — 80 textes mesurés
+OK    Visiteur /confidentialite — mobile 360 px : structure, libellés, noms, défilement — 70 textes mesurés
+OK    Visiteur /confidentialite — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 70 textes mesurés
+OK    Visiteur /hors-ligne — ordinateur 1280 px : structure, libellés, noms, défilement — 45 textes mesurés
+OK    Visiteur /hors-ligne — mobile 360 px : structure, libellés, noms, défilement — 35 textes mesurés
+OK    Visiteur /hors-ligne — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 35 textes mesurés
+OK    Connexion du compte indépendant
+
+— Accessibilité : compte indépendant —
+OK    Indépendant / — ordinateur 1280 px : structure, libellés, noms, défilement — 95 textes mesurés
+OK    Indépendant / — mobile 360 px : structure, libellés, noms, défilement — 85 textes mesurés
+OK    Indépendant / — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 85 textes mesurés
+OK    Indépendant /taches — ordinateur 1280 px : structure, libellés, noms, défilement — 357 textes mesurés
+OK    Indépendant /taches — mobile 360 px : structure, libellés, noms, défilement — 347 textes mesurés
+OK    Indépendant /taches — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 347 textes mesurés
+OK    Indépendant /planning — ordinateur 1280 px : structure, libellés, noms, défilement — 166 textes mesurés
+OK    Indépendant /planning — mobile 360 px : structure, libellés, noms, défilement — 156 textes mesurés
+OK    Indépendant /planning — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 156 textes mesurés
+OK    Indépendant /notes — ordinateur 1280 px : structure, libellés, noms, défilement — 142 textes mesurés
+OK    Indépendant /notes — mobile 360 px : structure, libellés, noms, défilement — 132 textes mesurés
+OK    Indépendant /notes — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 132 textes mesurés
+OK    Indépendant /retours — ordinateur 1280 px : structure, libellés, noms, défilement — 54 textes mesurés
+OK    Indépendant /retours — mobile 360 px : structure, libellés, noms, défilement — 44 textes mesurés
+OK    Indépendant /retours — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 44 textes mesurés
+OK    Indépendant /profil — ordinateur 1280 px : structure, libellés, noms, défilement — 114 textes mesurés
+OK    Indépendant /profil — mobile 360 px : structure, libellés, noms, défilement — 104 textes mesurés
+OK    Indépendant /profil — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 104 textes mesurés
+OK    Indépendant /notifications — ordinateur 1280 px : structure, libellés, noms, défilement — 38 textes mesurés
+OK    Indépendant /notifications — mobile 360 px : structure, libellés, noms, défilement — 28 textes mesurés
+OK    Indépendant /notifications — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 28 textes mesurés
+OK    Indépendant /notifications/preferences — ordinateur 1280 px : structure, libellés, noms, défilement — 104 textes mesurés
+OK    Indépendant /notifications/preferences — mobile 360 px : structure, libellés, noms, défilement — 94 textes mesurés
+OK    Indépendant /notifications/preferences — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 94 textes mesurés
+OK    Indépendant /opportunites/profil — ordinateur 1280 px : structure, libellés, noms, défilement — 47 textes mesurés
+OK    Indépendant /opportunites/profil — mobile 360 px : structure, libellés, noms, défilement — 37 textes mesurés
+OK    Indépendant /opportunites/profil — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 37 textes mesurés
+OK    Indépendant /confidentialite/parametres — ordinateur 1280 px : structure, libellés, noms, défilement — 68 textes mesurés
+OK    Indépendant /confidentialite/parametres — mobile 360 px : structure, libellés, noms, défilement — 58 textes mesurés
+OK    Indépendant /confidentialite/parametres — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 58 textes mesurés
+OK    Indépendant /etudes/referentiels — ordinateur 1280 px : structure, libellés, noms, défilement — 81 textes mesurés
+OK    Indépendant /etudes/referentiels — mobile 360 px : structure, libellés, noms, défilement — 71 textes mesurés
+OK    Indépendant /etudes/referentiels — zoom 200 % (équivalent 320 px) : structure, libellés, noms, défilement — 71 textes mesurés
+OK    Contraste des textes (4,5:1, ou 3:1 pour les grands textes), tous écrans relevés — aucun texte sous le seuil parmi ceux mesurés
+OK    Taille des boutons et champs à 360 px (44 px de haut au moins) — aucun contrôle sous 44 px
+
+— Clavier, erreurs, animations —
+NOTE  Parcours au clavier : 33 éléments distincts sur 45 tabulations ; premier : « Aller au contenu »
+OK    Clavier : lien d’évitement en premier, focus visible, parcours sans piège jusqu’au formulaire des tâches — 33 éléments, focus toujours visible
+OK    Clavier : une boîte de confirmation garde le focus et se ferme avec Échap — focus dans le dialogue, fermé par Échap
+OK    Erreur de saisie : annoncée, rattachée à son champ, saisie conservée — true|true|validation du serveur
+OK    Animations réduites sur demande du système — aucune animation ni transition active
+
+— Contenu saisi et politique de contenu —
+OK    Balises et séquence de rupture saisies dans une tâche : affichées comme du texte, page intacte, rien d’exécuté — texte affiché tel quel, aucune image ni script créé
+
+— Temps de chargement : 1,6 Mbit/s descendant, 150 ms de latence —
+OK    Indépendant / — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.50 s, 145 Ko transférés
+NOTE  Indépendant / — première visite sans cache et sans compression (serveur de développement) : 3.08 s, 469 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Indépendant / — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.65 s, 26 Ko transférés
+OK    Indépendant /taches — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.52 s, 155 Ko transférés
+NOTE  Indépendant /taches — première visite sans cache et sans compression (serveur de développement) : 3.17 s, 496 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Indépendant /taches — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.64 s, 26 Ko transférés
+OK    Indépendant /planning — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.51 s, 152 Ko transférés
+NOTE  Indépendant /planning — première visite sans cache et sans compression (serveur de développement) : 3.13 s, 487 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Indépendant /planning — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.60 s, 26 Ko transférés
+OK    Indépendant /notes — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.37 s, 148 Ko transférés
+NOTE  Indépendant /notes — première visite sans cache et sans compression (serveur de développement) : 3.07 s, 475 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Indépendant /notes — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.55 s, 26 Ko transférés
+OK    Visiteur / — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.34 s, 144 Ko transférés
+NOTE  Visiteur / — première visite sans cache et sans compression (serveur de développement) : 3.02 s, 466 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Visiteur / — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.51 s, 26 Ko transférés
+OK    Visiteur /connexion — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.36 s, 143 Ko transférés
+NOTE  Visiteur /connexion — première visite sans cache et sans compression (serveur de développement) : 3.01 s, 460 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Visiteur /connexion — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.47 s, 26 Ko transférés
+OK    Visiteur /opportunites — première visite, sans cache, réponses compressées : contenu principal en moins de 3 s — 1.38 s, 148 Ko transférés
+NOTE  Visiteur /opportunites — première visite sans cache et sans compression (serveur de développement) : 3.09 s, 473 Ko — au-delà de 3 s : la compression du serveur web est nécessaire
+OK    Visiteur /opportunites — visite suivante, avec cache, sans compression : contenu principal en moins de 3 s — 0.52 s, 26 Ko transférés
+OK    Politique de contenu : aucun script, style ou appel du site refusé par le navigateur
+OK    Aucune erreur JavaScript pendant les contrôles
+Comptes fictifs refermés.
+
+78 contrôle(s) réussi(s), 0 en échec.
+Limites : contrôles automatiques dans un seul navigateur, sur un poste de développement. Ils ne valent ni audit d’accessibilité, ni conformité WCAG, ni mesure de charge.
