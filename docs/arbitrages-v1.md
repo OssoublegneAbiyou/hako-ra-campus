@@ -459,3 +459,14 @@ Anomalies et suites :
 - AN27-02 — La notice de confidentialité doit nommer Google comme prestataire d'identification et dire ce qu'il transmet, avant toute ouverture. Assignée : avec A11.
 - AN27-03 — Aucun écran pour détacher un compte Google. À arbitrer : il faudra exiger qu'un mot de passe existe avant de détacher.
 - AN27-04 — Un compte créé par Google, sans service de courriel, ne peut pas se donner de mot de passe. Dépend de A19/A34.
+
+## Décision du porteur — nouveau design, 24 novembre 2026
+
+- Décision du porteur : appliquer le design « Magic Schedule » à l'application.
+- T206 : le design est appliqué par la feuille de style et les composants existants (mêmes classes, mêmes écrans) ; aucune dépendance ajoutée.
+- T207 : la police Plus Jakarta Sans (licence OFL) est hébergée dans l'application, la politique de sécurité interdisant toute police externe.
+- T208 : le nom du produit, le vouvoiement et les textes de l'application sont conservés ; le design sert de référence visuelle, pas de source de contenu.
+- T209 : là où le design passe sous les seuils d'accessibilité déjà tenus (bordure des champs, texte blanc sur rouge vif), l'accessibilité prévaut.
+- T210 : la carte de recommandation du design devient « Votre prochaine action », sans calcul ni promesse : elle reprend une tâche en retard ou un retour en attente.
+- A57 ouvert : écrans du design correspondant à des fonctions hors V1 ou absentes (assistant IA, Premium et paiement, documents, difficultés, absences, annonces, graphique de progression, recherche globale, connexion Microsoft). Aucun n'est construit sans décision explicite, fonction par fonction.
+- AN28-01 — Icônes de l'application installée encore à l'ancienne couleur. Assignée : à refaire avec l'identité visuelle définitive (A05).

@@ -291,3 +291,7 @@ Facultative. Dans la console Google Cloud, créer un identifiant OAuth de type �
 - Compte existant : relié automatiquement si l'adresse est la même et déjà vérifiée, ou depuis le profil (« Relier mon compte Google »).
 - Le second facteur reste demandé. Aucun rôle ne s'obtient par Google.
 - Jamais essayée avec Google à ce jour : les tests fabriquent sa réponse.
+
+## Apparence
+
+Le style vit dans `resources/css/app.css` (jetons de couleur en tête de fichier) et dans les composants de `resources/js/components/ui`. La police Plus Jakarta Sans est servie depuis `public/fonts` (licence OFL jointe) : aucune police n'est chargée depuis un autre site. Après un changement d'apparence, relancer `node tests/browser/audit-edge.mjs`, qui mesure contrastes, cibles tactiles et focus.

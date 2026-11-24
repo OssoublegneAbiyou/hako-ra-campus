@@ -74,7 +74,7 @@ class PwaTest extends TestCase
         $this->assertArrayNotHasKey('shortcuts', $manifest);
         $this->assertArrayNotHasKey('share_target', $manifest);
         // La page d'accueil annonce le manifest ; le service worker du push seul n'existe plus (fusionné).
-        $this->get('/')->assertOk()->assertSee('<link rel="manifest" href="/manifest.webmanifest">', false)->assertSee('<meta name="theme-color" content="#1f6555">', false);
+        $this->get('/')->assertOk()->assertSee('<link rel="manifest" href="/manifest.webmanifest">', false)->assertSee('<meta name="theme-color" content="#1e1848">', false);
         $this->assertFileExists(public_path('sw.js'));
         $this->assertFileDoesNotExist(public_path('push-sw.js'));
         // La coque hors ligne est statique et neutre : aucune donnée, aucun appel réseau, aucun jeton.

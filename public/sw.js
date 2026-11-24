@@ -6,7 +6,7 @@
 // dans IndexedDB, sous le contrôle de la page et du choix « appareil personnel », jamais dans ce cache.
 
 // À incrémenter quand un fichier de la coque change. Les fichiers de /build/assets/ portent déjà une empreinte dans leur nom.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = `campus-shell-${VERSION}`;
 const STATIC_CACHE = `campus-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';

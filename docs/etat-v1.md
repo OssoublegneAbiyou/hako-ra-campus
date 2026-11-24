@@ -772,3 +772,26 @@ Non vérifié :
 - La signature du jeton d'identité n'est pas vérifiée cryptographiquement : le jeton est reçu directement de Google sur une liaison chiffrée, authentifiée par le secret du client (T199).
 
 Version : `1.0.0-rc1+b041ea833cf1`. Aucun commit.
+
+## Nouveau design — demande du porteur (24 novembre 2026)
+
+Demande : appliquer à l'application le design « Magic Schedule — Parcours étudiant et professeur » (56 écrans : élève et enseignant, téléphone et ordinateur), avec les composants et conventions du dépôt.
+
+Résultat : toute l'application adopte le langage visuel du design, sans changer ses règles ni ses données. Police Plus Jakarta Sans hébergée dans l'application ; fond lavande, barre latérale et cartes d'accent bleu nuit, violet d'action, pastilles arrondies ; navigation basse à pastille sur téléphone ; cloche de notifications ; pastille du compte en bas de la barre latérale ; écrans de connexion et d'inscription en deux panneaux ; accueil en tableau de bord (salutation, prochain cours, cours du jour, prochaine action, tâches, notes, opportunités) ; onglets du planning.
+
+Fichiers créés : resources/js/layouts/AuthLayout.tsx ; public/fonts/ (deux fichiers de police et leur licence OFL) ; docs/preuves/design-accueil-ordinateur.png, design-accueil-telephone.png, design-connexion-ordinateur.png.
+Modifications de l'existant : resources/css/app.css (réécrite, mêmes classes), Icon.tsx, CampusLayout.tsx, Home.tsx, Login.tsx, Register.tsx, public/offline.html, public/manifest.webmanifest, app.blade.php (couleur de thème), public/sw.js (version v3), PwaTest (couleur de thème).
+
+Vérifications réellement exécutées : PHPUnit 268 tests, 267 réussis, 1 ignoré ; 23 tests JavaScript ; typage, lint, build ; dans Edge 158 : audit d'accessibilité 78 contrôles réussis (contrastes mesurés, cibles de 44 px, focus visible, 1 280, 360 et 320 px), parcours 35 contrôles réussis, PWA 36 contrôles réussis ; captures relues à 1 440 et 390 px.
+
+Écarts volontaires avec le design :
+- Nom et textes : « HAKO-RA Campus » et le vouvoiement de l'application sont conservés ; aucune donnée d'exemple du design n'est reprise.
+- Bordure des champs plus foncée que dans le design, pour rester visible (contraste d'au moins 3:1) ; bouton de suppression en rouge foncé, pour un texte lisible.
+- Bouton « Microsoft » de la connexion non repris : seule la connexion Google existe.
+- Carte « Recommandation Magic » remplacée par « Votre prochaine action », tirée seulement de données réelles (tâche en retard, retour en attente).
+
+Écrans du design non construits, parce qu'ils correspondent à des fonctions absentes ou exclues de la V1 : assistant (IA), Premium et paiement, bibliothèque de documents, signalement d'une difficulté et difficultés de la classe, signalement d'absence d'un élève, annonces aux classes, progression hebdomadaire en graphique, recherche globale. Chacun demande une décision du porteur (A57).
+
+Non vérifié : aucun téléphone réel, Safari, Firefox ni lecteur d'écran ; les icônes de l'application installée gardent leur ancienne couleur ; recette-edge et second-factor-edge non relancés (ils s'appuient sur les mêmes libellés, inchangés).
+
+Version : `1.0.0-rc1+7630c2444224`. Rien n'a été validé dans Git pour ce travail.

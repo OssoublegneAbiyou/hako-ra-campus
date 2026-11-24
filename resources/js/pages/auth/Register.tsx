@@ -1,6 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import CampusLayout from '../../layouts/CampusLayout';
+import AuthLayout from '../../layouts/AuthLayout';
 import { Button } from '../../components/ui/Button';
 import { CheckboxField, TextField } from '../../components/ui/Fields';
 import { StateMessage } from '../../components/ui/Feedback';
@@ -12,9 +12,9 @@ export default function Register({ minorsPathwayOpen, googleEnabled }: { minorsP
         form.post('/inscription', { onFinish: () => form.reset('password', 'password_confirmation') });
     }
     return (
-        <CampusLayout active="profile" title="Créer un compte">
+        <AuthLayout>
             <Head title="Créer un compte" />
-            <div className="page-heading"><p className="eyebrow">VOTRE COMPTE</p><h1>Créer un compte</h1><p className="page-intro">Un compte individuel, utilisable sans établissement. Un rattachement à un établissement se fait uniquement sur invitation.</p></div>
+            <div className="page-heading"><h1>Créer un compte</h1><p className="page-intro">Un compte individuel, utilisable sans établissement. Un rattachement à un établissement se fait uniquement sur invitation.</p></div>
             <section className="surface form-narrow" aria-labelledby="register-title">
                 <h2 id="register-title">Vos informations</h2>
                 <p className="section-description">Votre nom sert à vous identifier dans votre espace. Votre adresse sert à vérifier le compte, à vous connecter et à récupérer l’accès. Aucun rôle d’enseignant ou d’administration ne se choisit ici.</p>
@@ -31,6 +31,6 @@ export default function Register({ minorsPathwayOpen, googleEnabled }: { minorsP
                 </form>
                 <div className="inline-links"><Link className="text-link" href="/connexion">J’ai déjà un compte</Link>{googleEnabled && <a className="text-link" href="/connexion/google">Créer mon compte avec Google</a>}</div>
             </section>
-        </CampusLayout>
+        </AuthLayout>
     );
 }

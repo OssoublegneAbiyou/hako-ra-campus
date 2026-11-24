@@ -8,7 +8,7 @@ import { StateMessage } from '../components/ui/Feedback';
 import type { CampusProps, NavigationItem } from '../types';
 
 function NavigationEntry({ item, active }: { item: NavigationItem; active: string }) {
-    const content = <><Icon name={item.key} /><span>{item.label}</span></>;
+    const content = <><span className="nav-icon"><Icon name={item.key} size={22} /></span><span>{item.label}</span></>;
     return item.href
         ? <Link href={item.href} className={`nav-item ${active === item.key ? 'is-active' : ''}`} aria-current={active === item.key ? 'page' : undefined}>{content}</Link>
         : <span className="nav-item is-unavailable" aria-disabled="true" title="Fonctionnalité en préparation">{content}<span className="sr-only"> — en préparation</span></span>;
@@ -65,26 +65,30 @@ export default function CampusLayout({ children, active, title }: { children: Re
         };
     }, []);
     const primary = campus.navigation.filter((item) => item.key !== 'grades');
+    const initials = (auth.user?.name ?? '').split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '').join('');
     return (
         <div className="campus-shell">
             <a className="skip-link" href="#contenu">Aller au contenu</a>
             <aside className="desktop-sidebar">
-                <Link href="/" className="brand"><span className="brand-mark" aria-hidden="true">H</span><span>HAKO-RA<span className="brand-subtitle">Campus</span></span></Link>
+                <Link href="/" className="brand"><span className="brand-mark" aria-hidden="true"><Icon name="star" /></span><span>HAKO-RA<span className="brand-subtitle">Campus</span></span></Link>
                 <p className="sidebar-caption">VOTRE QUOTIDIEN</p>
                 <nav aria-label="Navigation principale ordinateur" className="desktop-navigation">{primary.map((item) => <NavigationEntry key={item.key} item={item} active={active} />)}</nav>
-                <p className="sidebar-caption">ESPACE D’ÉTUDES</p><Link className="nav-item" href="/etudes/referentiels">Matières et référentiels</Link><Link className={`nav-item ${active === 'help' ? 'is-active' : ''}`} href="/aide">Aide et support</Link>
-                <nav aria-label="Espace d’études">{campus.navigation.filter((item) => item.key === 'grades').map((item) => <NavigationEntry key={item.key} item={item} active={active} />)}</nav>
+                <p className="sidebar-caption">ESPACE D’ÉTUDES</p><nav aria-label="Espace d’études">{campus.navigation.filter((item) => item.key === 'grades').map((item) => <NavigationEntry key={item.key} item={item} active={active} />)}</nav>
+                <Link className="nav-item" href="/etudes/referentiels">Matières et référentiels</Link><Link className={`nav-item ${active === 'help' ? 'is-active' : ''}`} href="/aide">Aide et support</Link>
                 {campus.administration.length > 0 && <nav aria-label="Administration"><p className="sidebar-caption">ADMINISTRATION</p>{campus.administration.map((item) => <Link className="nav-item" key={item.href} href={item.href}>{item.label}</Link>)}</nav>}
-                <div className="sidebar-footer"><span aria-hidden="true">✦</span><p>Un pas après l’autre.<br /><span>Votre parcours vous appartient.</span></p></div>
+                <div className="sidebar-footer">{auth.user
+                    ? <Link href="/profil" className="account-chip" aria-label={`Profil de ${auth.user.name}`}><span className="account-avatar" aria-hidden="true">{initials}</span><span><strong>{auth.user.name}</strong><small>{campus.context.label}</small></span></Link>
+                    : <Link href="/connexion" className="account-chip"><span className="account-avatar" aria-hidden="true"><Icon name="profile" size={18} /></span><span><strong>Se connecter</strong><small>Visite sans connexion</small></span></Link>}</div>
             </aside>
             <div className="workspace">
                 <header className="workspace-header">
-                    <Link href="/" className="mobile-brand" aria-label="HAKO-RA Campus, accueil">H<span>Campus</span></Link>
+                    <Link href="/" className="mobile-brand" aria-label="HAKO-RA Campus, accueil"><span className="brand-mark" aria-hidden="true"><Icon name="star" /></span><span>Campus</span></Link>
                     <p className="header-title">{title}</p>
-                    {campus.unreadNotifications !== null && <Link href="/notifications" className="text-link" aria-label={`Notifications, ${campus.unreadNotifications} non lue(s)`}>Notifications{campus.unreadNotifications > 0 && ` (${campus.unreadNotifications})`}</Link>}
+                    
                     <div className="context-badge" aria-label="Contexte actif"><span className="context-symbol" aria-hidden="true">◉</span><div>{campus.contexts.length > 0
                         ? <><label className="sr-only" htmlFor="context-select">Changer de contexte</label><select id="context-select" className="context-select" value={campus.context.membershipId ?? ''} onChange={(event) => router.post('/contexte', { membership_id: event.target.value === '' ? null : Number(event.target.value) })}><option value="">Espace individuel</option>{campus.contexts.map((context) => <option key={context.membershipId} value={context.membershipId}>{context.label}</option>)}</select></>
                         : <strong>{campus.context.label}</strong>}<span>{campus.context.description}</span></div></div>
+                    {campus.unreadNotifications !== null && <Link href="/notifications" className="icon-button" aria-label={`Notifications, ${campus.unreadNotifications} non lue(s)`} title="Notifications"><Icon name="bell" />{campus.unreadNotifications > 0 && <span className="icon-dot" aria-hidden="true" />}</Link>}
                 </header>
                 {campus.administration.length > 0 && <nav className="mobile-administration" aria-label="Administration mobile">{campus.administration.map((item) => <Link className="text-link" key={item.href} href={item.href}>{item.label}</Link>)}</nav>}
                 <main id="contenu" tabIndex={-1} className="main-content">
