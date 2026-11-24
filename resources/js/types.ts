@@ -8,15 +8,19 @@ export type NavigationItem = {
 export type OneTimeSecret = { name: string; identifier: string; secret: string };
 export type OneTimeLink = { url: string; role: string; email: string | null; expiresAt: string };
 
+export type QuickAddData = { timezone: string; today: string; individual: boolean; subjects: { id: number; name: string }[]; periodId: number | null };
+
 export type CampusProps = {
     [key: string]: unknown;
     auth: { user: { name: string } | null; accountKey: string | null };
     flash: { status: string | null; problem: string | null; oneTimeSecret: OneTimeSecret | null; oneTimeLink: OneTimeLink | null };
+    quickAdd?: QuickAddData | null;
     campus: {
         development: boolean;
+        quickAddAvailable: boolean;
         version: string;
         context: { kind: 'individual' | 'institution' | 'platform'; label: string; description: string; membershipId: number | null };
-        contexts: { membershipId: number; label: string }[];
+        contexts: { membershipId: number; label: string; short: string }[];
         navigation: NavigationItem[];
         unreadNotifications: number | null;
         privacyNoticePending: boolean;

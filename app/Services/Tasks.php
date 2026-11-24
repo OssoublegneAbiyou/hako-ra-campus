@@ -65,14 +65,27 @@ class Tasks
     /**
      * Prochaines tâches ouvertes du compte, datées d'abord, pour l'accueil.
      *
-     * @return list<array{id: string, title: string, dueAt: string|null, late: bool, collective: bool}>
+     * @return list<array<string, mixed>>
      */
-    public function upcoming(User $user, int $limit): array
+    public function upcoming(User $user, int $limit, ?string $timezone = null): array
     {
+        $timezone ??= (string) config('app.display_timezone');
+
         return $this->visible($user)->whereRaw("(CASE WHEN tasks.scope = 'group' THEN COALESCE(progress.status, 'todo') ELSE tasks.status END) IN ('todo', 'in_progress')")
+            ->with(['subject:id,name', 'personalSubject:id,name'])
             ->orderByRaw('tasks.due_at IS NULL')->orderBy('tasks.due_at')->orderBy('tasks.id')->limit($limit)->get()
-            ->map(fn (Task $task): array => ['id' => $task->id, 'title' => $task->title, 'dueAt' => $task->due_at?->utc()->toIso8601String(),
-                'late' => $task->due_at !== null && $task->due_at->isPast(), 'collective' => $task->scope === 'group'])->all();
+            ->map(function (Task $task) use ($timezone): array {
+                $collective = $task->scope === 'group';
+
+                return ['id' => $task->id, 'title' => $task->title, 'dueAt' => $task->due_at?->utc()->toIso8601String(),
+                    'late' => $task->due_at !== null && $task->due_at->isPast(), 'collective' => $collective,
+                    'subject' => $collective ? $task->subject?->name : $task->personalSubject?->name, 'priority' => $task->priority,
+                    // De quoi marquer la tâche comme faite depuis l'accueil, par les routes des tâches : version attendue et contenu inchangé.
+                    'version' => $collective ? (int) ($task->progress_version ?? 0) : $task->lock_version,
+                    'description' => $collective ? null : $task->description, 'dueLocal' => $collective ? null : $task->due_at?->setTimezone($timezone)->format('Y-m-d\TH:i'),
+                    'personalSubjectId' => $collective ? null : $task->personal_subject_id,
+                    'personalTargetLocal' => $collective ? $task->personal_target_at?->setTimezone($timezone)->format('Y-m-d\TH:i') : null];
+            })->all();
     }
 
     /**

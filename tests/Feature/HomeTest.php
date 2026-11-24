@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\CourseSeries;
 use App\Models\Group;
 use App\Models\Membership;
@@ -150,7 +151,7 @@ class HomeTest extends TestCase
         // L'accueil relie les modules, avec la provenance de chaque ligne et la couverture de la moyenne.
         $this->assertSame([['Cours fictif du jour', 'personal', '2026-11-16T10:00:00+00:00', false]], array_map(fn (array $row) => [$row['title'], $row['provenance'], $row['startsAt'], $row['cancelled']], $middle['today']));
         $this->assertSame([['Tâche fictive de démarrage', false, false]], array_map(fn (array $row) => [$row['title'], $row['collective'], $row['late']], $middle['upcomingTasks']));
-        $this->assertSame([['label' => 'Mes notes personnelles', 'provenance' => 'personal', 'period' => 'Sans période', 'average' => '14,00', 'counted' => 1, 'total' => 1, 'missingCoefficients' => 0]], $middle['grades']);
+        $this->assertSame([['label' => 'Mes notes personnelles', 'provenance' => 'personal', 'period' => 'Sans période', 'average' => '14,00', 'counted' => 1, 'total' => 1, 'missingCoefficients' => 0, 'subjects' => [['name' => 'Mathématiques fictives', 'average' => '14,00']]]], $middle['grades']);
         $this->assertSame('Africa/Abidjan', $middle['timezone']);
 
         // Opportunité : un favori termine le parcours.
@@ -272,6 +273,48 @@ class HomeTest extends TestCase
         $this->artisan('campus:fixtures:access', ['--lock' => true])->assertFailed();
         $this->app['env'] = 'testing';
         $this->assertSame($before, User::orderBy('id')->pluck('password')->all());
+    }
+
+    public function test_switching_context_keeps_the_person_on_a_common_screen_and_never_follows_a_received_address(): void
+    {
+        $a = $this->member('apprenant-double', 'A');
+        $host = 'http://'.parse_url((string) config('app.url'), PHP_URL_HOST);
+        // Depuis un écran commun : la personne y reste, sans les paramètres de l'adresse d'origine.
+        $this->as('apprenant-double')->from($host.'/')->post('/contexte', ['membership_id' => $a->id])->assertRedirect('/');
+        $this->from($host.'/planning?date=2026-11-16&view=day')->post('/contexte', ['membership_id' => null])->assertRedirect('/planning');
+        // Écran propre à un contexte, adresse inconnue ou autre site : retour au profil, jamais à l'adresse reçue.
+        $this->from($host.'/administration/etablissement')->post('/contexte', ['membership_id' => $a->id])->assertRedirect('/profil');
+        $this->from($host.'/adresse-inconnue')->post('/contexte', ['membership_id' => null])->assertRedirect('/profil');
+        $this->from('https://ailleurs.example.test/')->post('/contexte', ['membership_id' => $a->id])->assertRedirect('/profil');
+        // Le contrôle du choix ne change pas : une appartenance étrangère reste introuvable.
+        $this->from($host.'/')->post('/contexte', ['membership_id' => $this->member('admin-a')->id])->assertNotFound();
+        // Nom court des pastilles : le nom de l'établissement, sans rôle tant qu'il n'y a pas d'homonyme.
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->where('campus.contexts.0.short', 'Établissement fictif A')->where('campus.quickAddAvailable', true)->missing('quickAdd'));
+    }
+
+    public function test_quick_add_data_is_loaded_on_demand_for_the_account_only_and_a_task_ticked_on_the_home_stays_there(): void
+    {
+        $host = 'http://'.parse_url((string) config('app.url'), PHP_URL_HOST);
+        $subject = PersonalSubject::factory()->create(['owner_id' => $this->user('independant')->id, 'name' => 'Mathématiques fictives']);
+        PersonalSubject::factory()->create(['owner_id' => $this->user('apprenant-double')->id, 'name' => 'Matière fictive d’un autre compte']);
+        // Chargé seulement à la demande, avec les seules matières du compte ; un visiteur n'en reçoit pas.
+        $quick = fn (): array => ['X-Inertia' => 'true', 'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request()),
+            'X-Inertia-Partial-Component' => 'Home', 'X-Inertia-Partial-Data' => 'quickAdd'];
+        $this->as('independant')->get('/', $quick())->assertOk()->assertJsonPath('props.quickAdd.individual', true)->assertJsonPath('props.quickAdd.timezone', 'Africa/Abidjan')
+            ->assertJsonPath('props.quickAdd.today', '2026-11-16')->assertJsonPath('props.quickAdd.subjects', [['id' => $subject->id, 'name' => 'Mathématiques fictives']]);
+        $this->as('apprenant-double', 'A')->get('/', $quick())->assertOk()->assertJsonPath('props.quickAdd.individual', false);
+        $this->freshDevice()->get('/', $quick())->assertOk()->assertJsonPath('props.quickAdd', null);
+
+        // Tâche ajoutée puis cochée depuis l'accueil : mêmes routes et mêmes contrôles que l'écran des tâches, et la personne reste sur l'accueil.
+        $this->as('independant')->from($host.'/')->post('/taches', ['client_key' => (string) Str::uuid(), 'title' => 'Tâche fictive de l’accueil', 'due_at' => '2026-11-16T18:00'])->assertRedirect('/');
+        $task = $this->dashboard('independant')['upcomingTasks'][0];
+        $this->assertSame(['Tâche fictive de l’accueil', false, 1, '2026-11-16T18:00', 'normal', null], [$task['title'], $task['collective'], $task['version'], $task['dueLocal'], $task['priority'], $task['subject']]);
+        $done = ['title' => $task['title'], 'description' => $task['description'], 'due_at' => $task['dueLocal'], 'priority' => $task['priority'], 'personal_subject_id' => $task['personalSubjectId'], 'status' => 'done'];
+        $this->as('apprenant-double')->from($host.'/')->patch('/taches/'.$task['id'], ['expected_version' => $task['version'], ...$done])->assertNotFound();
+        $this->as('independant')->from($host.'/')->patch('/taches/'.$task['id'], ['expected_version' => $task['version'], ...$done])->assertSessionHasNoErrors()->assertRedirect('/');
+        $this->assertSame([], $this->dashboard('independant')['upcomingTasks']);
+        // Depuis l'écran des tâches, rien ne change : retour à la liste.
+        $this->as('independant')->from($host.'/taches')->post('/taches', ['client_key' => (string) Str::uuid(), 'title' => 'Autre tâche fictive'])->assertRedirect('/taches');
     }
 
     public function test_no_dead_route_and_no_placeholder_screen_remain(): void

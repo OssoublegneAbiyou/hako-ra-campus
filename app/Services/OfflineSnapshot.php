@@ -79,20 +79,20 @@ class OfflineSnapshot
         $learner = $memberships->where('role', 'learner')->pluck('id');
         $teacher = $memberships->where('role', 'teacher')->pluck('id');
         $groups = Enrollment::query()->effective()->where('user_id', $user->id)->whereIn('membership_id', $learner)->pluck('group_id');
-        $row = fn (string $id, string $title, $startsAt, $endsAt, string $status, string $provenance, bool $ownCourse): array => ['id' => $id, 'title' => $title, 'startsAt' => $startsAt->utc()->toIso8601String(),
+        $row = fn (string $id, string $title, $startsAt, $endsAt, string $status, string $provenance, bool $ownCourse, ?string $room): array => ['id' => $id, 'title' => $title, 'room' => $room, 'startsAt' => $startsAt->utc()->toIso8601String(),
             'endsAt' => $endsAt->utc()->toIso8601String(), 'cancelled' => $status === 'cancelled', 'provenance' => $provenance, 'checkIn' => $ownCourse ? ['version' => 0, 'status' => null] : null];
         $personal = CourseOccurrence::query()->where('scope', 'personal')->where('owner_id', $user->id)->whereIn('status', ['active', 'cancelled'])
-            ->where('starts_at', '>=', $from)->where('starts_at', '<', $to)->limit(300)->get(['id', 'title', 'starts_at', 'ends_at', 'status'])
-            ->map(fn (CourseOccurrence $occurrence) => $row($occurrence->id, $occurrence->title, $occurrence->starts_at, $occurrence->ends_at, $occurrence->status, 'personal', true));
+            ->where('starts_at', '>=', $from)->where('starts_at', '<', $to)->limit(300)->get(['id', 'title', 'starts_at', 'ends_at', 'status', 'room'])
+            ->map(fn (CourseOccurrence $occurrence) => $row($occurrence->id, $occurrence->title, $occurrence->starts_at, $occurrence->ends_at, $occurrence->status, 'personal', true, $occurrence->room));
         // Uniquement la projection publiée : jamais un brouillon de planning.
         $published = PublishedOccurrence::query()->whereIn('status', ['active', 'cancelled'])->where('starts_at', '>=', $from)->where('starts_at', '<', $to)
             ->where(fn ($query) => $query->whereIn('teacher_membership_id', $teacher)->orWhereHas('groups', fn ($group) => $group->whereIn('groups.id', $groups)))
-            ->limit(300)->get(['course_occurrence_id', 'title', 'starts_at', 'ends_at', 'status']);
+            ->limit(300)->get(['course_occurrence_id', 'title', 'starts_at', 'ends_at', 'status', 'snapshot']);
         // Un retour privé ne s'ouvre que sur un cours suivi comme apprenant, jamais sur un cours enseigné.
         $followed = PublishedOccurrence::query()->whereIn('course_occurrence_id', $published->pluck('course_occurrence_id'))
             ->whereHas('groups', fn ($group) => $group->whereIn('groups.id', $groups))->pluck('course_occurrence_id')->flip();
         $rows = $personal->concat($published->map(fn (PublishedOccurrence $occurrence) => $row($occurrence->course_occurrence_id, $occurrence->title, $occurrence->starts_at,
-            $occurrence->ends_at, $occurrence->status, 'institutional', isset($followed[$occurrence->course_occurrence_id]))));
+            $occurrence->ends_at, $occurrence->status, 'institutional', isset($followed[$occurrence->course_occurrence_id]), $occurrence->snapshot['room'] ?? null)));
         // Seuls l'état et la version du retour sont copiés, jamais son texte : ils suffisent à savoir si un brouillon peut être écrit.
         $known = CourseCheckIn::query()->where('owner_id', $user->id)->whereIn('course_occurrence_id', $rows->pluck('id'))->get(['course_occurrence_id', 'lock_version', 'status'])->keyBy('course_occurrence_id');
 

@@ -795,3 +795,168 @@ Vérifications réellement exécutées : PHPUnit 268 tests, 267 réussis, 1 igno
 Non vérifié : aucun téléphone réel, Safari, Firefox ni lecteur d'écran ; les icônes de l'application installée gardent leur ancienne couleur ; recette-edge et second-factor-edge non relancés (ils s'appuient sur les mêmes libellés, inchangés).
 
 Version : `1.0.0-rc1+7630c2444224`. Rien n'a été validé dans Git pour ce travail.
+
+## Accueil élève repensé et ajout rapide — demande du porteur (24 novembre 2026)
+
+Demande : appliquer le design « HAKO-RA Campus — accueil élève repensé » (accueil sur téléphone, ajout rapide, accueil sur ordinateur), transmis avec une revue d'ergonomie de l'application.
+
+Résultat :
+- Mise en page : sur ordinateur, un en-tête à onglets (Accueil, Planning, Tâches, Notes, Bourses), le bouton « Ajouter », les notifications et la pastille du profil remplacent la barre latérale. Sur téléphone, la navigation basse porte Accueil, Planning, le bouton d'ajout, Notes et Bourses. Police Outfit hébergée dans l'application, boutons et champs arrondis, cartes sans bordure.
+- Contexte : des pastilles (« Perso » et chaque établissement) remplacent la liste déroulante. Changer de contexte laisse la personne sur l'écran où elle se trouve, pour les écrans communs ; avant, elle était toujours envoyée sur le profil.
+- Accueil : salutation, « Ta journée » (prochains cours, tâche à rendre aujourd'hui, moyenne, bourses), carte du prochain cours avec sa salle, « À faire » avec une case à cocher par tâche, moyenne avec une barre par matière, carte des opportunités. Le parcours de démarrage montre d'abord la prochaine étape ; la liste complète est repliée.
+- Ajout rapide : un cours (titre, jours, heures, chaque semaine), une tâche (titre, échéance) ou une note (matière, évaluation, note, barème), par les routes existantes et leurs contrôles. Le jour proposé est celui d'aujourd'hui.
+
+Fichiers créés : resources/js/components/QuickAdd.tsx, resources/js/components/quickAddEvents.ts ; public/fonts/outfit-latin.woff2 et outfit-latin-ext.woff2 (licence OFL remplacée) ; docs/preuves/design2-*.png.
+Fichiers supprimés : les deux fichiers de la police Plus Jakarta Sans.
+Modifications de l'existant : resources/css/app.css ; CampusLayout.tsx, Home.tsx, Icon.tsx, types.ts ; HandleInertiaRequests (nom court des contextes, données de l'ajout rapide chargées à la demande) ; ContextController (retour à l'écran d'origine) ; TaskController (retour à l'accueil quand la demande en vient) ; Tasks::upcoming et HomeDashboard (matière, priorité, version, moyenne par matière) ; OfflineSnapshot::courses (salle) ; ScheduleController (message « Cours ajouté au planning. ») ; HomeTest (2 tests ajoutés, 1 adapté) ; scripts de navigateur journeys, recette et second-factor (pastilles de contexte, nouveaux textes de l'accueil) ; README.
+
+Vérifications réellement exécutées : PHPUnit 270 tests, 269 réussis, 1 ignoré ; 23 tests JavaScript ; typage, lint, build ; dans Edge 158 : audit d'accessibilité 78 contrôles réussis, parcours 35 contrôles réussis, PWA 36 contrôles réussis ; essai réel de l'ajout rapide (voir la recette).
+
+Écarts volontaires avec le design :
+- Une note exige une matière (règle existante) : l'ajout rapide ajoute le champ « Quelle matière ? », et renvoie vers la création d'une matière quand le compte n'en a aucune.
+- Un cours ajouté ici va au planning personnel : dans un établissement, l'onglet « Cours » l'explique et propose de passer en « Perso ».
+- Un cours hebdomadaire ajouté ici dure 26 semaines ; la date de fin est affichée et se change dans le planning.
+- Sans cours à venir, la carte du prochain cours dit « Pas de cours aujourd'hui » au lieu de disparaître.
+- La bordure des champs reste plus foncée que dans le design, pour rester visible.
+- Le parcours de démarrage, les retours de cours à renseigner et la mention « moyenne indicative » sont conservés, absents du design.
+
+Ce que ce travail ne fait pas :
+- Le tutoiement du design n'est appliqué qu'à l'accueil, à l'ajout rapide et à la navigation. Le reste de l'application vouvoie encore (A58).
+- Sur téléphone, « Tâches » n'est plus dans la navigation basse : on y va par « À faire › Tout voir » ou par le pied de page.
+- Les autres points de la revue ne sont pas traités : formulaires en bas de page sur Matières, Périodes et Planning, vocabulaire technique du planning, formulaire de cours complet, bandeau de confidentialité sur chaque page, bloc pièces jointes des tâches, liste des fuseaux, dates au format brut (A59).
+
+Non vérifié : aucun téléphone réel, Safari, Firefox ni lecteur d'écran ; recette-edge et second-factor-edge adaptés mais non relancés ; enregistrement d'une note par l'ajout rapide non essayé dans le navigateur (le compte d'essai n'avait aucune matière) ; page hors connexion et icônes installées encore aux anciennes couleurs ; identifiant de version (REVISION) non recalculé.
+
+Rien n'a été validé dans Git pour ce travail.
+
+## Code de matière automatique — demande du porteur (24 novembre 2026)
+
+Demande : à la création d’une matière, le code doit être créé automatiquement à partir du nom.
+
+Résultat : le formulaire « Créer : Matières » ne demande plus que le nom. Le serveur tire le code du nom : quatre lettres pour un seul mot (« Mathématiques » donne MATH), trois lettres par mot significatif, trois mots au plus, sinon (« Histoire-géographie » donne HIS-GEO). Si le code existe déjà dans le même espace ou le même établissement, un numéro est ajouté (MATH-2). Le code reste modifiable depuis « Modifier ». Les autres référentiels (périodes, groupes, types, années) demandent toujours leur code.
+
+Fichiers modifiés : app/Services/AcademicAdministration.php, resources/js/pages/AcademicReferences.tsx, tests/Feature/AcademicAdministrationTest.php (1 test ajouté), tests/browser/journeys-edge.mjs et recette-edge.mjs (ne saisissent plus le code).
+
+Vérifications réellement exécutées : AcademicAdministrationTest 16 tests réussis ; typage, lint, build ; parcours dans Edge 35 contrôles réussis, dont la création d’une matière sans code (code obtenu : PAR-112-MAT). Suite PHPUnit complète et recette-edge non relancées après ce changement.
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Allègement des formulaires — consigne du porteur (24 novembre 2026)
+
+Consigne : « le mot d'ordre c'est facilité » ; alléger tous les processus possibles.
+
+Résultat : chaque formulaire de création ne montre plus que l'essentiel ; le reste est replié sous « Plus d'options », avec des valeurs par défaut, et s'ouvre de lui-même quand un de ses champs porte une erreur. Aucun contrôle du serveur n'est retiré.
+- Matières, périodes, groupes, types, années : le code n'est plus demandé à la création, il est tiré du nom (remplace la règle limitée aux matières). Le formulaire d'ajout passe en haut de l'écran ; la recherche n'apparaît que s'il y a plus de cinq lignes. Pour une période, sous-période, type et poids sont repliés. Dates lisibles.
+- Cours (planning) : titre, répétition, jours, dates, heures. Le jour coché est celui de la date affichée, plus « Lundi ». Un cours personnel hebdomadaire dure 26 semaines par défaut. Matière, salle, lien, fuseau et vacances sont repliés. La confirmation d'un chevauchement n'apparaît que si le serveur en signale un. Vocabulaire : « Ajouter un cours », « Cours enregistrés », « L'afficher sur une autre période » remplacent « série », « matérialiser une fenêtre », « générer sans doublon ».
+- Tâches : titre et échéance ; description, matière et priorité repliées. Les filtres sont repliés tant qu'aucun n'est appliqué. Sur chaque tâche, étapes et pièces jointes sont repliées.
+- Notes : matière, intitulé, note, barème ; date, période, coefficient et état repliés (aujourd'hui, période affichée, 1, « Notée »).
+- Le rappel de la notice de confidentialité n'apparaît plus que sur l'accueil et le profil.
+
+Fichiers créés : resources/js/components/ui/MoreOptions.tsx.
+Modifications de l'existant : AcademicAdministration (code tiré du nom), ScheduleController (messages), Schedule.tsx, Tasks.tsx, Grades.tsx, AcademicReferences.tsx, AttachmentList.tsx, CampusLayout.tsx, app.css, AcademicAdministrationTest (1 test ajouté, 1 adapté), scripts de navigateur (nouveaux libellés du cours ; les blocs repliés sont dépliés avant chaque geste).
+
+Vérifications réellement exécutées : PHPUnit 271 tests, 270 réussis, 1 ignoré ; typage, lint, build ; dans Edge 158 : parcours 35 contrôles réussis, audit d'accessibilité 78 contrôles réussis ; captures des cinq écrans relues.
+
+Non traité : liste des fuseaux du profil, formulaires de l'administration (invitations, import, publication, catalogue), écrans de l'enseignant (devoirs, évaluations), vouvoiement de ces écrans (A58). Non vérifié : recette-edge, second-factor-edge et pwa-edge non relancés après ce changement ; aucun essai par une vraie personne.
+
+Rien n'a été validé dans Git pour ce travail.
+
+## Jeu de démonstration — demande du porteur (24 novembre 2026)
+
+Demande : des données fictives pour rendre les essais à la main plus agréables.
+
+Résultat : database/seeders/CampusShowcaseSeeder.php, réservé aux bases locales. Pour les comptes fictifs « independant » et « apprenant-double » : 5 matières avec coefficient, une période « Trimestre 1 », 10 cours hebdomadaires avec salle sur 16 semaines, 8 tâches (une en retard, une pour aujourd’hui, une terminée, une sans date), 8 notes. Pour « apprenant-double » : des critères d’opportunités déclarés. Au catalogue : 13 fiches « [FICTIF] » variées (catégories, niveaux, modalités, financements, pays, langues, domaines, une fiche close). Cours, tâches et notes passent par les services des écrans ; relancer le jeu ne crée aucun doublon.
+
+Commande : php artisan db:seed --class=CampusShowcaseSeeder
+
+Vérifications réellement exécutées : jeu lancé deux fois sur la base locale sans doublon ; accueil des deux comptes relu par le service (3 cours de démonstration ce mardi, moyenne 13,42 sur 5 matières, 3 opportunités proposées au compte qui a déclaré ses critères) ; chaque filtre du catalogue essayé renvoie au moins une fiche. Aucun test automatique n’a été ajouté pour ce jeu, et la suite PHPUnit n’a pas été relancée (aucun code de l’application modifié).
+
+Limite : la base locale garde les données laissées par les scripts de navigateur ([PARCOURS], [RECETTE], [CHARGE]) ; elles n’ont pas été supprimées.
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Planning en calendrier — demande du porteur (24 novembre 2026)
+
+Demande : présenter le planning comme un calendrier ou un agenda, au lieu d’une liste de cartes.
+
+Résultat : la vue « Semaine » est un calendrier : heures en marge, une colonne par jour, chaque cours à sa place et à sa durée, avec son heure et sa salle. Le jour courant est marqué, une ligne indique l’heure actuelle, les cours qui se chevauchent sont côte à côte, un cours d’établissement a une autre couleur, un cours annulé est barré. Toucher un cours affiche dessous son détail et ses actions (retour, tâche, historique, modifier ou annuler). Toucher un jour ouvre la vue « Jour ». Sur téléphone, le calendrier défile de côté. Les vues « Jour » et « Liste » gardent les cartes détaillées.
+
+Fichiers modifiés : resources/js/pages/Schedule.tsx, resources/css/app.css. Preuves : docs/preuves/calendrier-semaine-ordinateur.png et calendrier-semaine-telephone.png.
+
+Vérifications réellement exécutées : typage, lint, build ; dans Edge 158 : 11 cours placés sur 7 colonnes, détail affiché au clic, page sans défilement latéral sur téléphone ; parcours 35 contrôles réussis, audit d’accessibilité 78 contrôles réussis, PWA 36 contrôles réussis. Suite PHPUnit non relancée (aucun code serveur modifié).
+
+Non vérifié : aucun téléphone réel ; semaine avec plus de 50 cours (la liste est paginée par 50) ; cours à cheval sur minuit.
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Notes en liste à toucher — demande du porteur (24 novembre 2026)
+
+Demande : l’ajout de note était trop bas ; matières et coefficients en liste, « Modifier » apparaissant quand on touche.
+
+Résultat : en haut, la moyenne générale en grand, puis le bouton « + Ajouter une note » qui déplie le formulaire. Dessous, « Par matière » : une ligne par matière (nom, nombre de notes, coefficient, moyenne). Toucher une matière affiche ses notes et « Modifier le coefficient » ; le champ du coefficient n’apparaît qu’après ce geste. Toucher une note affiche « Corriger » et « Supprimer ». L’explication du calcul est repliée sous « Comment est-elle calculée ? ». Le choix de la source n’apparaît que s’il y en a plusieurs.
+
+Fichiers modifiés : resources/js/pages/Grades.tsx, resources/css/app.css, tests/browser/journeys-edge.mjs et recette-edge.mjs (déplient la matière avant de lire). Preuve : docs/preuves/notes-liste-telephone.png.
+
+Vérifications réellement exécutées : typage, lint, build ; dans Edge : matière dépliée (2 notes et « Modifier le coefficient »), coefficient modifié puis remis, note dépliée (« Corriger », « Supprimer ») ; parcours 35 contrôles réussis ; audit d’accessibilité 78 contrôles réussis ; recette 19 contrôles réussis, dont la moyenne 12,67. Suite PHPUnit non relancée (aucun code serveur modifié).
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Tâches et opportunités plus simples — demande du porteur (24 novembre 2026)
+
+Demande : faciliter l’ajout et la lecture des tâches ; pareil pour les opportunités, avec des images liées aux sources.
+
+Tâches : en haut, un champ « Titre » et trois raccourcis de date (Aujourd’hui, Demain, Dans une semaine, à 18 h) ; le reste replié. La liste est rangée par moment : En retard, Aujourd’hui, Demain, Cette semaine, Plus tard, Sans date, avec le nombre de tâches. Chaque tâche est une ligne : une case ronde pour la terminer d’un geste, le titre, la date en pastille, la matière, et la priorité si elle est haute. Toucher la ligne affiche le détail et les actions (Commencer, Terminer, Modifier, Supprimer, étapes et fichiers). Les filtres passent sous la liste, repliés.
+
+Opportunités : catégories en pastilles (Tout, Bourse, Concours, Stage, Formation), une ligne de recherche, les autres filtres repliés. Chaque fiche devient une carte avec un visuel par catégorie (pictogramme et couleur), la date limite en pastille, l’organisateur, le pays, et le nom du site source.
+
+Images des sources : non faites. Afficher l’image d’un site source demanderait soit que le serveur aille la chercher (interdit : « pas de fetch serveur d’URL fournie »), soit que la page la charge depuis ce site (interdit par la politique de sécurité, et chaque visite serait signalée à ce site). Le visuel par catégorie les remplace en attendant une décision (A60).
+
+Fichiers modifiés : resources/js/pages/Tasks.tsx, Opportunities.tsx, components/Icon.tsx, resources/css/app.css, OpportunityController (catégorie et site source transmis à la liste), scripts de navigateur (une tâche se déplie avant d’agir ; recherche du catalogue).
+
+Vérifications réellement exécutées : typage, lint, build ; tests PHP des tâches et des opportunités (25 réussis) ; dans Edge : tâche dépliée, tâche ajoutée par « Demain » rangée dans « Demain » ; parcours 35, audit d’accessibilité 78, recette 19 contrôles réussis. Suite PHPUnit complète non relancée.
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Ajout d’une tâche depuis le calendrier et heure de la tâche — demande du porteur (24 novembre 2026)
+
+Résultat : dans la vue « Semaine » du planning, toucher une case vide ouvre l’ajout rapide sur l’onglet « Tâche », avec le jour et l’heure de la case (à la demi-heure près). Un bouton « + Tâche » sous chaque jour fait la même chose au clavier (18 h par défaut). Partout où l’on saisit une échéance (écran des tâches, modification d’une tâche, ajout rapide), elle se choisit en deux champs : « Quel jour ? » (raccourcis Aujourd’hui, Demain, Dans une semaine) et « À quelle heure ? » (18 h si rien n’est choisi).
+
+Fichiers : resources/js/components/DueFields.tsx (créé), quickAddEvents.ts, QuickAdd.tsx, CampusLayout.tsx, pages/Tasks.tsx, pages/Schedule.tsx, resources/css/app.css. Preuve : docs/preuves/calendrier-ajout-tache.png.
+
+Vérifications réellement exécutées : typage, lint, build ; dans Edge : clic sur mercredi 16 h → panneau prérempli 25/11/2026 16:00, tâche enregistrée « mer. 25 nov. 16:00 » ; tâche « Demain » à 07:30 enregistrée à cette heure ; parcours 35, audit d’accessibilité 78 et PWA 36 contrôles réussis. Aucun code serveur modifié.
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Rappels en fenêtres surgissantes — demande du porteur (24 novembre 2026)
+
+Demande : faire apparaître une notification à la fin d’un cours et quand une tâche arrive.
+
+Résultat :
+- Fenêtres surgissantes : tant qu’un onglet Campus est ouvert, il demande toutes les 30 secondes les rappels arrivés pour le compte (route GET /notifications/recentes, compte connecté seulement, rien n’est marqué comme lu) et les affiche en bas à droite avec « Ouvrir » et « Plus tard ». Les fenêtres ouvertes survivent au changement de page. Si l’onglet est caché et que les notifications du navigateur sont autorisées, une notification système générique s’affiche aussi.
+- Nouveau rappel de tâche juste avant son heure (1 h avant par défaut ; 15 min, 30 min, 2 h, 3 h ou jamais dans les préférences de notification). Il s’ajoute aux rappels de la veille et du jour même, et disparaît si la tâche est terminée, déplacée ou retirée. Migration additive : notification_preferences.task_before_minutes (60 par défaut).
+- La fin d’un cours produisait déjà un rappel (5 min après par défaut) ; il surgit désormais aussi.
+- Correction : la confirmation d’un chevauchement de cours n’apparaissait plus depuis l’allègement du formulaire (le serveur le signale sous la clé « conflict ») ; elle réapparaît dans le planning et l’ajout rapide.
+
+Poste local : une clé Web Push ajoutée au fichier .env local (non affichée, non versionnée), pour les notifications appareil fermé après « Activer sur cet appareil ». Les rappels ne sont produits que si le planificateur et la file tournent (php artisan schedule:work et php artisan queue:work, ou composer run dev).
+
+Fichiers : migration 2026_11_24_150105, NotificationPreference, NotificationPlanner, NotificationDispatcher, NotificationController, routes/web.php, NotificationSettings.tsx, components/NotificationPopups.tsx (créé), CampusLayout.tsx, Schedule.tsx, QuickAdd.tsx, app.css, NotificationTest (1 test ajouté), journeys-edge (confirme son propre chevauchement). Preuve : docs/preuves/rappel-surgissant.png.
+
+Vérifications réellement exécutées : PHPUnit 272 tests, 271 réussis, 1 ignoré ; 23 tests JavaScript ; typage, lint, build ; essai réel sur la base locale : tâche fictive due dans une heure, rappel remis par la file à l’heure prévue puis affiché dans Edge sans recharger la page, avec un rappel de fin de cours ; parcours 35, recette 19, audit d’accessibilité 78, PWA 36 contrôles réussis. Non vérifié : une notification système appareil fermé (Web Push) reçue réellement ; un téléphone réel.
+
+Remarque : une file qui tourne en continu sans dispense de second facteur fait échouer l’import de planning lancé par les scripts de navigateur ; il faut l’arrêter pendant ces scripts.
+
+Rien n’a été validé dans Git pour ce travail.
+
+## Page d’accueil des visiteurs et connexion, style « nuit » — demande du porteur (24 novembre 2026)
+
+Demande : améliorer la page d’accueil et la page de connexion dans le style de la maquette « Magic Schedule » (fond nuit violette, lueurs, semaine en relief).
+
+Résultat : un visiteur arrive sur une vraie page de présentation (resources/js/components/Landing.tsx) : en-tête, accroche « Ta semaine prend du relief. », semaine d’exemple en relief dessinée en CSS 3D (components/WeekRelief.tsx, sans bibliothèque), démonstration du retour après cours, rappels, onglets Élève / Enseignant / Établissement, catalogue d’opportunités, appel final, pied de page. Connexion et création de compte reprennent le même fond, le panneau de présentation et une semaine en relief miniature.
+
+Écarts volontaires avec la maquette : aucune bibliothèque 3D (three.js) ni police externe, interdites par la politique de sécurité et la règle « aucune dépendance sans accord » ; pas d’écran de chargement (il retarde l’accès) ; rien sur Premium, le paiement, l’assistant IA, les difficultés, les documents, les annonces, l’absence d’un professeur ni la connexion Microsoft (hors V1, A57) ; pas de formulaire « rejoindre la bêta », remplacé par « Créer un compte » ; la police reste Outfit. Seules des fonctions qui existent sont présentées ; les cours montrés sont signalés comme des exemples.
+
+Fichiers : Landing.tsx et WeekRelief.tsx (créés), pages/Home.tsx (un visiteur voit la présentation), layouts/AuthLayout.tsx, resources/css/app.css. Preuves : docs/preuves/accueil-visiteur-nuit.png, connexion-nuit.png.
+
+Vérifications réellement exécutées : typage, lint, build ; tests PHP de l’accueil et du durcissement (20 réussis) ; dans Edge : audit d’accessibilité 78 contrôles réussis (accueil et connexion à 1 280, 360 et 320 px, contrastes mesurés), parcours 35, PWA 36 contrôles réussis.
+
+Rien n’a été validé dans Git pour ce travail.

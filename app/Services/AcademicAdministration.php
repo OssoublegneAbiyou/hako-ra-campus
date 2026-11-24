@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AcademicAdministration
@@ -124,7 +125,12 @@ class AcademicAdministration
                     if (in_array($kind, ['enrollments', 'assignments'], true)) {
                         $this->assignment($r, $model, $kind, $acting, $id);
                     } else {
-                        $data = $r->validate(['code' => 'required|string|max:40', 'name' => 'required|string|max:255']);
+                        // Le code n'est pas demandé à la création : il est tiré du nom. Il reste modifiable ensuite.
+                        $generated = ! $id && trim((string) $r->input('code')) === '';
+                        $data = $r->validate(['code' => ($generated ? 'nullable' : 'required').'|string|max:40', 'name' => 'required|string|max:255']);
+                        if ($generated) {
+                            $data['code'] = $this->codeFromName(clone $q, $data['name']);
+                        }
                         $this->valid(! (clone $q)->where('code', $data['code'])->when($id, fn ($b) => $b->where('id', '!=', $id))->exists(), 'code', 'Ce code est déjà utilisé dans ce périmètre.');
                         $model->fill($data);
                         if (! $id) {
@@ -159,6 +165,30 @@ class AcademicAdministration
             }
             throw $e;
         }
+    }
+
+    /**
+     * Code d'une référence tiré de son nom : trois lettres par mot significatif, trois mots au plus (« Histoire-géographie » donne HIS-GEO),
+     * quatre lettres pour un seul mot (« Mathématiques » donne MATH) ; un mot qui contient un chiffre est gardé tel quel (« Trimestre 1 » donne TRI-1,
+     * « 2026-2027 » reste 2026-2027). Un numéro est ajouté si le code existe déjà dans le périmètre.
+     */
+    private function codeFromName(Builder $scope, string $name): string
+    {
+        $ignored = ['DE', 'DU', 'DES', 'D', 'LA', 'LE', 'LES', 'L', 'ET', 'EN', 'A', 'AU', 'AUX'];
+        $words = array_values(array_filter(preg_split('/[^A-Z0-9]+/', Str::upper(Str::ascii($name))) ?: [], fn (string $word): bool => $word !== '' && ! in_array($word, $ignored, true)));
+        $short = fn (string $word, int $letters): string => preg_match('/\d/', $word) === 1 ? substr($word, 0, 8) : substr($word, 0, $letters);
+        $base = match (count($words)) {
+            0 => 'REF',
+            1 => $short($words[0], 4),
+            default => implode('-', array_map(fn (string $word): string => $short($word, 3), array_slice($words, 0, 3))),
+        };
+        $taken = $scope->where('code', 'like', $base.'%')->pluck('code')->map(fn (string $code): string => Str::upper($code))->flip();
+        $code = $base;
+        for ($number = 2; isset($taken[$code]); $number++) {
+            $code = $base.'-'.$number;
+        }
+
+        return $code;
     }
 
     private function valid(bool $condition, string $field, string $message): void

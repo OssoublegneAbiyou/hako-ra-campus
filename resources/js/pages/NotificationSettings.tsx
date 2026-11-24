@@ -7,7 +7,7 @@ import { CheckboxField, ErrorSummary, SelectField, TextField } from '../componen
 
 type Category = { key: string; label: string; mandatory: boolean; hint: string; enabled: boolean; email: boolean; push: boolean };
 type Props = {
-    preference: { version: number; timezone: string; quietStart: string; quietEnd: string; courseEndDelay: number; taskDayBefore: boolean; taskSameDay: boolean; taskReminderTime: string; digestEnabled: boolean; digestTime: string; favoriteFirstDays: number; favoriteSecondDays: number };
+    preference: { version: number; timezone: string; quietStart: string; quietEnd: string; courseEndDelay: number; taskDayBefore: boolean; taskSameDay: boolean; taskReminderTime: string; taskBeforeMinutes: number; digestEnabled: boolean; digestTime: string; favoriteFirstDays: number; favoriteSecondDays: number };
     categories: Category[]; channels: { email: boolean; push: boolean; pushPublicKey: string | null; hasVerifiedEmail: boolean };
     devices: { id: number; label: string; createdAt: string; lastAcceptedAt: string | null }[]; recentDeliveries: { id: number; channel: string; status: string; at: string }[]; timezones: string[];
 };
@@ -68,7 +68,7 @@ export default function NotificationSettings({ preference, categories, channels,
     const optional = categories.filter((category) => !category.mandatory);
     const form = useForm({
         expected_version: preference.version, timezone: preference.timezone, quiet_start: preference.quietStart, quiet_end: preference.quietEnd, course_end_delay: preference.courseEndDelay,
-        task_day_before: preference.taskDayBefore, task_same_day: preference.taskSameDay, task_reminder_time: preference.taskReminderTime, digest_enabled: preference.digestEnabled, digest_time: preference.digestTime,
+        task_day_before: preference.taskDayBefore, task_same_day: preference.taskSameDay, task_reminder_time: preference.taskReminderTime, task_before_minutes: preference.taskBeforeMinutes, digest_enabled: preference.digestEnabled, digest_time: preference.digestTime,
         favorite_first_days: preference.favoriteFirstDays, favorite_second_days: preference.favoriteSecondDays,
         categories: Object.fromEntries(optional.map((category) => [category.key, { enabled: category.enabled, email: category.email, push: category.push }])) as Record<string, { enabled: boolean; email: boolean; push: boolean }>,
     });
@@ -100,6 +100,9 @@ export default function NotificationSettings({ preference, categories, channels,
                         <CheckboxField label="Rappel de tâche la veille de l’échéance" checked={form.data.task_day_before} onChange={(event) => form.setData('task_day_before', event.target.checked)} />
                         <CheckboxField label="Rappel de tâche le jour de l’échéance" checked={form.data.task_same_day} onChange={(event) => form.setData('task_same_day', event.target.checked)} />
                         <TextField label="Heure des rappels de tâche" type="time" required value={form.data.task_reminder_time} error={form.errors.task_reminder_time} onChange={(event) => form.setData('task_reminder_time', event.target.value)} />
+                        <SelectField label="Rappel juste avant l’heure d’une tâche" value={String(form.data.task_before_minutes)} error={form.errors.task_before_minutes} onChange={(event) => form.setData('task_before_minutes', Number(event.target.value))}>
+                            {[[0, 'Jamais'], [15, '15 minutes avant'], [30, '30 minutes avant'], [60, '1 heure avant'], [120, '2 heures avant'], [180, '3 heures avant']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                        </SelectField>
                         <TextField label="Fiches suivies : premier rappel (jours avant la date limite, 0 pour aucun)" type="number" min={0} max={30} hint="Pour vos favoris et vos démarches en cours, quand la fiche publie une date." value={form.data.favorite_first_days} error={form.errors.favorite_first_days} onChange={(event) => form.setData('favorite_first_days', Number(event.target.value))} />
                         <TextField label="Fiches suivies : second rappel (jours avant la date limite, 0 pour aucun)" type="number" min={0} max={30} value={form.data.favorite_second_days} error={form.errors.favorite_second_days} onChange={(event) => form.setData('favorite_second_days', Number(event.target.value))} />
                         <CheckboxField label="Recevoir une synthèse quotidienne" hint="Facultative. Elle n’est envoyée que s’il y a une tâche à échéance ou un retour de cours à renseigner." checked={form.data.digest_enabled} onChange={(event) => form.setData('digest_enabled', event.target.checked)} />

@@ -3,6 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Models\Membership;
+use App\Models\PersonalPeriod;
+use App\Models\PersonalSubject;
+use App\Models\User;
 use App\Models\UserNotification;
 use App\Services\ActiveContext;
 use App\Services\OfflineSnapshot;
@@ -13,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -57,6 +61,10 @@ class HandleInertiaRequests extends Middleware
         $awaitingSecondFactor = $user !== null && $user->secondFactor?->isConfirmed() === true && ! app(SecondFactors::class)->sessionVerified($request, $user);
         $active = $awaitingSecondFactor ? null : $contexts->current($request);
         $flash = fn (string $key) => fn () => $request->hasSession() ? $request->session()->get($key) : null;
+        $member = $user !== null && $user->status === 'active' && $user->hasVerifiedEmail() && ! $awaitingSecondFactor;
+        $available = $member ? $contexts->available($user) : collect();
+        // Nom court d'un contexte, pour les pastilles : le rôle n'est ajouté que si deux appartenances portent le même nom.
+        $sameName = $available->countBy(fn (Membership $membership): string => $contexts->label($membership));
 
         return [
             ...parent::share($request),
@@ -69,8 +77,11 @@ class HandleInertiaRequests extends Middleware
                 'oneTimeSecret' => $flash('oneTimeSecret'),
                 'oneTimeLink' => $flash('oneTimeLink'),
             ],
+            // Données de l'ajout rapide : chargées seulement à l'ouverture du panneau, jamais avec chaque page.
+            'quickAdd' => Inertia::optional(fn (): ?array => $member ? $this->quickAdd($user, $active) : null),
             'campus' => [
                 'development' => $development,
+                'quickAddAvailable' => $member,
                 // Version en service, affichée en pied de page.
                 'version' => AppVersion::current(),
                 'context' => [
@@ -83,9 +94,10 @@ class HandleInertiaRequests extends Middleware
                     },
                     'membershipId' => $active?->id,
                 ],
-                'contexts' => $user && $user->status === 'active' && $user->hasVerifiedEmail() && ! $awaitingSecondFactor
-                    ? $contexts->available($user)->map(fn (Membership $membership): array => [
+                'contexts' => $member
+                    ? $available->map(fn (Membership $membership): array => [
                         'membershipId' => $membership->id,
+                        'short' => $contexts->label($membership).($sameName[$contexts->label($membership)] > 1 ? ' · '.Membership::ROLE_LABELS[$membership->role] : ''),
                         'label' => $contexts->label($membership).' — '.Membership::ROLE_LABELS[$membership->role]
                             .($membership->academicYear ? ' ('.$membership->academicYear->name.')' : ''),
                     ])->all()
@@ -99,6 +111,26 @@ class HandleInertiaRequests extends Middleware
                 'privacyNoticePending' => $user && $user->status === 'active' && $user->hasVerifiedEmail()
                     && ! DB::table('privacy_acknowledgements')->where('user_id', $user->id)->where('notice_version', PrivacyNotice::current()['version'])->exists(),
             ],
+        ];
+    }
+
+    /**
+     * Ce qu'il faut pour ajouter en un geste un cours, une tâche ou une note dans son espace individuel : fuseau, matières et période en cours du seul compte connecté.
+     *
+     * @return array{timezone: string, today: string, individual: bool, subjects: list<array{id: int, name: string}>, periodId: int|null}
+     */
+    private function quickAdd(User $user, ?Membership $active): array
+    {
+        $timezone = $user->personalSpace?->timezone ?? (string) config('app.display_timezone');
+        $today = now($timezone)->toDateString();
+
+        return [
+            'timezone' => $timezone, 'today' => $today,
+            // Un cours ajouté ici va au planning personnel : il n'est proposé que dans l'espace individuel.
+            'individual' => $active === null,
+            'subjects' => PersonalSubject::query()->where('owner_id', $user->id)->whereNull('archived_at')->orderBy('name')->limit(200)->get(['id', 'name'])
+                ->map(fn (PersonalSubject $subject): array => ['id' => $subject->id, 'name' => $subject->name])->all(),
+            'periodId' => PersonalPeriod::query()->where('owner_id', $user->id)->whereNull('archived_at')->where('starts_on', '<=', now()->toDateString())->where('ends_on', '>=', now()->toDateString())->orderBy('starts_on')->value('id'),
         ];
     }
 }

@@ -44,7 +44,7 @@ class HomeDashboard
             // Cours du jour, toutes sources visibles par le compte : chaque ligne porte sa provenance.
             'today' => $this->agenda->courses($user, $start, $start->addDay()),
             'pendingCheckIns' => $this->checkIns->pending($user, 5)->all(),
-            'upcomingTasks' => $this->tasks->upcoming($user, 5),
+            'upcomingTasks' => $this->tasks->upcoming($user, 5, $timezone),
             'grades' => $this->gradeViews($user),
             'opportunities' => $this->relevantOpportunities($user),
             'individualSteps' => $this->individualSteps($user),
@@ -61,7 +61,9 @@ class HomeDashboard
     {
         $pick = fn (array $periods): ?array => collect($periods)->firstWhere('current', true) ?? ($periods[0] ?? null);
         $view = fn (string $label, string $provenance, array $period, array $summary): array => ['label' => $label, 'provenance' => $provenance, 'period' => $period['label'],
-            'average' => $summary['general']['average'], 'counted' => $summary['general']['counted'], 'total' => $summary['general']['total'], 'missingCoefficients' => $summary['general']['missingCoefficients']];
+            'average' => $summary['general']['average'], 'counted' => $summary['general']['counted'], 'total' => $summary['general']['total'], 'missingCoefficients' => $summary['general']['missingCoefficients'],
+            // Moyenne de chaque matière notée, pour les barres de l'accueil : mêmes valeurs que l'écran des notes.
+            'subjects' => array_values(array_map(fn (array $subject): array => ['name' => $subject['name'], 'average' => $subject['average']], array_filter($summary['subjects'], fn (array $subject) => ($subject['average'] ?? null) !== null)))];
         $views = [];
         $period = $pick($this->grades->personalPeriods($user));
         if ($period !== null) {

@@ -249,7 +249,7 @@ class NotificationDispatcher
                 }
 
                 return $this->checkIns->shouldRemind($user, (string) $notification->subject_uuid) ? null : 'settled';
-            case 'task.due.d1': case 'task.due.d0':
+            case 'task.due.d1': case 'task.due.d0': case 'task.due.soon':
                 $task = $this->tasks->visible($user)->where('tasks.id', $notification->subject_uuid)->first();
                 if ($task === null) {
                     return 'unavailable';

@@ -1148,3 +1148,26 @@ Remarques :
 - Test 2 : le blocage configuré dure 60 secondes à partir du premier échec de la série ; l'écran affiche le temps restant. Voir « 30 secondes » après cinq essais étalés sur une trentaine de secondes est donc le comportement attendu, pas un écart.
 - Test 4 : bloqué par l'absence de compte d'administration utilisable à la main (mots de passe aléatoires du jeu fictif, aucun courriel envoyé). Ce blocage concerne aussi les tests 5 à 13. Depuis le lot 21, il se lève sur le poste de développement avec « php artisan campus:fixtures:access » (mot de passe saisi sans écho, donné aux seuls comptes fictifs), le serveur local étant lancé avec CAMPUS_PRIVILEGED_WITHOUT_MFA=true pour les rôles d'administration et d'enseignement ; « --lock » referme l'accès.
 - Ces résultats complètent R01 (test 1), R02 (test 2) et le cas I08 (test 3) par une observation en navigateur réel ; ils ne valent pas réception de phase.
+
+## Accueil élève repensé et ajout rapide (24 novembre 2026)
+
+Environnement : poste de développement, base locale de données fictives, Edge 158 sans interface, serveur de développement. Comptes fictifs ouverts le temps des scripts, puis refermés.
+
+| Contrôle | Attendu | Observé | État |
+|---|---|---|---|
+| PHPUnit complet | aucun échec | 270 tests, 269 réussis, 1 ignoré | Passé |
+| Changement de contexte (HomeTest) | reste sur un écran commun ; jamais vers une adresse reçue ; appartenance étrangère introuvable | conforme | Passé |
+| Données de l'ajout rapide (HomeTest) | à la demande, matières du seul compte, rien pour un visiteur | conforme | Passé |
+| Tâche cochée depuis l'accueil (HomeTest) | autre compte : introuvable ; propriétaire : tâche terminée, retour à l'accueil | conforme | Passé |
+| Pastille de contexte, dans Edge | l'accueil reste affiché ; en établissement, l'onglet Cours renvoie vers « Perso » | conforme | Passé |
+| Tâche par l'ajout rapide, dans Edge | créée, visible sur l'accueil et dans Mes tâches, puis cochée | conforme | Passé |
+| Cours hebdomadaire par l'ajout rapide, dans Edge | jour du jour présélectionné ; une occurrence cette semaine au planning | « Mardi » présélectionné ; une occurrence | Passé |
+| Note par l'ajout rapide, dans Edge | enregistrée dans Notes | compte sans matière : renvoi vers la création d'une matière ; enregistrement non essayé | Partiel |
+| Audit d'accessibilité (audit-edge) | aucun échec | 78 contrôles réussis | Passé |
+| Parcours (journeys-edge) | aucun échec | 35 contrôles réussis, après adaptation de 5 contrôles aux nouveaux textes | Passé |
+| PWA (pwa-edge) | aucun échec | 36 contrôles réussis | Passé |
+| recette-edge, second-factor-edge | aucun échec | adaptés aux pastilles, non relancés | Non exécuté |
+
+Preuves : docs/preuves/design2-accueil-ordinateur.png, design2-accueil-telephone.png, design2-ajout-cours-ordinateur.png, design2-ajout-cours-telephone.png.
+
+Limites : un seul navigateur, sur un poste de développement ; aucune personne réelle n'a essayé l'écran.

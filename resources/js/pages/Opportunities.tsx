@@ -5,10 +5,12 @@ import { Button } from '../components/ui/Button';
 import { Pagination } from '../components/ui/Collection';
 import { StateMessage } from '../components/ui/Feedback';
 import { CheckboxField, SelectField, TextField } from '../components/ui/Fields';
-import { DeadlineState, type Deadline } from '../components/OpportunityDeadline';
+import { type Deadline } from '../components/OpportunityDeadline';
+import { MoreOptions } from '../components/ui/MoreOptions';
+import { Icon } from '../components/Icon';
 
 type Item = {
-    id: string; categoryLabel: string; title: string; organizer: string; campaign: string; countryLabels: string[]; modality: string; funding: string; fees: string; fields: string[];
+    id: string; category: string; categoryLabel: string; title: string; sourceHost: string | null; organizer: string; campaign: string; countryLabels: string[]; modality: string; funding: string; fees: string; fields: string[];
     deadline: Deadline; verifiedAt: string | null; availability: string; match: { overall: 'match' | 'check' | 'mismatch'; overallLabel: string } | null;
 };
 type Filters = { q: string; categorie: string; niveau: string; pays: string; domaine: string; modalite: string; financement: string; langue: string; cloture: string; tri: string };
@@ -45,13 +47,18 @@ export default function Opportunities({ opportunities, pagination, filters, opti
     return (
         <CampusLayout active="opportunities" title="Opportunités">
             <Head title="Opportunités" />
-            <div className="page-heading"><p className="eyebrow">CATALOGUE VÉRIFIÉ</p><h1>Opportunités</h1><p className="page-intro">Bourses, concours, stages et formations. Chaque fiche renvoie à la source officielle, vérifiée par l’équipe éditoriale à la date indiquée. Cette vérification ne garantit ni votre éligibilité ni l’obtention.</p></div>
+            <div className="page-heading"><h1>Bourses, concours, stages</h1><p className="page-intro">Chaque fiche renvoie à sa source officielle, vérifiée par l’équipe. Cela ne garantit ni ton éligibilité ni l’obtention.</p></div>
 
             <section className="surface" aria-labelledby="filters-title">
-                <h2 id="filters-title">Rechercher et filtrer</h2>
+                <h2 id="filters-title" className="sr-only">Rechercher et filtrer</h2>
+                <div className="category-chips" role="group" aria-label="Catégorie">{[['', 'Tout'], ...Object.entries(options.categories)].map(([value, label]) => <Link key={value} className="chip" aria-current={filters.categorie === value ? 'true' : undefined} href={`/opportunites?${new URLSearchParams(Object.fromEntries(Object.entries({ ...filters, categorie: value }).filter(([key, entry]) => entry !== '' && entry !== DEFAULTS[key as keyof Filters]))).toString()}`} preserveScroll>{label}</Link>)}</div>
                 <form onSubmit={submit} role="search">
+                    <div className="search-line">
+                        <TextField label="Rechercher" type="search" maxLength={100} placeholder="Titre, organisateur ou domaine" value={form.q} error={errors.q} onChange={(event) => set('q', event.target.value)} />
+                        <Button type="submit">Rechercher</Button>
+                    </div>
+                    <MoreOptions label="Plus de filtres : niveau, pays, domaine, financement…" reveal={(['niveau', 'pays', 'domaine', 'modalite', 'financement', 'langue'] as (keyof Filters)[]).some((key) => filters[key] !== '') || filters.cloture !== 'ouvertes' || filters.tri !== 'cloture'}>
                     <div className="filter-bar">
-                        <TextField label="Titre, organisateur ou domaine" type="search" maxLength={100} value={form.q} error={errors.q} onChange={(event) => set('q', event.target.value)} />
                         {select('Catégorie', 'categorie', Object.entries(options.categories), 'Toutes')}
                         {select('Niveau', 'niveau', Object.entries(options.levels).filter(([value]) => value !== 'any'), 'Tous')}
                         {select('Pays où se déroule l’opportunité', 'pays', options.countries.map((item) => [item.value, item.label]), 'Tous')}
@@ -66,9 +73,11 @@ export default function Opportunities({ opportunities, pagination, filters, opti
                             {Object.entries(options.sorts).map(([value, text]) => <option key={value} value={value}>{text}</option>)}
                         </SelectField>
                     </div>
-                    <div className="form-actions"><Button type="submit">Appliquer</Button>{active.length > 0 && <Link className="button button-secondary" href="/opportunites">Réinitialiser les filtres ({active.length})</Link>}</div>
+                    <p className="item-meta">{form.tri === 'pertinence' ? relevanceRule : 'Tri par défaut : clôture la plus proche d’abord.'}</p>
+                    <div className="form-actions"><Button type="submit">Appliquer</Button></div>
+                    </MoreOptions>
+                    {active.length > 0 && <Link className="text-link" href="/opportunites">Réinitialiser les filtres ({active.length})</Link>}
                 </form>
-                <p className="item-meta">{form.tri === 'pertinence' ? relevanceRule : 'Tri par défaut : clôture connue la plus proche d’abord, puis les fiches sans date limite connue, par titre.'}</p>
                 {signedIn && savable.length > 0 && !saving && <div className="form-actions"><Button variant="secondary" onClick={() => setSaving(true)}>Enregistrer cette recherche et être prévenu</Button></div>}
                 {signedIn && saving && <form onSubmit={saveSearch} className="form-narrow">
                     <p className="item-meta">Vous serez prévenu des fiches publiées ou mises à jour à partir de maintenant qui répondent à ces filtres, toujours parmi les fiches ouvertes. Les fiches déjà au catalogue ne sont pas annoncées.</p>
@@ -91,11 +100,15 @@ export default function Opportunities({ opportunities, pagination, filters, opti
                 {signedIn && <div className="inline-links"><Link className="text-link" href="/opportunites/suivi">Mes favoris et mes démarches</Link><Link className="text-link" href="/opportunites/alertes">Mes alertes</Link></div>}
                 {opportunities.length === 0
                     ? <StateMessage kind="empty" title="Aucune fiche ne correspond à ces filtres" action={active.length > 0 ? <Link className="button button-secondary" href="/opportunites">Réinitialiser les filtres</Link> : undefined}>Le catalogue ne contient que des fiches vérifiées par l’équipe éditoriale.</StateMessage>
-                    : <ul className="plain-list">{opportunities.map((item) => <li key={item.id}>
-                        <Link className="text-link" href={`/opportunites/${item.id}`}><strong>{item.title}</strong></Link> {item.availability === 'archived' ? <span className="subtle-badge">Clôturée et archivée</span> : <DeadlineState deadline={item.deadline} />}
-                        {item.match && <span className="subtle-badge"> {item.match.overallLabel}</span>}
-                        <p className="item-meta">{item.categoryLabel} · {item.organizer} · campagne {item.campaign} · {item.funding} · {item.fees} · {item.modality}{item.countryLabels.length > 0 && ` · ${item.countryLabels.join(', ')}`}{item.fields.length > 0 && ` · ${item.fields.join(', ')}`}</p>
-                        <p className="item-meta">Date limite : {item.deadline.text}{item.verifiedAt && ` · source vérifiée le ${day.format(new Date(item.verifiedAt))}`}</p>
+                    : <ul className="opportunity-grid">{opportunities.map((item) => <li key={item.id} className="opportunity-card">
+                        <div className={`opportunity-visual visual-${item.category}`} aria-hidden="true"><Icon name={item.category} size={40} strokeWidth={1.75} /><span>{item.categoryLabel}</span></div>
+                        <div className="opportunity-body">
+                            <div className="todo-meta">{item.availability === 'archived' || item.deadline.state === 'closed' ? <span className="pill pill-quiet">Clôturée</span> : item.deadline.state === 'rolling' ? <span className="pill pill-info">Clôture continue</span> : item.deadline.state === 'unknown' ? <span className="pill pill-quiet">Date non communiquée</span> : <span className="pill pill-warm">Jusqu’au {item.deadline.date ? day.format(new Date(item.deadline.date + "T12:00:00Z")) : item.deadline.text}</span>}{item.match && <span className="pill pill-success">{item.match.overallLabel}</span>}</div>
+                            <h3><Link className="opportunity-link" href={`/opportunites/${item.id}`}>{item.title}</Link></h3>
+                            <p className="item-meta">{item.organizer}{item.countryLabels.length > 0 && ` · ${item.countryLabels.join(', ')}`}</p>
+                            <p className="item-meta">{[item.funding, item.modality, item.fields.join(', ')].filter(Boolean).join(' · ')}</p>
+                            {item.sourceHost && <p className="opportunity-source"><Icon name="link" size={14} />Source : {item.sourceHost}{item.verifiedAt && ` · vérifiée le ${day.format(new Date(item.verifiedAt))}`}</p>}
+                        </div>
                     </li>)}</ul>}
                 <Pagination currentPage={pagination.page} totalPages={pagination.total} previousHref={pagination.previous ?? undefined} nextHref={pagination.next ?? undefined} />
             </section>

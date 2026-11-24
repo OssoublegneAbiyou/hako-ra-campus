@@ -47,7 +47,7 @@ export function AttachmentList({ items, uploadUrl, limits, canUpload, shared = f
         {canUpload && <>
             <label className="sr-only" htmlFor={`file-${key}`}>Choisir un fichier PDF, JPEG ou PNG</label>
             <input ref={input} id={`file-${key}`} type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" disabled={busy} />
-            <p className="field-hint">PDF, JPEG ou PNG, {megabytes(limits.maxFileBytes)} au plus, {limits.maxPerObject} fichiers par élément. Espace utilisé : {megabytes(limits.usedBytes)} sur {megabytes(limits.maxBytes)}. Chaque fichier est analysé par un antivirus avant d’être téléchargeable.</p>
+            <p className="field-hint">PDF, JPEG ou PNG, {megabytes(limits.maxFileBytes)} au plus. Chaque fichier est vérifié par un antivirus avant d’être téléchargeable.</p>
             {!limits.scannerConfigured && <p className="field-hint">L’antivirus n’est pas configuré sur ce serveur : les fichiers déposés restent bloqués et ne peuvent pas être téléchargés.</p>}
             {(localError ?? errors.file) && <p className="field-error" role="alert">{localError ?? errors.file}</p>}
             <div className="form-actions"><Button variant="secondary" busy={busy} onClick={upload}>Déposer le fichier</Button></div>

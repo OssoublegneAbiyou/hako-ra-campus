@@ -131,28 +131,28 @@ class ScheduleController extends Controller
     {
         $manager->create($r);
 
-        return back()->with('status', 'Série enregistrée ; première fenêtre matérialisée.');
+        return back()->with('status', 'Cours ajouté au planning.');
     }
 
     public function materialize(Request $r, ScheduleManager $manager, string $series): RedirectResponse
     {
         $manager->materialize($r, $series);
 
-        return back()->with('status', 'Fenêtre matérialisée sans recréer les occurrences existantes.');
+        return back()->with('status', 'Cours affichés sur cette période.');
     }
 
     public function future(Request $r, ScheduleManager $manager, string $series): RedirectResponse
     {
         $manager->changeFuture($r, $series);
 
-        return back()->with('status', 'Occurrences futures révisées. Les exceptions manuelles sont conservées.');
+        return back()->with('status', 'Cours modifié pour la suite. Les changements faits à la main sont conservés.');
     }
 
     public function occurrence(Request $r, ScheduleManager $manager, string $occurrence): RedirectResponse
     {
         $manager->changeOccurrence($r, $occurrence);
 
-        return back()->with('status', 'Occurrence mise à jour, identifiant conservé.');
+        return back()->with('status', 'Cours mis à jour.');
     }
 
     public function history(Request $r, ScheduleAccess $access, string $occurrence): Response

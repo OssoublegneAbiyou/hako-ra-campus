@@ -309,6 +309,50 @@ class NotificationTest extends TestCase
         $this->assertNotNull($off->fresh());
     }
 
+    public function test_a_task_is_also_reminded_shortly_before_its_hour_and_new_reminders_pop_up_for_their_owner_only(): void
+    {
+        $task = $this->task('independant', '2026-11-20T18:00', 'Tâche fictive à l’heure précise');
+        $this->task('editeur', '2026-11-20T18:00', 'Tâche fictive sans rappel avant l’heure');
+        $this->preferences('editeur', ['task_before_minutes' => 0]);
+        $this->task('plateforme', '2026-11-20T18:00', 'Tâche fictive réglée à quinze minutes');
+        $this->preferences('plateforme', ['task_before_minutes' => 15]);
+        DomainEvent::query()->update(['processed_at' => now()]);
+
+        // Une heure avant par défaut, quinze minutes pour qui l'a choisi, jamais pour qui l'a désactivé.
+        $this->at('2026-11-20 17:00');
+        $this->cycle();
+        $soon = $this->notifications('independant', 'task.due.soon')->sole();
+        $this->assertSame(['delivered', 'Une tâche est à faire dans 1 h', 'Tâche : Tâche fictive à l’heure précise'], [$soon->status, $soon->title, $soon->body]);
+        $this->assertSame(0, $this->notifications('plateforme', 'task.due.soon')->count());
+        $this->at('2026-11-20 17:45');
+        $this->cycle();
+        $this->assertSame('Une tâche est à faire dans 15 min', $this->notifications('plateforme', 'task.due.soon')->sole()->title);
+        $this->assertSame(0, $this->notifications('editeur', 'task.due.soon')->count());
+
+        // Fenêtre surgissante : les rappels non lus du seul compte connecté, sans rien marquer comme lu.
+        $popups = $this->as('independant')->getJson('/notifications/recentes?apres=0')->assertOk()->assertHeader('Cache-Control', 'no-store, private');
+        $this->assertContains($soon->id, array_column($popups->json('items'), 'id'));
+        $this->assertSame([], $this->as('independant')->getJson('/notifications/recentes?apres='.$popups->json('latest'))->json('items'));
+        $this->assertNotContains($soon->id, array_column($this->as('editeur')->getJson('/notifications/recentes?apres=0')->json('items'), 'id'));
+        $this->freshDevice()->getJson('/notifications/recentes')->assertUnauthorized();
+        $this->assertNull($soon->fresh()->read_at);
+        // Sans repère, seuls les rappels des quinze dernières minutes surgissent.
+        $this->at('2026-11-20 17:50');
+        $this->assertSame([], $this->as('independant')->getJson('/notifications/recentes')->json('items'));
+
+        // Terminer la tâche retire aussi ce rappel.
+        $this->as('independant')->patch('/taches/'.$task->id, ['expected_version' => 1, 'title' => $task->title, 'priority' => 'normal', 'status' => 'done', 'due_at' => '2026-11-20T18:00'])->assertSessionHasNoErrors();
+        $this->cycle();
+        $this->assertSame('cancelled', $soon->fresh()->status);
+        // Le réglage s'enregistre et se vérifie.
+        $version = NotificationPreference::where('user_id', $this->user('independant')->id)->value('lock_version') ?? 0;
+        $settings = ['expected_version' => $version, 'timezone' => 'Africa/Abidjan', 'course_end_delay' => 5, 'task_day_before' => true, 'task_same_day' => true, 'task_reminder_time' => '08:00',
+            'digest_enabled' => false, 'digest_time' => '07:00', 'categories' => []];
+        $this->as('independant')->put('/notifications/preferences', [...$settings, 'task_before_minutes' => 5000])->assertSessionHasErrors('task_before_minutes');
+        $this->as('independant')->put('/notifications/preferences', [...$settings, 'task_before_minutes' => 30])->assertSessionHasNoErrors();
+        $this->assertSame(30, (int) NotificationPreference::where('user_id', $this->user('independant')->id)->value('task_before_minutes'));
+    }
+
     public function test_r43_a_replayed_or_interrupted_worker_never_creates_or_sends_a_second_notification(): void
     {
         $this->enableEmail('independant', 'task_due');

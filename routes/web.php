@@ -130,6 +130,7 @@ Route::middleware(['auth', 'auth.session', 'account.active'])->group(function ()
         Route::post('/notifications/lecture', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::post('/notifications/{notification}/lecture', [NotificationController::class, 'read'])->whereNumber('notification')->name('notifications.read');
         Route::get('/notifications/preferences', [NotificationController::class, 'settings'])->name('notifications.settings');
+        Route::get('/notifications/recentes', [NotificationController::class, 'recent'])->middleware('throttle:120,1')->name('notifications.recent');
         Route::put('/notifications/preferences', [NotificationController::class, 'updateSettings'])->middleware('throttle:30,1')->name('notifications.settings.update');
         Route::post('/notifications/appareils', [NotificationController::class, 'subscribe'])->middleware('throttle:10,1')->name('notifications.devices.store');
         Route::delete('/notifications/appareils/{device}', [NotificationController::class, 'unsubscribe'])->whereNumber('device')->name('notifications.devices.destroy');

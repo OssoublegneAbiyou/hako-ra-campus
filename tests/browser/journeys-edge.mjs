@@ -44,6 +44,9 @@ function stop(child) {
 
 // Fonctions utilisées dans la page : elles manipulent l'interface comme une personne (champ désigné par son libellé, bouton par son texte).
 const PRELUDE = `
+// Les champs facultatifs sont repliés à l'écran : le script les déplie avant chaque geste, comme une personne qui ouvre « Plus d'options ».
+if (document.querySelector('.task-toggle[aria-expanded="false"]')) { document.querySelectorAll('.task-toggle[aria-expanded="false"]').forEach((row) => row.click()); await new Promise((resolve) => setTimeout(resolve, 200)); }
+document.querySelectorAll('details.more-options:not([open])').forEach((block) => { block.open = true; });
 const norm = (s) => (s || '').replace(/\\s+/g, ' ').trim();
 const visible = (el) => el.getClientRects().length > 0;
 const scope = (root) => typeof root === 'string' ? document.querySelector(root) : (root || document);
@@ -168,7 +171,7 @@ try {
     };
     const useContext = async (label) => {
         await go('/');
-        await evaluate(`const select = document.getElementById('context-select'); const option = [...select.options].find((o) => norm(o.textContent).includes(${JSON.stringify(label)})); if (!option) throw new Error('Contexte introuvable : ' + [...select.options].map((o) => norm(o.textContent)).join(' | ')); setValue(select, option.value); await settle(2500); return true;`);
+        await evaluate(`const chips = [...document.querySelectorAll('.context-chips .chip')]; const chip = chips.find((c) => norm(c.title + ' ' + c.textContent).includes(${JSON.stringify(label)})); if (!chip) throw new Error('Contexte introuvable : ' + chips.map((c) => norm(c.title)).join(' | ')); chip.click(); window.__actions = (window.__actions || 0) + 1; await settle(2500); return true;`);
     };
     // Le compte connecté quitte l'établissement fictif A depuis son profil : confirmation, puis mot de passe redemandé une fois.
     const leaveA = async () => {
@@ -209,7 +212,7 @@ try {
     await attempt('Accueil : parcours de démarrage calculé sur les données réelles', async () => {
         await go('/');
         before = (await evaluate(`return steps('individual-steps-title').join('');`)) || '(parcours déjà terminé)';
-        const blocks = await evaluate(`return ['Cours du jour', 'Tâches proches', 'Notes et moyennes', 'Opportunités'].map((title) => text().includes(title)).join('|') + '|' + text().includes('ESPACE INDIVIDUEL');`);
+        const blocks = await evaluate(`return ['Ta journée', 'À faire', 'Ta moyenne', 'Bourses, concours, stages'].map((title) => text().toLowerCase().includes(title.toLowerCase())).join('|') + '|' + (document.querySelector('.context-chips') === null || document.querySelector('.chip[aria-pressed="true"]')?.textContent === 'Perso');`);
         note('État de départ des sept étapes : ' + before);
 
         return blocks === 'true|true|true|true|true' ? blocks : false;
@@ -222,7 +225,7 @@ try {
     });
     await attempt('Matière personnelle créée', async () => {
         await go('/etudes/referentiels?kind=subjects');
-        await evaluate(`fill('Code', ${JSON.stringify('P' + RUN)}); fill('Nom', ${JSON.stringify(TAG + ' Matière fictive')}); const form = byLabel('Code').closest('form'); form.requestSubmit(); await settle(2500); return true;`);
+        await evaluate(`fill('Nom', ${JSON.stringify(TAG + ' Matière fictive')}); const form = byLabel('Nom').closest('form'); form.requestSubmit(); await settle(2500); return true;`);
 
         return await evaluate(`return text().includes(${JSON.stringify(TAG + ' Matière fictive')});`);
     });
@@ -241,10 +244,15 @@ try {
     let actions = 0;
     const courseOk = await attempt('Cours créé depuis le planning (événement ponctuel aujourd’hui)', async () => {
         await go('/planning');
-        await evaluate(`window.__actions = 0; fill('Titre', ${JSON.stringify(TAG + ' Cours fictif')}, '#series-form'); choose('Récurrence', 'Événement ponctuel', '#series-form'); fill('Premier jour de validité', '${today}', '#series-form'); fill('Heure locale de début', '${slot.start}', '#series-form'); fill('Heure locale de fin', '${slot.end}', '#series-form'); byLabel('Titre', '#series-form').closest('form').requestSubmit(); window.__actions++; for (let i = 0; i < 60 && byLabel('Titre', '#series-form').value !== '' && !document.querySelector('#series-form .state-error'); i++) await settle(250); await settle(500); return true;`);
+        await evaluate(`window.__actions = 0; fill('Titre', ${JSON.stringify(TAG + ' Cours fictif')}, '#series-form'); choose('Répétition', 'Une seule fois', '#series-form'); fill('Date', '${today}', '#series-form'); fill('Début', '${slot.start}', '#series-form'); fill('Fin', '${slot.end}', '#series-form'); byLabel('Titre', '#series-form').closest('form').requestSubmit(); window.__actions++; for (let i = 0; i < 60 && byLabel('Titre', '#series-form').value !== '' && !document.querySelector('#series-form .state-error'); i++) await settle(250); await settle(500); return true;`);
         actions += await evaluate(`return window.__actions;`);
         const refused = await evaluate(`return norm(document.querySelector('#series-form .state-error')?.textContent);`);
-        if (refused) note('Refus affiché par le planning : ' + refused.slice(0, 220));
+        if (refused) {
+            // Créneau déjà pris par un passage précédent du script : le chevauchement est confirmé avec un motif, comme l'écran le propose.
+            note('Refus affiché par le planning : ' + refused.slice(0, 220));
+            await evaluate(`tick('Confirmer les chevauchements signalés', '#series-form'); fill('Justification du chevauchement', 'Chevauchement fictif accepté pour le parcours', '#series-form'); byLabel('Titre', '#series-form').closest('form').requestSubmit(); for (let i = 0; i < 60 && byLabel('Titre', '#series-form').value !== '' && !document.querySelector('#series-form .state-error'); i++) await settle(250); await settle(500); return true;`);
+            actions += 3;
+        }
         await go(`/planning?view=day&date=${today}`);
 
         return await evaluate(`return text().includes(${JSON.stringify(TAG + ' Cours fictif')});`);
@@ -284,7 +292,7 @@ try {
         await go('/notes');
         await evaluate(`const form = document.querySelector('section[aria-labelledby="add-title"] form'); fill('Intitulé', ${JSON.stringify(TAG + ' Évaluation fictive')}, form); choose('Matière', ${JSON.stringify(TAG + ' Matière fictive')}, form); fill('Note', '14', form); press('Ajouter la note', form); await settle(3000); return true;`);
 
-        return await evaluate(`return text().includes(${JSON.stringify(TAG + ' Évaluation fictive')});`);
+        return await evaluate(`document.querySelectorAll('.subject-list h3 button.list-row[aria-expanded="false"]').forEach((b) => b.click()); await settle(600); return text().includes(${JSON.stringify(TAG + ' Évaluation fictive')});`);
     });
     await attempt('Opportunité ajoutée aux favoris depuis le catalogue', async () => {
         await go('/opportunites');
@@ -306,16 +314,17 @@ try {
     });
     await attempt('Accueil après le parcours : sept étapes faites, modules reliés avec leur provenance', async () => {
         await go('/');
-        const after = await evaluate(`return [steps('individual-steps-title').join('') || 'terminé', document.querySelectorAll('section[aria-labelledby="tasks-title"] li').length > 0, text().includes('Moyenne indicative'), text().includes('Couverture'), document.querySelectorAll('.provenance-personal').length > 0].join('|');`);
+        const after = await evaluate(`return [steps('individual-steps-title').join('') || 'terminé', document.querySelectorAll('section[aria-labelledby="tasks-title"] li').length > 0, text().includes('Moyenne indicative'), text().includes('comptée(s) sur'), document.querySelectorAll('.average-card .average-value').length > 0].join('|');`);
         note('Étapes : avant ' + before + ' ; après ' + after.split('|')[0]);
 
         return after.startsWith('terminé|true|true|true|true') ? after : false;
     });
     await attempt('Aide, préférences de notification et profil accessibles depuis l’accueil', async () => {
         const reached = [];
-        for (const [link, expected] of [['Aide et support', 'Questions fréquentes'], ['Préférences de notification', 'notification'], ['Profil et fuseau', 'Fuseau horaire']]) {
+        // Aide et préférences : liens du pied de page ; profil : pastille du compte.
+        for (const [link, expected] of [['Aide et support', 'Questions fréquentes'], ['Préférences de notification', 'notification'], ['Profil de', 'Fuseau horaire']]) {
             await go('/');
-            await evaluate(`[...document.querySelectorAll('.main-content .inline-links a')].find((a) => norm(a.textContent) === ${JSON.stringify(link)}).click(); await settle(2500); return true;`);
+            await evaluate(`[...document.querySelectorAll('.workspace-footer a, .avatar-link')].filter(visible).find((a) => norm(a.textContent) === ${JSON.stringify(link)} || (a.getAttribute('aria-label') ?? '').startsWith(${JSON.stringify(link)})).click(); await settle(2500); return true;`);
             reached.push(await evaluate(`return text().includes(${JSON.stringify(expected)});`));
         }
 
@@ -356,7 +365,7 @@ try {
         await useContext('Établissement fictif A');
         await go('/');
 
-        return await evaluate(`return text().includes('ÉTABLISSEMENT FICTIF A') && document.querySelectorAll('section[aria-labelledby="institution-steps-title"] .checklist li').length === 7;`);
+        return await evaluate(`return document.querySelector('.chip[aria-pressed="true"]')?.textContent === 'Établissement fictif A' && document.querySelectorAll('section[aria-labelledby="institution-steps-title"] .checklist li').length === 7;`);
     });
     let institutionBefore = '';
     await attempt('Accueil de l’administration : sept étapes de mise en route', async () => {
@@ -395,7 +404,7 @@ try {
     const institutionCourse = TAG + ' Cours fictif A-G1';
     await attempt('Cours d’établissement créé au brouillon pour le groupe A-G1', async () => {
         await go('/planning');
-        await evaluate(`fill('Titre', ${JSON.stringify(institutionCourse)}, '#series-form'); choose('Récurrence', 'Événement ponctuel', '#series-form'); fill('Premier jour de validité', '${tomorrow}', '#series-form'); fill('Heure locale de début', '${later.start}', '#series-form'); fill('Heure locale de fin', '${later.end}', '#series-form');
+        await evaluate(`fill('Titre', ${JSON.stringify(institutionCourse)}, '#series-form'); choose('Répétition', 'Une seule fois', '#series-form'); fill('Date', '${tomorrow}', '#series-form'); fill('Début', '${later.start}', '#series-form'); fill('Fin', '${later.end}', '#series-form');
             const groups = [...document.querySelectorAll('#series-form fieldset')].find((f) => norm(f.querySelector('legend')?.textContent).startsWith('Groupes concernés')); const box = [...groups.querySelectorAll('label')].find((l) => norm(l.textContent) === 'Groupe fictif A 1'); (box.control || document.getElementById(box.htmlFor)).click();
             const subject = byLabel('Matière', '#series-form'); setValue(subject, [...subject.options].find((o) => o.value !== '').value);
             const teacher = byLabel('Enseignant', '#series-form'); setValue(teacher, [...teacher.options].find((o) => norm(o.textContent).includes('Enseignant fictif A')).value);
@@ -451,7 +460,7 @@ try {
         if (!invitationUrl) return false;
         const left = await leaveA();
         await go('/');
-        const home = await evaluate(`return [text().includes('ESPACE INDIVIDUEL'), document.getElementById('context-select') === null || ![...document.getElementById('context-select').options].some((o) => norm(o.textContent).includes('Établissement fictif A'))].join('|');`);
+        const home = await evaluate(`const chips = [...document.querySelectorAll('.context-chips .chip')]; return [chips.length === 0 || chips.find((c) => c.getAttribute('aria-pressed') === 'true')?.textContent === 'Perso', !chips.some((c) => norm(c.title).includes('Établissement fictif A'))].join('|');`);
 
         return left && home === 'true|true' ? 'plus aucune appartenance à A ; espace individuel intact' : false;
     });
@@ -493,7 +502,7 @@ try {
         await go(`/planning?view=day&date=${tomorrow}`);
         const planning = await evaluate(`return text().includes(${JSON.stringify(TAG)});`);
         await go('/');
-        const home = await evaluate(`return text().includes(${JSON.stringify(TAG)}) + '|' + text().includes('ÉTABLISSEMENT FICTIF B');`);
+        const home = await evaluate(`return text().includes(${JSON.stringify(TAG)}) + '|' + (document.querySelector('.chip[aria-pressed="true"]')?.textContent === 'Établissement fictif B');`);
 
         return !planning && home === 'false|true' ? 'aucune donnée de A chez B' : false;
     });

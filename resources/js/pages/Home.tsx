@@ -1,14 +1,20 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import CampusLayout from '../layouts/CampusLayout';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState, type ReactNode } from 'react';
+import CampusLayout, { ContextChips } from '../layouts/CampusLayout';
 import { Icon } from '../components/Icon';
+import { openQuickAdd } from '../components/quickAddEvents';
+import { Landing } from '../components/Landing';
 import { ProvenanceBadge, StateMessage } from '../components/ui/Feedback';
 import type { Deadline } from '../components/OpportunityDeadline';
 import type { CampusProps } from '../types';
 
-type Course = { id: string; title: string; startsAt: string; endsAt: string; cancelled: boolean; provenance: 'personal' | 'institutional'; checkIn: { version: number; status: string | null } | null };
+type Course = { id: string; title: string; room: string | null; startsAt: string; endsAt: string; cancelled: boolean; provenance: 'personal' | 'institutional'; checkIn: { version: number; status: string | null } | null };
 type PendingCheckIn = { occurrenceId: string; title: string; endsAt: string; provenance: 'personal' | 'institutional'; deferred: boolean };
-type UpcomingTask = { id: string; title: string; dueAt: string | null; late: boolean; collective: boolean };
-type GradeView = { label: string; provenance: 'personal' | 'institutional'; period: string; average: string | null; counted: number; total: number; missingCoefficients: number };
+type UpcomingTask = {
+    id: string; title: string; dueAt: string | null; late: boolean; collective: boolean; subject: string | null; priority: string; version: number;
+    description: string | null; dueLocal: string | null; personalSubjectId: number | null; personalTargetLocal: string | null;
+};
+type GradeView = { label: string; provenance: 'personal' | 'institutional'; period: string; average: string | null; counted: number; total: number; missingCoefficients: number; subjects: { name: string; average: string }[] };
 type OpportunityCard = { id: string; title: string; organizer: string; categoryLabel: string; deadline: Deadline; matchLabel: string };
 type Step = { key: string; label: string; done: boolean; href: string; action: string };
 type Dashboard = {
@@ -17,31 +23,39 @@ type Dashboard = {
 };
 type Props = { locale: string; currentTime: string; registrationEnabled: boolean; dashboard: Dashboard | null };
 
-/** Parcours de démarrage : chaque étape est cochée quand l'objet réel existe ; la première étape restante porte l'action à faire. */
-function Checklist({ id, title, intro, steps }: { id: string; title: string; intro: string; steps: Step[] }) {
+/** Parcours de démarrage : la prochaine étape d'abord, la liste complète repliée. Une étape est cochée quand l'objet réel existe. */
+function Checklist({ id, title, steps }: { id: string; title: string; steps: Step[] }) {
     const next = steps.find((step) => !step.done);
     const done = steps.filter((step) => step.done).length;
 
-    return <section className="surface" aria-labelledby={id}>
-        <h2 id={id}>{title}</h2>
-        <p className="section-description">{intro} {done} étape(s) sur {steps.length} faite(s).</p>
-        <ol className="checklist">{steps.map((step) => <li key={step.key} className={step.done ? 'is-done' : step === next ? 'is-next' : ''} aria-current={step === next ? 'step' : undefined}>
-            <span className="checklist-mark" aria-hidden="true">{step.done ? '✓' : step === next ? '→' : '○'}</span>
-            <span>{step.label}<span className="sr-only">{step.done ? ' — fait' : step === next ? ' — prochaine étape' : ' — à faire'}</span></span>
-            {step === next && <Link className="button button-primary" href={step.href}>{step.action}</Link>}
-            {step.done && step.key !== 'account' && <Link className="text-link" href={step.href}>Ouvrir</Link>}
-        </li>)}</ol>
+    return <section className="surface start-card" aria-labelledby={id}>
+        <div className="card-heading"><h2 id={id}>{title}</h2><span className="item-meta">{done} étape(s) sur {steps.length} faite(s)</span></div>
+        {next && <div className="start-next"><span>{next.label}</span><Link className="button button-primary" href={next.href}>{next.action}</Link></div>}
+        <details><summary>Voir toutes les étapes</summary>
+            <ol className="checklist">{steps.map((step) => <li key={step.key} className={step.done ? 'is-done' : step === next ? 'is-next' : ''} aria-current={step === next ? 'step' : undefined}>
+                <span className="checklist-mark" aria-hidden="true">{step.done ? '✓' : step === next ? '→' : '○'}</span>
+                <span>{step.label}<span className="sr-only">{step.done ? ' — fait' : step === next ? ' — prochaine étape' : ' — à faire'}</span></span>
+                {step.done && step.key !== 'account' && <Link className="text-link" href={step.href}>Ouvrir</Link>}
+            </li>)}</ol>
+        </details>
     </section>;
 }
 
-export default function Home({ locale, currentTime, registrationEnabled, dashboard }: Props) {
-    const { campus, auth } = usePage<CampusProps>().props;
-    const timezone = dashboard?.timezone;
-    const formatted = new Intl.DateTimeFormat(locale, { dateStyle: 'full', timeZone: timezone }).format(new Date(currentTime));
-    const time = new Intl.DateTimeFormat(locale, { timeStyle: 'short', timeZone: timezone });
-    const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: timezone });
-    const now = new Date(currentTime).getTime();
+/** Pastille ronde de « Ta journée » : une heure, une moyenne ou une icône, qui mène à l'écran correspondant. */
+function DayRing({ href, tone, label, hint, children }: { href: string; tone: 'next' | 'soon' | 'accent' | 'quiet'; label: string; hint: string; children: ReactNode }) {
+    return <li><Link className="day-ring" href={href}>
+        <span className={`ring ${tone === 'next' ? 'ring-next' : tone === 'accent' ? 'ring-accent' : tone === 'quiet' ? 'ring-quiet' : ''}`}><span>{children}</span></span>
+        <span className="day-ring-text"><strong>{label}</strong><small>{hint}</small></span>
+    </Link></li>;
+}
 
+export default function Home({ locale, currentTime, registrationEnabled, dashboard }: Props) {
+    const { auth } = usePage<CampusProps>().props;
+
+    // Visiteur : la page de présentation, dans le style « nuit ».
+    if (!dashboard && !auth.user) {
+        return <Landing registrationEnabled={registrationEnabled} />;
+    }
     if (!dashboard) {
         return (
             <CampusLayout active="home" title="Accueil">
@@ -63,133 +77,153 @@ export default function Home({ locale, currentTime, registrationEnabled, dashboa
         );
     }
 
-    const { today, pendingCheckIns, upcomingTasks, grades, opportunities, individualSteps, institutionSteps } = dashboard;
+    return <Dashboard locale={locale} currentTime={currentTime} dashboard={dashboard} />;
+}
+
+function Dashboard({ locale, currentTime, dashboard }: { locale: string; currentTime: string; dashboard: Dashboard }) {
+    const { campus, auth } = usePage<CampusProps>().props;
+    const { timezone, today, pendingCheckIns, upcomingTasks, grades, opportunities, individualSteps, institutionSteps } = dashboard;
+    const [closing, setClosing] = useState<string[]>([]);
+    const now = new Date(currentTime).getTime();
+    const time = new Intl.DateTimeFormat(locale, { timeStyle: 'short', timeZone: timezone });
+    const day = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: timezone });
+    const longDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone: timezone }).format(new Date(currentTime));
+    const shortDate = new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: timezone });
+    const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: timezone });
     const individualDone = individualSteps.every((step) => step.done);
-    const nothingYet = today.length === 0 && pendingCheckIns.length === 0 && upcomingTasks.length === 0;
-    const firstName = (auth.user?.name ?? '').trim().split(/\s+/)[0] ?? '';
-    const shortDate = new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', timeZone: timezone });
-    // Prochain cours : le premier cours du jour, non annulé, qui n'est pas terminé.
-    const nextCourse = today.find((course) => !course.cancelled && new Date(course.endsAt).getTime() > now) ?? null;
+    const name = auth.user?.name ?? '';
+    const firstName = name.trim().split(/\s+/)[0] ?? '';
+    // Cours à venir aujourd'hui : non annulés et pas encore terminés.
+    const coming = today.filter((course) => !course.cancelled && new Date(course.endsAt).getTime() > now);
+    const nextCourse = coming[0] ?? null;
     const minutesToNext = nextCourse ? Math.round((new Date(nextCourse.startsAt).getTime() - now) / 60000) : 0;
     const nextLabel = minutesToNext <= 0 ? 'En cours' : minutesToNext < 60 ? `Dans ${minutesToNext} min` : `Dans ${Math.floor(minutesToNext / 60)} h ${String(minutesToNext % 60).padStart(2, '0')}`;
-    // Prochaine action proposée : uniquement tirée de ce qui existe (tâche en retard, puis retour en attente). Aucune recommandation calculée.
-    const lateTask = upcomingTasks.find((task) => task.late) ?? null;
-    const nextAction = lateTask
-        ? { text: `Une tâche est en retard : ${lateTask.title}.`, href: '/taches', action: 'Ouvrir mes tâches' }
-        : pendingCheckIns[0]
-            ? { text: `Notez en une minute votre retour sur ${pendingCheckIns[0].title}.`, href: `/planning/occurrences/${pendingCheckIns[0].occurrenceId}/retour`, action: 'Renseigner mon retour' }
-            : null;
-    const soon = now + 48 * 3600 * 1000;
+    const dueToday = (task: UpcomingTask) => task.dueAt !== null && day.format(new Date(task.dueAt)) === day.format(new Date(currentTime));
+    const taskToday = upcomingTasks.find((task) => dueToday(task) && !task.late) ?? null;
+    const average = grades.find((view) => view.average !== null) ?? null;
+    // Marquer une tâche comme faite : par la route de la tâche, avec sa version et son contenu inchangé. Rien d'autre n'est modifié.
+    const finish = (task: UpcomingTask) => {
+        setClosing((ids) => [...ids, task.id]);
+        const options = { preserveScroll: true, onError: () => setClosing((ids) => ids.filter((id) => id !== task.id)) };
+        if (task.collective) router.put(`/taches/${task.id}/progression`, { expected_version: task.version, status: 'done', personal_target_at: task.personalTargetLocal }, options);
+        else router.patch(`/taches/${task.id}`, { expected_version: task.version, title: task.title, description: task.description, due_at: task.dueLocal, priority: task.priority, personal_subject_id: task.personalSubjectId, status: 'done' }, options);
+    };
 
     return (
         <CampusLayout active="home" title="Accueil">
             <Head title="Accueil" />
-            <div className="dashboard-header">
-                <div>
-                    <time dateTime={currentTime} className="page-date">{formatted} · fuseau {timezone}</time>
-                    <h1>{firstName ? `Bonjour ${firstName}` : 'Bonjour'}</h1>
-                    <p className="eyebrow">{campus.context.kind === 'individual' ? 'ESPACE INDIVIDUEL' : campus.context.label.toUpperCase()}</p>
+            <div className="home-greeting">
+                <div className="home-hello">
+                    <Link href="/profil" className="avatar-link avatar-accent" aria-label={`Profil de ${name}`}>{firstName[0]?.toUpperCase() ?? ''}</Link>
+                    <div><h1>{firstName ? `Salut ${firstName}` : 'Salut'}</h1><time dateTime={currentTime} className="page-date">{longDate}</time></div>
+                    {campus.unreadNotifications !== null && <Link href="/notifications" className="icon-button" aria-label={`Notifications, ${campus.unreadNotifications} non lue(s)`}><Icon name="bell" size={22} />{campus.unreadNotifications > 0 && <span className="icon-dot" aria-hidden="true" />}</Link>}
                 </div>
-                <Link className="button button-primary" href="/taches"><Icon name="plus" size={18} />Ajouter une tâche</Link>
+                <ContextChips />
             </div>
 
-            {institutionSteps && <Checklist id="institution-steps-title" title={`Mise en route de ${campus.context.label}`} steps={institutionSteps}
-                intro="Parcours de l’administration, calculé sur les données réelles de votre établissement pour l’année en cours." />}
-            {!individualDone && <Checklist id="individual-steps-title" title="Bien démarrer dans votre espace individuel" steps={individualSteps}
-                intro="Sept étapes courtes, dans l’ordre que vous voulez. Aucune n’est obligatoire." />}
-            {nothingYet && individualDone && <StateMessage title="Rien d’urgent aujourd’hui">Aucun cours, aucun retour en attente, aucune tâche ouverte.</StateMessage>}
+            {institutionSteps && <Checklist id="institution-steps-title" title={`Mise en route de ${campus.context.label}`} steps={institutionSteps} />}
+            {!individualDone && <Checklist id="individual-steps-title" title="Pour bien démarrer" steps={individualSteps} />}
 
-            <div className="dashboard-grid">
-                <div className="dashboard-column">
-                    {nextCourse && <div className="next-course">
-                        <div className="next-course-top"><span className="section-kicker">Prochain cours</span><span className="pill pill-accent">{nextLabel}</span></div>
-                        <span className="next-course-title">{nextCourse.title}</span>
-                        <span className="next-course-meta">{time.format(new Date(nextCourse.startsAt))} – {time.format(new Date(nextCourse.endsAt))} · {nextCourse.provenance === 'personal' ? 'Planning personnel' : 'Planning de l’établissement'}</span>
-                        <Link className="button" href="/planning">Voir le planning</Link>
-                    </div>}
-                    <section className="surface" aria-labelledby="today-title">
-                        <div className="card-heading"><h2 id="today-title">Cours du jour</h2>{today.length > 0 && <Link className="text-link" href="/planning">Tout le planning</Link>}</div>
-                        {today.length === 0 ? <StateMessage kind="empty" title="Aucun cours aujourd’hui" action={<Link className="text-link" href="/planning">Ouvrir le planning</Link>} />
-                            : <ul className="row-list">{today.map((course) => {
-                                const started = new Date(course.startsAt).getTime() <= now;
-                                const ended = new Date(course.endsAt).getTime() <= now;
-                                const canCheckIn = course.checkIn !== null && !course.cancelled && started && (course.checkIn.status === null || course.checkIn.status === 'deferred');
+            <section className="home-section" aria-labelledby="day-title">
+                <h2 id="day-title" className="section-kicker">Ta journée</h2>
+                <ul className="day-rings">
+                    {coming.slice(0, 2).map((course, index) => <DayRing key={course.id} href="/planning" tone={index === 0 ? 'next' : 'soon'} label={course.title} hint={index === 0 ? nextLabel.toLowerCase() : (course.room ?? 'cours suivant')}>{time.format(new Date(course.startsAt))}</DayRing>)}
+                    {taskToday && <DayRing href="/taches" tone="soon" label={taskToday.subject ?? 'À rendre'} hint={taskToday.title}>{time.format(new Date(taskToday.dueAt as string))}</DayRing>}
+                    {average && <DayRing href="/notes" tone="accent" label="Moyenne" hint={average.period}>{average.average}</DayRing>}
+                    <DayRing href="/opportunites" tone="quiet" label="Bourses" hint={opportunities.hasProfile ? `${opportunities.items.length} pour toi` : 'critères à choisir'}><Icon name="opportunities" size={26} /></DayRing>
+                </ul>
+            </section>
 
-                                return <li key={course.id} className={course.cancelled ? 'is-cancelled' : ended ? 'is-past' : course === nextCourse ? 'is-current' : ''}>
-                                    <span className="row-time">{time.format(new Date(course.startsAt))}</span>
-                                    <span className="row-main"><span className="row-title">{course.title}</span><span className="item-meta">jusqu’à {time.format(new Date(course.endsAt))}{course.checkIn?.status === 'completed' && ' · retour renseigné'}</span></span>
-                                    <ProvenanceBadge source={course.provenance} />
-                                    {course.cancelled ? <span className="pill pill-danger">Annulé</span> : ended && !canCheckIn && <span className="row-side">Terminé</span>}
-                                    {canCheckIn && <Link className="text-link" href={`/planning/occurrences/${course.id}/retour`}>Renseigner mon retour</Link>}
-                                </li>;
-                            })}</ul>}
+            <div className="home-grid">
+                <div className="home-main">
+                    <section className="next-course" aria-labelledby="next-course-title">
+                        <div>
+                            <div className="next-course-top"><span className="section-kicker">{nextCourse ? 'Prochain cours' : 'Aujourd’hui'}</span>{nextCourse && <span className="pill pill-accent">{nextLabel}</span>}</div>
+                            <h2 id="next-course-title">{nextCourse ? nextCourse.title : today.length > 0 ? 'Plus de cours aujourd’hui' : 'Pas de cours aujourd’hui'}</h2>
+                            {nextCourse && <p className="next-course-meta">{time.format(new Date(nextCourse.startsAt))} – {time.format(new Date(nextCourse.endsAt))}{nextCourse.room && ` · ${nextCourse.room}`}{nextCourse.provenance === 'institutional' && ' · Établissement'}</p>}
+                        </div>
+                        <div className="next-course-actions"><Link className="button" href="/planning">Voir le planning</Link><button type="button" className="button button-outline" onClick={() => openQuickAdd('task')}>+ Tâche</button></div>
                     </section>
-                </div>
 
-                <div className="dashboard-column">
-                    {nextAction && <div className="highlight-card">
-                        <span className="section-kicker">Votre prochaine action</span>
-                        <p>{nextAction.text}</p>
-                        <div className="form-actions" style={{ marginTop: 0 }}><Link className="button button-primary" href={nextAction.href}>{nextAction.action}</Link></div>
-                    </div>}
-                    <section className="surface" aria-labelledby="tasks-title">
-                        <div className="card-heading"><h2 id="tasks-title">Tâches proches</h2>{upcomingTasks.length > 0 && <Link className="text-link" href="/taches">Toutes mes tâches</Link>}</div>
-                        {upcomingTasks.length === 0 ? <StateMessage kind="empty" title="Aucune tâche ouverte" action={<Link className="text-link" href="/taches">Ajouter une tâche</Link>} />
-                            : <ul className="tile-list">{upcomingTasks.map((task) => {
-                                const due = task.dueAt ? new Date(task.dueAt) : null;
-                                const near = due !== null && due.getTime() <= soon;
+                    <section className="home-section" aria-labelledby="tasks-title">
+                        <div className="card-heading"><h2 id="tasks-title">À faire</h2>{upcomingTasks.length > 0 && <Link className="text-link" href="/taches">Tout voir</Link>}</div>
+                        {upcomingTasks.length > 0 && <ul className="todo-list">{upcomingTasks.map((task) => {
+                            const due = task.dueAt ? new Date(task.dueAt) : null;
+                            const done = closing.includes(task.id);
 
-                                return <li key={task.id}>
-                                    <span className={`dot ${task.late ? 'dot-danger' : near ? 'dot-warning' : ''}`} aria-hidden="true" />
-                                    <span className="row-main"><span className="row-title">{task.title}</span><span className="item-meta">{due ? `Échéance ${dateTime.format(due)}` : 'Sans échéance'}</span></span>
-                                    <ProvenanceBadge source={task.collective ? 'institutional' : 'personal'} />
-                                    {task.late ? <span className="pill pill-danger">En retard</span> : due && <span className={near ? 'pill pill-warning' : 'row-side'}>{shortDate.format(due)}</span>}
-                                </li>;
-                            })}</ul>}
+                            return <li key={task.id} className={done ? 'is-done' : ''}>
+                                <button type="button" className="todo-check" aria-pressed={done} disabled={done} aria-label={`Marquer « ${task.title} » comme fait`} onClick={() => finish(task)}><Icon name="check" strokeWidth={3} /></button>
+                                <div className="todo-main">
+                                    <span className="todo-title">{task.title}</span>
+                                    <div className="todo-meta">
+                                        {task.late ? <span className="pill pill-danger">En retard</span> : due === null ? <span className="pill pill-quiet">Sans date</span>
+                                            : dueToday(task) ? <span className="pill pill-warm">Aujourd’hui {time.format(due)}</span> : <span className="pill pill-info">{shortDate.format(due)}</span>}
+                                        {task.collective && <ProvenanceBadge source="institutional" />}
+                                        <span>{[task.subject, task.priority === 'high' ? 'priorité haute' : null].filter(Boolean).join(' · ')}</span>
+                                    </div>
+                                </div>
+                            </li>;
+                        })}</ul>}
+                        <button type="button" className="add-row" onClick={() => openQuickAdd('task')}>+ Ajouter une tâche</button>
                     </section>
-                    {pendingCheckIns.length > 0 && <section className="surface" aria-labelledby="checkins-title">
-                        <div className="card-heading"><h2 id="checkins-title">Retours à renseigner</h2><Link className="text-link" href="/retours">Tous mes retours</Link></div>
-                        <p className="section-description">Ces cours sont terminés : notez en une minute ce qu’il vous reste à faire. C’est privé et facultatif.</p>
-                        <ul className="tile-list">{pendingCheckIns.map((course) => <li key={course.occurrenceId}>
-                            <span className="row-main"><span className="row-title">{course.title}</span><span className="item-meta">Terminé le {dateTime.format(new Date(course.endsAt))}{course.deferred && ' · reporté à plus tard'}</span></span>
-                            <ProvenanceBadge source={course.provenance} />
-                            <Link className="button button-secondary" href={`/planning/occurrences/${course.occurrenceId}/retour`}>Renseigner mon retour</Link>
+
+                    {pendingCheckIns.length > 0 && <section className="home-section" aria-labelledby="checkins-title">
+                        <div className="card-heading"><h2 id="checkins-title">Après tes cours</h2><Link className="text-link" href="/retours">Tout voir</Link></div>
+                        <ul className="todo-list">{pendingCheckIns.map((course) => <li key={course.occurrenceId}>
+                            <div className="todo-main"><span className="todo-title">{course.title}</span><div className="todo-meta"><span>Terminé le {dateTime.format(new Date(course.endsAt))}{course.deferred && ' · reporté'}</span></div></div>
+                            <Link className="text-link" href={`/planning/occurrences/${course.occurrenceId}/retour`}>Noter ce qu’il reste à faire</Link>
                         </li>)}</ul>
+                    </section>}
+
+                    {today.length > 1 && <section className="surface" aria-labelledby="today-title">
+                        <div className="card-heading"><h2 id="today-title">Tes cours aujourd’hui</h2></div>
+                        <ul className="row-list">{today.map((course) => {
+                            const ended = new Date(course.endsAt).getTime() <= now;
+
+                            return <li key={course.id} className={course.cancelled ? 'is-cancelled' : ended ? 'is-past' : ''}>
+                                <span className="row-time">{time.format(new Date(course.startsAt))}</span>
+                                <span className="row-main"><span className="row-title">{course.title}</span><span className="item-meta">jusqu’à {time.format(new Date(course.endsAt))}{course.room && ` · ${course.room}`}</span></span>
+                                {course.provenance === 'institutional' && <ProvenanceBadge source="institutional" />}
+                                {course.cancelled ? <span className="pill pill-danger">Annulé</span> : ended && <span className="row-side">Terminé</span>}
+                            </li>;
+                        })}</ul>
                     </section>}
                 </div>
 
-                <div className="dashboard-column">
-                    <section className="surface" aria-labelledby="grades-title">
-                        <div className="card-heading"><h2 id="grades-title">Notes et moyennes</h2>{grades.length > 0 && <Link className="text-link" href="/notes">Détail et provenance des notes</Link>}</div>
-                        {grades.length === 0 ? <StateMessage kind="empty" title="Aucune note pour la période en cours" action={<Link className="text-link" href="/notes">Ouvrir mes notes</Link>}>Aucune moyenne n’est affichée tant qu’aucune note n’existe.</StateMessage>
-                            : <ul className="tile-list">{grades.map((view) => <li key={view.label}>
-                                <span className="row-main">
-                                    <span className="row-title">{view.label} <span className="item-meta">· {view.period}</span></span>
-                                    {view.average !== null
-                                        ? <span className="stat-line"><span className="item-meta">Moyenne indicative :</span><strong className="stat-value">{view.average}</strong><span className="item-meta">/ 20</span></span>
-                                        : <span className="item-meta">Pas encore de moyenne calculable</span>}
-                                    <span className="item-meta">Couverture : {view.counted} matière(s) comptée(s) sur {view.total}.{view.missingCoefficients > 0 && ` ${view.missingCoefficients} matière(s) sans coefficient : la moyenne générale ne les compte pas.`} Une note absente ne vaut jamais zéro.</span>
-                                </span>
-                                <ProvenanceBadge source={view.provenance} />
-                            </li>)}</ul>}
-                    </section>
-                    <section className="surface" aria-labelledby="opportunities-title">
-                        <div className="card-heading"><h2 id="opportunities-title">Opportunités</h2>{opportunities.items.length > 0 && <Link className="text-link" href="/opportunites">Tout le catalogue</Link>}</div>
-                        {!opportunities.hasProfile && <StateMessage title="Aucun critère déclaré" action={<span className="form-actions"><Link className="button button-secondary" href="/opportunites/profil">Déclarer mes critères</Link><Link className="text-link" href="/opportunites">Parcourir le catalogue</Link></span>}>Campus ne propose ici que des fiches compatibles avec ce que vous avez déclaré (niveau, domaines, langues, pays). Sans critères, rien n’est suggéré à votre place.</StateMessage>}
-                        {opportunities.hasProfile && opportunities.items.length === 0 && <StateMessage kind="empty" title="Aucune fiche ouverte n’est compatible avec vos critères pour l’instant" action={<Link className="text-link" href="/opportunites">Parcourir le catalogue</Link>} />}
+                <aside className="home-aside" aria-label="Notes et opportunités">
+                    {grades.length === 0 && <section className="average-card" aria-labelledby="grades-title">
+                        <div className="average-top"><div><h2 id="grades-title" className="section-kicker">Ta moyenne</h2><p className="item-meta">Ajoute ta première note : ta moyenne se calcule toute seule.</p></div></div>
+                        <button type="button" className="add-row" onClick={() => openQuickAdd('grade')}>+ Ajouter une note</button>
+                    </section>}
+                    {grades.map((view, index) => <section className="average-card" key={view.label} aria-labelledby={`grades-title-${index}`}>
+                        <div className="average-top">
+                            <div><h2 id={`grades-title-${index}`} className="section-kicker">{view.provenance === 'personal' ? 'Ta moyenne' : view.label} · {view.period}</h2>
+                                {view.average !== null ? <span className="average-value">{view.average}<small> / 20</small></span> : <span className="item-meta">Pas encore de moyenne calculable</span>}</div>
+                            <Link className="text-link" href="/notes">Détail</Link>
+                        </div>
+                        {view.subjects.length > 0 && <ul className="average-bars">{view.subjects.slice(0, 4).map((subject) => <li key={subject.name}>
+                            <div><span>{subject.name}</span><strong>{subject.average}</strong></div>
+                            <div className="progress-track" aria-hidden="true"><div className="progress-bar" style={{ width: `${Math.max(0, Math.min(100, Number(subject.average.replace(',', '.')) * 5))}%` }} /></div>
+                        </li>)}</ul>}
+                        <p className="item-meta">Moyenne indicative : {view.counted} matière(s) comptée(s) sur {view.total}.{view.missingCoefficients > 0 && ` ${view.missingCoefficients} sans coefficient.`}</p>
+                    </section>)}
+
+                    <section className="tinted-card" aria-labelledby="opportunities-title">
+                        <h2 id="opportunities-title">Bourses, concours, stages</h2>
+                        {!opportunities.hasProfile && <><p>Dis-nous ton niveau et tes domaines : on te montre seulement ce qui te correspond.</p>
+                            <Link className="button button-primary" href="/opportunites/profil">Choisir mes critères</Link><Link className="text-link" href="/opportunites">Voir tout le catalogue</Link></>}
+                        {opportunities.hasProfile && opportunities.items.length === 0 && <><p>Rien ne correspond à tes critères pour l’instant.</p><Link className="text-link" href="/opportunites">Voir tout le catalogue</Link></>}
                         {opportunities.items.length > 0 && <>
-                            <ul className="tile-list">{opportunities.items.map((item) => <li key={item.id}>
-                                <span className="row-main"><span className="row-title">{item.title}</span><span className="item-meta">{item.categoryLabel} · {item.organizer} · date limite : {item.deadline.text}</span><span className="item-meta">{item.matchLabel}</span></span>
-                                <Link className="text-link" href={`/opportunites/${item.id}`}>Ouvrir la fiche</Link>
+                            <ul>{opportunities.items.map((item) => <li key={item.id}>
+                                <Link className="text-link" href={`/opportunites/${item.id}`}>{item.title}</Link>
+                                <span className="item-meta">{item.categoryLabel} · {item.organizer} · date limite : {item.deadline.text}</span><span className="item-meta">{item.matchLabel}</span>
                             </li>)}</ul>
-                            <p className="item-meta" style={{ marginTop: '.75rem' }}>{opportunities.disclaimer}</p>
-                            <div className="inline-links"><Link className="text-link" href="/opportunites/suivi">Mes favoris et démarches</Link></div>
+                            <p className="item-meta">{opportunities.disclaimer}</p>
+                            <Link className="text-link" href="/opportunites">Voir tout le catalogue</Link>
                         </>}
                     </section>
-                </div>
+                </aside>
             </div>
-
-            <div className="inline-links"><Link className="text-link" href="/profil">Profil et fuseau</Link><Link className="text-link" href="/notifications/preferences">Préférences de notification</Link><Link className="text-link" href="/hors-ligne">Hors connexion</Link><Link className="text-link" href="/confidentialite/parametres">Confidentialité et données</Link><Link className="text-link" href="/aide">Aide et support</Link></div>
         </CampusLayout>
     );
 }

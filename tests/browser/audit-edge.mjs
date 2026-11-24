@@ -47,6 +47,9 @@ function stop(child) {
 // que la politique de contenu refuse à juste titre et qui n'existe pas hors du poste de développement.
 // Fonctions exécutées dans la page.
 const PRELUDE = `
+// Les champs facultatifs sont repliés à l'écran : le script les déplie avant chaque geste, comme une personne qui ouvre « Plus d'options ».
+if (document.querySelector('.task-toggle[aria-expanded="false"]')) { document.querySelectorAll('.task-toggle[aria-expanded="false"]').forEach((row) => row.click()); await new Promise((resolve) => setTimeout(resolve, 200)); }
+document.querySelectorAll('details.more-options:not([open])').forEach((block) => { block.open = true; });
 const norm = (s) => (s || '').replace(/\\s+/g, ' ').trim();
 const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
 const setValue = (el, value) => { const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : el instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, value); el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); };

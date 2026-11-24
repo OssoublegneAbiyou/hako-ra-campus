@@ -3,6 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { start } from '../offline/runtime';
 import { reconcile } from '../offline/store';
 import { Icon } from '../components/Icon';
+import { WeekRelief } from '../components/WeekRelief';
 import { StateMessage } from '../components/ui/Feedback';
 import type { CampusProps } from '../types';
 
@@ -18,19 +19,17 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         void reconcile(accountKey);
     }, [accountKey]);
     return (
-        <div className="auth-shell">
+        <div className="auth-shell theme-night">
             <a className="skip-link" href="#contenu">Aller au contenu</a>
+            <div className="night-aurora" aria-hidden="true"><i /><i /></div>
             <aside className="auth-aside">
-                <Link href="/" className="auth-brand" aria-label="HAKO-RA Campus, accueil"><span className="brand-mark" aria-hidden="true"><Icon name="star" size={24} /></span><span>HAKO-RA Campus</span></Link>
+                <Link href="/" className="auth-brand" aria-label="HAKO-RA Campus, accueil"><span className="brand-mark" aria-hidden="true"><Icon name="planning" size={22} strokeWidth={2.4} /></span><span>HAKO-RA Campus</span></Link>
                 <div className="auth-pitch">
-                    <p className="auth-tagline">Organisez vos études, un pas après l’autre.</p>
-                    <p>Planning, tâches, notes et opportunités vérifiées au même endroit, sur votre ordinateur comme sur votre téléphone.</p>
+                    <span className="night-eyebrow">Planning, tâches et notes</span>
+                    <p className="auth-tagline">Ta semaine prend <em>du relief.</em></p>
+                    <p className="night-lead">Tes cours, tes tâches et tes notes au même endroit, sur ordinateur comme sur téléphone.</p>
                 </div>
-                <ul className="auth-tiles">
-                    <li><strong>Planning</strong><span>Personnel et d’établissement</span></li>
-                    <li><strong>Retour après cours</strong><span>Privé, en une minute</span></li>
-                    <li><strong>Tâches</strong><span>Devoirs découpés en étapes</span></li>
-                </ul>
+                <div className="auth-relief"><WeekRelief compact /></div>
             </aside>
             <main id="contenu" tabIndex={-1} className="auth-main">
                 <div className="auth-panel">

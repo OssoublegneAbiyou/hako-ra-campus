@@ -94,6 +94,39 @@ class AcademicAdministrationTest extends TestCase
         $this->get('/etudes/referentiels?kind=subjects')->assertInertia(fn (Assert $p) => $p->has('rows', 1));
     }
 
+    public function test_a_subject_code_is_generated_from_its_name_and_stays_unique_in_its_perimeter(): void
+    {
+        $owner = $this->user('apprenant-double');
+        $create = fn (string $name) => $this->login('apprenant-double', false)->post('/etudes/referentiels/subjects', ['name' => $name])->assertSessionHasNoErrors();
+        $code = fn (string $name): string => PersonalSubject::where('owner_id', $owner->id)->where('name', $name)->latest('id')->firstOrFail()->code;
+        $create('Mathématiques');
+        $this->assertSame('MATH', $code('Mathématiques'));
+        $create('Histoire-géographie');
+        $this->assertSame('HIS-GEO', $code('Histoire-géographie'));
+        $create('Sciences de la vie et de la Terre');
+        $this->assertSame('SCI-VIE-TER', $code('Sciences de la vie et de la Terre'));
+        // Même début de nom dans le même espace : un numéro distingue les codes, sans refus.
+        $create('Mathématiques appliquées');
+        $create('Maths');
+        $this->assertSame('MATH-2', $code('Maths'));
+        // Un autre compte reçoit le même code de son côté : les espaces ne se croisent pas.
+        $this->login('independant', false)->post('/etudes/referentiels/subjects', ['name' => 'Mathématiques'])->assertSessionHasNoErrors();
+        $this->assertSame('MATH', PersonalSubject::where('owner_id', $this->user('independant')->id)->firstOrFail()->code);
+        // Matière d'établissement : même règle, dans le périmètre de l'établissement.
+        $this->login('admin-a')->post('/etudes/referentiels/subjects', ['name' => 'Philosophie fictive'])->assertSessionHasNoErrors();
+        $this->assertSame('PHI-FIC', Subject::where('name', 'Philosophie fictive')->firstOrFail()->code);
+        // Le nom reste exigé ; un code saisi est respecté ; les autres référentiels reçoivent aussi leur code.
+        $this->login('apprenant-double', false)->post('/etudes/referentiels/subjects', ['name' => ''])->assertSessionHasErrors('name');
+        $this->post('/etudes/referentiels/subjects', ['code' => 'PERSO', 'name' => 'Matière au code choisi'])->assertSessionHasNoErrors();
+        $this->assertSame('PERSO', $code('Matière au code choisi'));
+        $this->login('admin-a')->post('/etudes/referentiels/types', ['name' => 'Trimestre'])->assertSessionHasNoErrors();
+        $this->assertSame('TRIM', AcademicPeriodType::where('name', 'Trimestre')->firstOrFail()->code);
+        $this->post('/etudes/referentiels/groups', ['name' => 'Terminale S 2'])->assertSessionHasNoErrors();
+        $this->assertSame('TER-S-2', Group::where('name', 'Terminale S 2')->firstOrFail()->code);
+        // Modifier une référence exige toujours son code : il n'est jamais régénéré en silence.
+        $this->patch('/etudes/referentiels/groups/'.Group::where('name', 'Terminale S 2')->firstOrFail()->id, ['name' => 'Terminale S 3', 'lock_version' => 1])->assertSessionHasErrors('code');
+    }
+
     public function test_period_overlap_parent_and_types_are_scoped(): void
     {
         $this->login('admin-a')->post('/etudes/referentiels/types', $this->payload('SEM'))->assertSessionHasNoErrors();
@@ -245,7 +278,7 @@ class AcademicAdministrationTest extends TestCase
     public function test_json_errors_have_stable_codes_french_messages_and_no_foreign_resource(): void
     {
         $this->getJson('/etudes/referentiels')->assertUnauthorized()->assertJsonPath('code', 'SESSION_ABSENT')->assertJsonStructure(['message', 'errors', 'request_id'])->assertHeader('X-Request-ID');
-        $this->login('admin-a')->postJson('/etudes/referentiels/groups', [])->assertUnprocessable()->assertJsonPath('code', 'VALIDATION_FAILED')->assertJsonStructure(['errors' => ['name', 'code']]);
+        $this->login('admin-a')->postJson('/etudes/referentiels/groups', [])->assertUnprocessable()->assertJsonPath('code', 'VALIDATION_FAILED')->assertJsonStructure(['errors' => ['name']])->assertJsonMissingPath('errors.code');
         $foreign = $this->patchJson('/etudes/referentiels/groups/'.$this->group('B-G1')->id, ['lock_version' => 1]);
         $foreign->assertNotFound()->assertJsonPath('code', 'RESOURCE_NOT_FOUND');
         $unknown = $this->patchJson('/etudes/referentiels/groups/999999999', ['lock_version' => 1]);

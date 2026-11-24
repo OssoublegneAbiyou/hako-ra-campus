@@ -53,6 +53,22 @@ class NotificationController extends Controller
         return redirect()->to(str_starts_with($found->url, '/') && ! str_starts_with($found->url, '//') ? $found->url : '/notifications');
     }
 
+    /**
+     * Notifications arrivées pour le compte connecté depuis la dernière consultation de cet onglet, pour les afficher en fenêtre surgissante.
+     * Sans « apres », seules celles des quinze dernières minutes sont proposées : rien d'ancien ne surgit à l'ouverture.
+     */
+    public function recent(Request $r): JsonResponse
+    {
+        $data = $r->validate(['apres' => 'sometimes|integer|min:0']);
+        $query = UserNotification::query()->where('user_id', $r->user()->id)->where('status', 'delivered')->whereNull('read_at');
+        $items = (clone $query)->when(isset($data['apres']), fn ($builder) => $builder->where('id', '>', (int) $data['apres']), fn ($builder) => $builder->where('delivered_at', '>=', now()->subMinutes(15)))
+            ->orderBy('id')->limit(5)->get(['id', 'title', 'body', 'url'])
+            ->map(fn (UserNotification $notification): array => ['id' => $notification->id, 'title' => $notification->title, 'body' => $notification->body])->all();
+
+        return response()->json(['items' => $items, 'latest' => (int) UserNotification::query()->where('user_id', $r->user()->id)->max('id'), 'unread' => $query->count()],
+            200, ['Cache-Control' => 'no-store, private']);
+    }
+
     public function readAll(Request $r): RedirectResponse
     {
         UserNotification::query()->where('user_id', $r->user()->id)->where('status', 'delivered')->whereNull('read_at')->update(['read_at' => now()]);
@@ -70,7 +86,7 @@ class NotificationController extends Controller
             'preference' => [
                 'version' => $preference->lock_version, 'timezone' => $preferences->timezone($user), 'quietStart' => $time($preference->quiet_start), 'quietEnd' => $time($preference->quiet_end),
                 'courseEndDelay' => $preference->course_end_delay_minutes, 'taskDayBefore' => $preference->task_day_before, 'taskSameDay' => $preference->task_same_day,
-                'taskReminderTime' => $time($preference->task_reminder_time), 'digestEnabled' => $preference->digest_enabled, 'digestTime' => $time($preference->digest_time),
+                'taskReminderTime' => $time($preference->task_reminder_time), 'taskBeforeMinutes' => (int) $preference->task_before_minutes, 'digestEnabled' => $preference->digest_enabled, 'digestTime' => $time($preference->digest_time),
                 'favoriteFirstDays' => (int) $preference->favorite_first_days, 'favoriteSecondDays' => (int) $preference->favorite_second_days,
             ],
             'categories' => $preferences->categories()->map(fn (array $category, string $key): array => ['key' => $key, ...$category, ...$preferences->category($user, $key)])->values()->all(),
@@ -92,7 +108,7 @@ class NotificationController extends Controller
             'expected_version' => 'required|integer|min:0', 'timezone' => 'required|timezone:all',
             'quiet_start' => 'nullable|date_format:H:i|required_with:quiet_end', 'quiet_end' => 'nullable|date_format:H:i|required_with:quiet_start|different:quiet_start',
             'course_end_delay' => 'required|integer|min:0|max:120', 'task_day_before' => 'required|boolean', 'task_same_day' => 'required|boolean',
-            'task_reminder_time' => 'required|date_format:H:i', 'digest_enabled' => 'required|boolean', 'digest_time' => 'required|date_format:H:i',
+            'task_reminder_time' => 'required|date_format:H:i', 'task_before_minutes' => 'sometimes|integer|min:0|max:1440', 'digest_enabled' => 'required|boolean', 'digest_time' => 'required|date_format:H:i',
             'favorite_first_days' => 'sometimes|integer|min:0|max:30', 'favorite_second_days' => 'sometimes|integer|min:0|max:30',
             'categories' => 'present|array', 'categories.*' => 'array:enabled,email,push', 'categories.*.enabled' => 'required|boolean', 'categories.*.email' => 'required|boolean', 'categories.*.push' => 'required|boolean',
         ]);
@@ -107,7 +123,7 @@ class NotificationController extends Controller
             }
             $preference->fill([
                 'timezone' => $data['timezone'], 'quiet_start' => $data['quiet_start'] ?? null, 'quiet_end' => $data['quiet_end'] ?? null, 'course_end_delay_minutes' => (int) $data['course_end_delay'],
-                'task_day_before' => (bool) $data['task_day_before'], 'task_same_day' => (bool) $data['task_same_day'], 'task_reminder_time' => $data['task_reminder_time'],
+                'task_day_before' => (bool) $data['task_day_before'], 'task_same_day' => (bool) $data['task_same_day'], 'task_reminder_time' => $data['task_reminder_time'], 'task_before_minutes' => (int) ($data['task_before_minutes'] ?? $preference->task_before_minutes),
                 'digest_enabled' => (bool) $data['digest_enabled'], 'digest_time' => $data['digest_time'],
                 'favorite_first_days' => (int) ($data['favorite_first_days'] ?? $preference->favorite_first_days), 'favorite_second_days' => (int) ($data['favorite_second_days'] ?? $preference->favorite_second_days),
                 'categories' => collect($data['categories'])->map(fn (array $category): array => ['enabled' => (bool) $category['enabled'], 'email' => (bool) $category['email'], 'push' => (bool) $category['push']])->all(),

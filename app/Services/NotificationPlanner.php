@@ -83,7 +83,7 @@ class NotificationPlanner
                 $this->store->cancel((int) $payload['user_id'], ['course.checkin'], $payload['occurrence_id'], 'settled');
                 break;
             case 'task.settled':
-                $this->store->cancel((int) $payload['user_id'], ['task.due.d1', 'task.due.d0'], $payload['task_id'], 'settled');
+                $this->store->cancel((int) $payload['user_id'], ['task.due.d1', 'task.due.d0', 'task.due.soon'], $payload['task_id'], 'settled');
                 break;
             case 'schedule.occurrence.changed':
                 if ($stale || ! ($payload['affects_future'] ?? false)) {
@@ -99,7 +99,7 @@ class NotificationPlanner
                 break;
             case 'homework.published': case 'homework.updated': case 'homework.withdrawn': case 'homework.restored':
                 if ($event->type === 'homework.withdrawn') {
-                    $this->store->cancel(null, ['task.due.d1', 'task.due.d0'], $payload['task_id'], 'withdrawn');
+                    $this->store->cancel(null, ['task.due.d1', 'task.due.d0', 'task.due.soon'], $payload['task_id'], 'withdrawn');
                 }
                 if ($stale) {
                     break;
@@ -189,7 +189,7 @@ class NotificationPlanner
     }
 
     /**
-     * Rappels d'échéance d'une tâche : la veille et le jour même, à l'heure et dans le fuseau choisis par la personne.
+     * Rappels d'échéance d'une tâche : la veille et le jour même, à l'heure et dans le fuseau choisis par la personne, puis peu avant l'heure de la tâche.
      */
     public function planTaskReminders(CarbonImmutable $now): int
     {
@@ -209,7 +209,10 @@ class NotificationPlanner
                         continue;
                     }
                     $local = $task->due_at->setTimezone($this->preferences->timezone($userId))->setTimeFromTimeString($preference->task_reminder_time);
-                    foreach (['d1' => [$preference->task_day_before, $local->subDay(), 'Une tâche arrive à échéance demain'], 'd0' => [$preference->task_same_day, $local, 'Une tâche arrive à échéance aujourd’hui']] as $kind => [$wanted, $instant, $title]) {
+                    $before = (int) $preference->task_before_minutes;
+                    $soon = $before >= 60 && $before % 60 === 0 ? 'Une tâche est à faire dans '.($before / 60).' h' : 'Une tâche est à faire dans '.$before.' min';
+                    foreach (['d1' => [$preference->task_day_before, $local->subDay(), 'Une tâche arrive à échéance demain'], 'd0' => [$preference->task_same_day, $local, 'Une tâche arrive à échéance aujourd’hui'],
+                        'soon' => [$before > 0, $task->due_at->toImmutable()->subMinutes($before), $soon]] as $kind => [$wanted, $instant, $title]) {
                         $instant = $instant->utc();
                         // Le rappel doit tomber dans la fenêtre reprise, avant l'échéance, et après la création de la tâche.
                         if (! $wanted || $instant->lessThanOrEqualTo($from) || $instant->greaterThan($now) || $instant->greaterThanOrEqualTo($task->due_at) || $instant->lessThan($task->created_at)) {

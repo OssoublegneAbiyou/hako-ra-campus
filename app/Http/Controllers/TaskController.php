@@ -206,7 +206,15 @@ class TaskController extends Controller
                 'deleted' => $task instanceof Task && $task->deleted_at !== null], 200, ['Cache-Control' => 'no-store, private']);
         }
 
-        return redirect()->route('tasks')->with('status', $message);
+        // Depuis l'accueil (ajout rapide, tâche cochée), la personne y reste ; sinon, retour à la liste des tâches.
+        return $this->cameFromHome($r) ? redirect()->route('home')->with('status', $message) : redirect()->route('tasks')->with('status', $message);
+    }
+
+    private function cameFromHome(Request $r): bool
+    {
+        $referer = (string) $r->headers->get('referer');
+
+        return $referer !== '' && parse_url($referer, PHP_URL_HOST) === $r->getHost() && rtrim((string) parse_url($referer, PHP_URL_PATH), '/') === '';
     }
 
     private function stepAnswer(Request $r, TaskStep $step, string $message): RedirectResponse|JsonResponse

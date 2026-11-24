@@ -44,6 +44,9 @@ function stop(child) {
 
 // Fonctions utilisées dans la page : elles manipulent l'interface comme une personne (champ désigné par son libellé, bouton par son texte).
 const PRELUDE = `
+// Les champs facultatifs sont repliés à l'écran : le script les déplie avant chaque geste, comme une personne qui ouvre « Plus d'options ».
+if (document.querySelector('.task-toggle[aria-expanded="false"]')) { document.querySelectorAll('.task-toggle[aria-expanded="false"]').forEach((row) => row.click()); await new Promise((resolve) => setTimeout(resolve, 200)); }
+document.querySelectorAll('details.more-options:not([open])').forEach((block) => { block.open = true; });
 const norm = (s) => (s || '').replace(/\\s+/g, ' ').trim();
 const visible = (el) => el.getClientRects().length > 0;
 const scope = (root) => typeof root === 'string' ? document.querySelector(root) : (root || document);
@@ -168,7 +171,7 @@ try {
     };
     const useContext = async (label) => {
         await go('/');
-        await evaluate(`const select = document.getElementById('context-select'); const option = [...select.options].find((o) => norm(o.textContent).includes(${JSON.stringify(label)})); if (!option) throw new Error('Contexte introuvable : ' + [...select.options].map((o) => norm(o.textContent)).join(' | ')); setValue(select, option.value); await settle(2500); return true;`);
+        await evaluate(`const chips = [...document.querySelectorAll('.context-chips .chip')]; const chip = chips.find((c) => norm(c.title + ' ' + c.textContent).includes(${JSON.stringify(label)})); if (!chip) throw new Error('Contexte introuvable : ' + chips.map((c) => norm(c.title)).join(' | ')); chip.click(); window.__actions = (window.__actions || 0) + 1; await settle(2500); return true;`);
     };
     // Le compte connecté quitte l'établissement fictif A depuis son profil : confirmation, puis mot de passe redemandé une fois.
     const leaveA = async () => {
@@ -211,7 +214,7 @@ try {
         const where = await signIn('independant');
         if (!where.endsWith('|true')) return false;
         await go('/opportunites');
-        await evaluate(`fill('Titre, organisateur ou domaine', ${JSON.stringify(TOKEN)}); press('Appliquer'); await settle(3000); return true;`);
+        await evaluate(`fill('Rechercher', ${JSON.stringify(TOKEN)}); press('Rechercher', 'form[role=search]'); await settle(3000); return true;`);
         const empty = await evaluate(`return text().includes('Aucune fiche ne correspond à ces filtres');`);
         await evaluate(`press('Enregistrer cette recherche et être prévenu'); await settle(600); fill('Nom de la recherche (facultatif)', ${JSON.stringify(searchName)}); press('Enregistrer la recherche'); await settle(3000); return true;`);
         await go('/opportunites/alertes');
@@ -226,8 +229,8 @@ try {
         await useContext('Édition du catalogue');
         await go('/administration/catalogue');
         if (!await evaluate(`return document.querySelector('section[aria-labelledby="create-title"] form') !== null;`)) {
-            note('Écran éditeur : ' + await evaluate(`const select = document.getElementById('context-select'); return location.pathname + ' | contextes : ' + (select ? [...select.options].map((o) => norm(o.textContent)).join(' / ') : 'aucun sélecteur') + ' | ' + text().slice(0, 200);`));
-            const picked = await evaluate(`const select = document.getElementById('context-select'); const option = select ? [...select.options].find((o) => /catalogue|éditeur|editeur|plateforme/i.test(o.textContent)) : null; if (!option) return false; setValue(select, option.value); await settle(2500); return true;`);
+            note('Écran éditeur : ' + await evaluate(`const chips = [...document.querySelectorAll('.context-chips .chip')]; return location.pathname + ' | contextes : ' + (chips.length ? chips.map((c) => norm(c.title)).join(' / ') : 'aucune pastille') + ' | ' + text().slice(0, 200);`));
+            const picked = await evaluate(`const chip = [...document.querySelectorAll('.context-chips .chip')].find((c) => /catalogue|éditeur|editeur|plateforme/i.test(c.title)); if (!chip) return false; chip.click(); await settle(2500); return true;`);
             if (!picked) return false;
             await go('/administration/catalogue');
         }
@@ -259,7 +262,7 @@ try {
         if (!editPath) return false;
         await send('Network.clearBrowserCookies');
         await go('/opportunites');
-        await evaluate(`fill('Titre, organisateur ou domaine', ${JSON.stringify(TOKEN)}); press('Appliquer'); await settle(3000); return true;`);
+        await evaluate(`fill('Rechercher', ${JSON.stringify(TOKEN)}); press('Rechercher', 'form[role=search]'); await settle(3000); return true;`);
         listingPath = await evaluate(`const link = [...document.querySelectorAll('a')].find((a) => /^\\/opportunites\\/[0-9a-f-]{36}$/.test(a.getAttribute('href') || '') && a.textContent.includes(${JSON.stringify(TOKEN)})); return link ? link.getAttribute('href') : '';`);
         if (!listingPath) return false;
         await go(listingPath);
@@ -305,13 +308,13 @@ try {
     const subjectName = TAG + ' Matière recette';
     await attempt('Moyenne : 14 sur 20 (coefficient 1) et 36 sur 60 (coefficient 2) affichent 12,67', async () => {
         await go('/etudes/referentiels?kind=subjects');
-        await evaluate(`fill('Code', ${JSON.stringify('R' + RUN)}); fill('Nom', ${JSON.stringify(subjectName)}); byLabel('Code').closest('form').requestSubmit(); await settle(2500); return true;`);
+        await evaluate(`fill('Nom', ${JSON.stringify(subjectName)}); byLabel('Nom').closest('form').requestSubmit(); await settle(2500); return true;`);
         for (const [label, value, scale, weight] of [['Évaluation A', '14', '20', '1'], ['Évaluation B', '36', '60', '2']]) {
             await go('/notes');
             await evaluate(`const form = document.querySelector('section[aria-labelledby="add-title"] form'); fill('Intitulé', ${JSON.stringify(TAG + ' ' + label)}, form); choose('Matière', ${JSON.stringify(subjectName)}, form); fill('Date', '${today}', form); fill('Note', '${value}', form); fill('Barème', '${scale}', form); fill('Coefficient de l’évaluation', '${weight}', form); press('Ajouter la note', form); await settle(3000); return true;`);
         }
         await go('/notes');
-        const block = await evaluate(`const heading = [...document.querySelectorAll('h2, h3')].find((h) => h.textContent.includes(${JSON.stringify(subjectName)})); const section = heading ? heading.closest('section') : null; return section ? norm(section.innerText).slice(0, 260) : '';`);
+        const block = await evaluate(`const heading = [...document.querySelectorAll('h2, h3')].find((h) => h.textContent.includes(${JSON.stringify(subjectName)})); const section = heading ? heading.closest('section') : null; if (section) { section.querySelector('button.list-row')?.click(); await settle(400); } return section ? norm(section.innerText).slice(0, 260) : '';`);
         note('Bloc de la matière : ' + block);
 
         return block.includes('12,67') ? 'moyenne de la matière affichée : 12,67' : false;

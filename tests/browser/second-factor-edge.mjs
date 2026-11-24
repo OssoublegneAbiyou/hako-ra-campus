@@ -44,6 +44,9 @@ function stop(child) {
 
 // Fonctions utilisées dans la page : elles manipulent l'interface comme une personne (champ désigné par son libellé, bouton par son texte).
 const PRELUDE = `
+// Les champs facultatifs sont repliés à l'écran : le script les déplie avant chaque geste, comme une personne qui ouvre « Plus d'options ».
+if (document.querySelector('.task-toggle[aria-expanded="false"]')) { document.querySelectorAll('.task-toggle[aria-expanded="false"]').forEach((row) => row.click()); await new Promise((resolve) => setTimeout(resolve, 200)); }
+document.querySelectorAll('details.more-options:not([open])').forEach((block) => { block.open = true; });
 const norm = (s) => (s || '').replace(/\\s+/g, ' ').trim();
 const visible = (el) => el.getClientRects().length > 0;
 const scope = (root) => typeof root === 'string' ? document.querySelector(root) : (root || document);
@@ -168,7 +171,7 @@ try {
     };
     const useContext = async (label) => {
         await go('/');
-        await evaluate(`const select = document.getElementById('context-select'); const option = [...select.options].find((o) => norm(o.textContent).includes(${JSON.stringify(label)})); if (!option) throw new Error('Contexte introuvable : ' + [...select.options].map((o) => norm(o.textContent)).join(' | ')); setValue(select, option.value); await settle(2500); return true;`);
+        await evaluate(`const chips = [...document.querySelectorAll('.context-chips .chip')]; const chip = chips.find((c) => norm(c.title + ' ' + c.textContent).includes(${JSON.stringify(label)})); if (!chip) throw new Error('Contexte introuvable : ' + chips.map((c) => norm(c.title)).join(' | ')); chip.click(); window.__actions = (window.__actions || 0) + 1; await settle(2500); return true;`);
     };
     // Le compte connecté quitte l'établissement fictif A depuis son profil : confirmation, puis mot de passe redemandé une fois.
     const leaveA = async () => {
@@ -248,7 +251,7 @@ try {
         await signIn('admin-a');
         const first = await evaluate(`return location.pathname;`);
         await go('/administration/etablissement');
-        const second = await evaluate(`return [location.pathname, document.getElementById('context-select') === null, text().includes('Établissement fictif A')].join('|');`);
+        const second = await evaluate(`return [location.pathname, document.querySelector('.context-chips') === null, text().includes('Établissement fictif A')].join('|');`);
 
         return first === '/second-facteur' && second === '/second-facteur|true|false' ? 'renvoi vers /second-facteur ; aucun contexte ni établissement affiché' : false;
     });

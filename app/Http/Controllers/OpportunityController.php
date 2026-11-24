@@ -39,7 +39,7 @@ class OpportunityController extends Controller
 
         return Inertia::render('Opportunities', [
             'opportunities' => $list->getCollection()->map(fn (Opportunity $opportunity): array => [
-                ...collect($opportunities->present($opportunity))->only(['id', 'categoryLabel', 'title', 'organizer', 'campaign', 'countryLabels', 'modality', 'funding', 'fees', 'fields', 'deadline', 'verifiedAt', 'availability'])->all(),
+                ...collect($opportunities->present($opportunity))->only(['id', 'category', 'categoryLabel', 'title', 'organizer', 'campaign', 'sourceHost', 'countryLabels', 'modality', 'funding', 'fees', 'fields', 'deadline', 'verifiedAt', 'availability'])->all(),
                 'match' => $profile ? collect(OpportunityMatcher::compare($opportunity, $profile))->only(['overall', 'overallLabel'])->all() : null,
             ])->all(),
             'pagination' => ['page' => $list->currentPage(), 'total' => $list->lastPage(), 'previous' => $list->previousPageUrl(), 'next' => $list->nextPageUrl(), 'count' => $list->total()],

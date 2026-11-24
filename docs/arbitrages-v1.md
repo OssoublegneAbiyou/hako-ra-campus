@@ -470,3 +470,30 @@ Anomalies et suites :
 - T210 : la carte de recommandation du design devient « Votre prochaine action », sans calcul ni promesse : elle reprend une tâche en retard ou un retour en attente.
 - A57 ouvert : écrans du design correspondant à des fonctions hors V1 ou absentes (assistant IA, Premium et paiement, documents, difficultés, absences, annonces, graphique de progression, recherche globale, connexion Microsoft). Aucun n'est construit sans décision explicite, fonction par fonction.
 - AN28-01 — Icônes de l'application installée encore à l'ancienne couleur. Assignée : à refaire avec l'identité visuelle définitive (A05).
+
+## Décision du porteur — accueil élève repensé, 24 novembre 2026
+
+- Décision du porteur : appliquer le design « accueil élève repensé » (accueil, ajout rapide, version ordinateur).
+- T211 : la police Outfit (licence OFL) remplace Plus Jakarta Sans, toujours hébergée dans l'application. T207 est remplacée.
+- T212 : l'en-tête à onglets remplace la barre latérale ; les liens d'administration passent dans une bande sous l'en-tête, visible des seuls comptes concernés.
+- T213 : après un changement de contexte, la personne reste sur l'écran d'origine s'il fait partie des écrans communs (accueil, planning, tâches, notes, opportunités, matières, profil). Seul le nom de la route est repris ; l'adresse reçue et ses paramètres ne servent jamais à la redirection. Sinon, retour au profil comme avant.
+- T214 : l'ajout rapide n'ajoute aucune route d'écriture. Il envoie aux routes existantes des tâches, des notes et du planning, avec une clé de demande ; les contrôles de propriétaire et de contexte sont inchangés.
+- T215 : les données de l'ajout rapide (fuseau, matières, période en cours du compte) ne sont chargées qu'à l'ouverture du panneau.
+- T216 : cocher une tâche sur l'accueil passe par la route de modification de la tâche, avec sa version attendue et son contenu inchangé ; pour un devoir d'établissement, par la route d'avancement personnel.
+- T217 : le tutoiement du design est repris sur l'accueil, l'ajout rapide et la navigation. T208 ne vaut plus pour ces écrans.
+- T218 : sur l'accueil, la provenance n'est affichée que pour ce qui vient d'un établissement ; ce qui est personnel ne porte plus d'étiquette.
+- A58 ouvert : passer toute l'application au tutoiement, ou revenir au vouvoiement sur l'accueil. Les deux registres cohabitent en attendant.
+- A59 ouvert : traiter les autres points de la revue d'ergonomie (formulaires de création en haut de page, vocabulaire du planning, formulaire de cours allégé, bruit sur les écrans).
+- AN29-01 — Sur téléphone, l'écran des tâches n'a plus d'entrée dans la navigation basse. À arbitrer avec le porteur.
+- AN29-02 — Le script des parcours place son cours d'essai sur un créneau de quatre minutes calculé sur l'heure : deux lancements à moins de quatre minutes d'écart se chevauchent et échouent. Défaut du script, sans lien avec ce travail.
+
+## Consigne du porteur — facilité, 24 novembre 2026
+
+- Consigne du porteur : « le mot d'ordre c'est facilité » ; alléger tous les processus possibles.
+- T219 : un formulaire de création ne montre que les champs indispensables ; les autres sont repliés sous « Plus d'options » avec une valeur par défaut, et s'ouvrent seuls en cas d'erreur.
+- T220 : le code d'une référence (matière, période, groupe, type, année) est tiré de son nom à la création et reste unique dans son périmètre ; il se modifie ensuite. La modification exige toujours un code : il n'est jamais régénéré en silence.
+- T221 : l'allègement porte sur la saisie et le vocabulaire. Les contrôles de propriétaire, d'appartenance, de permission et de version ne changent pas.
+- T222 : le rappel de la notice de confidentialité est limité à l'accueil et au profil ; il reste non bloquant.
+- A59 partiellement traité : restent la liste des fuseaux, les écrans d'administration et ceux de l'enseignant.
+
+- A60 ouvert (24 novembre 2026) : images des fiches d’opportunité. Options : image déposée par l’équipe éditoriale et servie par Campus (passe par l’antivirus, absent en local) ; image chargée depuis le site source (contraire à la règle « aucun appel sortant » et à la politique de sécurité, à lever explicitement). En attendant, un visuel par catégorie.
